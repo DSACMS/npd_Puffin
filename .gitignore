@@ -192,3 +192,7 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# PuffinPyPipe specific ignores
+# Exclude all data directories anywhere in the directory tree (as mentioned in README.md)
+**/data/
