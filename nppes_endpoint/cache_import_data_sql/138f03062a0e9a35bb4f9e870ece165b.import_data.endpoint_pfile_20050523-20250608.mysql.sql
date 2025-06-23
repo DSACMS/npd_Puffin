@@ -5,26 +5,26 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
 (
-    @NPI, @Endpoint_Type, @Endpoint_Type_Description, @Endpoint, @Affiliation, @Endpoint_Description, @Affiliation_Legal_Business_Name, @Use_Code, @Use_Description, @Other_Use_Description, @Content_Type, @Content_Description, @Other_Content_Description, @Affiliation_Address_Line_One, @Affiliation_Address_Line_Two, @Affiliation_Address_City, @Affiliation_Address_State, @Affiliation_Address_Country, @Affiliation_Address_Postal_Code
+    @npi, @endpoint_type, @endpoint_type_description, @endpoint, @affiliation, @endpoint_description, @affiliation_legal_business_name, @use_code, @use_description, @other_use_description, @content_type, @content_description, @other_content_description, @affiliation_address_line_one, @affiliation_address_line_two, @affiliation_address_city, @affiliation_address_state, @affiliation_address_country, @affiliation_address_postal_code
 )
 SET
-    `NPI` = NULLIF(@NPI, ''),
-    `Endpoint_Type` = NULLIF(@Endpoint_Type, ''),
-    `Endpoint_Type_Description` = NULLIF(@Endpoint_Type_Description, ''),
-    `Endpoint` = NULLIF(@Endpoint, ''),
-    `Affiliation` = NULLIF(@Affiliation, ''),
-    `Endpoint_Description` = NULLIF(@Endpoint_Description, ''),
-    `Affiliation_Legal_Business_Name` = NULLIF(@Affiliation_Legal_Business_Name, ''),
-    `Use_Code` = NULLIF(@Use_Code, ''),
-    `Use_Description` = NULLIF(@Use_Description, ''),
-    `Other_Use_Description` = NULLIF(@Other_Use_Description, ''),
-    `Content_Type` = NULLIF(@Content_Type, ''),
-    `Content_Description` = NULLIF(@Content_Description, ''),
-    `Other_Content_Description` = NULLIF(@Other_Content_Description, ''),
-    `Affiliation_Address_Line_One` = NULLIF(@Affiliation_Address_Line_One, ''),
-    `Affiliation_Address_Line_Two` = NULLIF(@Affiliation_Address_Line_Two, ''),
-    `Affiliation_Address_City` = NULLIF(@Affiliation_Address_City, ''),
-    `Affiliation_Address_State` = NULLIF(@Affiliation_Address_State, ''),
-    `Affiliation_Address_Country` = NULLIF(@Affiliation_Address_Country, ''),
-    `Affiliation_Address_Postal_Code` = NULLIF(@Affiliation_Address_Postal_Code, '')
+    `npi` = NULLIF(@npi, ''),
+    `endpoint_type` = NULLIF(@endpoint_type, ''),
+    `endpoint_type_description` = NULLIF(@endpoint_type_description, ''),
+    `endpoint` = NULLIF(@endpoint, ''),
+    `affiliation` = NULLIF(@affiliation, ''),
+    `endpoint_description` = NULLIF(@endpoint_description, ''),
+    `affiliation_legal_business_name` = NULLIF(@affiliation_legal_business_name, ''),
+    `use_code` = NULLIF(@use_code, ''),
+    `use_description` = NULLIF(@use_description, ''),
+    `other_use_description` = NULLIF(@other_use_description, ''),
+    `content_type` = NULLIF(@content_type, ''),
+    `content_description` = NULLIF(@content_description, ''),
+    `other_content_description` = NULLIF(@other_content_description, ''),
+    `affiliation_address_line_one` = NULLIF(@affiliation_address_line_one, ''),
+    `affiliation_address_line_two` = NULLIF(@affiliation_address_line_two, ''),
+    `affiliation_address_city` = NULLIF(@affiliation_address_city, ''),
+    `affiliation_address_state` = NULLIF(@affiliation_address_state, ''),
+    `affiliation_address_country` = NULLIF(@affiliation_address_country, ''),
+    `affiliation_address_postal_code` = NULLIF(@affiliation_address_postal_code, '')
 ;
