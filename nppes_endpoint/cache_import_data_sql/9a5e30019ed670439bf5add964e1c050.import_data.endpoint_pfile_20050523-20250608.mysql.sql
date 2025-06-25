@@ -5,7 +5,7 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
 (
-    @npi, @endpoint_type, @endpoint_type_description, @endpoint, @affiliation, @endpoint_description, @affiliation_legal_business_name, @use_code, @use_description, @other_use_description, @content_type, @content_description, @other_content_description, @affiliation_address_line_1, @affiliation_address_line_1, @affiliation_address_city, @affiliation_address_state, @affiliation_address_country, @affiliation_address_postal_code
+    @npi, @endpoint_type, @endpoint_type_description, @endpoint, @affiliation, @endpoint_description, @affiliation_legal_business_name, @use_code, @use_description, @other_use_description, @content_type, @content_description, @other_content_description, @affiliation_address_line_one, @affiliation_address_line_two, @affiliation_address_city, @affiliation_address_state, @affiliation_address_country, @affiliation_address_postal_code
 )
 SET
     `npi` = NULLIF(@npi, ''),
@@ -21,8 +21,8 @@ SET
     `content_type` = NULLIF(@content_type, ''),
     `content_description` = NULLIF(@content_description, ''),
     `other_content_description` = NULLIF(@other_content_description, ''),
-    `affiliation_address_line_1` = NULLIF(@affiliation_address_line_1, ''),
-    `affiliation_address_line_1` = NULLIF(@affiliation_address_line_1, ''),
+    `affiliation_address_line_one` = NULLIF(@affiliation_address_line_one, ''),
+    `affiliation_address_line_two` = NULLIF(@affiliation_address_line_two, ''),
     `affiliation_address_city` = NULLIF(@affiliation_address_city, ''),
     `affiliation_address_state` = NULLIF(@affiliation_address_state, ''),
     `affiliation_address_country` = NULLIF(@affiliation_address_country, ''),
