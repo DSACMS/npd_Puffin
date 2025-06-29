@@ -196,3 +196,12 @@ cython_debug/
 # PuffinPyPipe specific ignores
 # Exclude all data directories anywhere in the directory tree (as mentioned in README.md)
 **/data/
+
+# Vim swap files
+*.swp
+*.swo
+*.swn
+*~
+.*.swp
+.*.swo
+.*.swn
