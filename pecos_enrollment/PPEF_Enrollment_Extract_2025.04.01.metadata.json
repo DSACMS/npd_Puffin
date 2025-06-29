@@ -5,6 +5,9 @@
   "file_size_bytes": 309112162,
   "delimiter": ",",
   "quote_character": "\"",
+  "encoding": "iso-8859-1",
+  "encoding_confidence": "high",
+  "encoding_notes": "Detected automatically. Can be manually overridden if needed.",
   "original_column_names": [
     "NPI",
     "PECOS_ASCT_CNTL_ID",
