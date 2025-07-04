@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../plainerflow"
+		},
+		{
+			"path": "../csviper"
+		}
+	],
+	"settings": {}
+}
