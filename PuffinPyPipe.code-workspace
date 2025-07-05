@@ -10,5 +10,7 @@
 			"path": "../csviper"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"python.pythonPath": "./venv/bin/python"
+	}
 }
