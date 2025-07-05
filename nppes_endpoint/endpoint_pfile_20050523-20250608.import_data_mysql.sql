@@ -22,7 +22,7 @@ SET
     `content_description` = NULLIF(@content_description, ''),
     `other_content_description` = NULLIF(@other_content_description, ''),
     `affiliation_address_line_1` = NULLIF(@affiliation_address_line_1, ''),
-    `affiliation_address_line_1` = NULLIF(@affiliation_address_line_1, ''),
+    `affiliation_address_line_2` = NULLIF(@affiliation_address_line_1, ''),
     `affiliation_address_city` = NULLIF(@affiliation_address_city, ''),
     `affiliation_address_state` = NULLIF(@affiliation_address_state, ''),
     `affiliation_address_country` = NULLIF(@affiliation_address_country, ''),

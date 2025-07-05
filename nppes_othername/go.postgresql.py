@@ -41,13 +41,13 @@ def main(env_file_location, csv_file, db_schema_name, table_name, trample):
     """
     try:
         # Load and validate configuration
-        db_config, db_schema_name, table_name, metadata = ImportExecutor.load_and_validate_config(
+        db_config, db_schema_name, table_name, metadata, encoding = ImportExecutor.load_and_validate_config(
             env_file_location, csv_file, db_schema_name, table_name, 'othername_pfile_20050523-20250608.metadata.json'
         )
         
         # Validate CSV header
         expected_columns = metadata['original_column_names']
-        ImportExecutor.validate_csv_header(csv_file, expected_columns)
+        ImportExecutor.validate_csv_header(csv_file, expected_columns, encoding)
         
         # Check debug mode
         debug_mode = db_config.get('DEBUG', '').lower() in ('true', '1', 'yes', 'on')
@@ -63,7 +63,7 @@ def main(env_file_location, csv_file, db_schema_name, table_name, trample):
         # Execute PostgreSQL import using the shared executor
         ImportExecutor.execute_postgresql_import(
             db_config, db_schema_name, table_name, csv_file, trample, 
-            'othername_pfile_20050523-20250608.create_table_postgres.sql'
+            'othername_pfile_20050523-20250608.create_table_postgres.sql', encoding
         )
         
         click.echo("✓ PostgreSQL import completed successfully!")
