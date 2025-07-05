@@ -10,7 +10,7 @@ CREATE TABLE REPLACE_ME_DB_NAME.REPLACE_ME_TABLE_NAME (
     `provider_secondary_practice_address_state_name` VARCHAR(40),
     `provider_secondary_practice_address_postal_code` VARCHAR(17),
     `provider_secondary_practice_address_country_code_if` VARCHAR(3),
-    `provider_secondary_practice_address_telephone_numbe` VARCHAR(20),
-    `provider_secondary_practice_address_telephone_exten` VARCHAR(6),
+    `provider_secondary_practice_address_telephone_number` VARCHAR(20),
+    `provider_secondary_practice_address_telephone_extension` VARCHAR(6),
     `provider_practice_address_fax_number` VARCHAR(16)
 );

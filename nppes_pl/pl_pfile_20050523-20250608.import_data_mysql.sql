@@ -15,7 +15,7 @@ SET
     `provider_secondary_practice_address_state_name` = NULLIF(@provider_secondary_practice_address_state_name, ''),
     `provider_secondary_practice_address_postal_code` = NULLIF(@provider_secondary_practice_address_postal_code, ''),
     `provider_secondary_practice_address_country_code_if` = NULLIF(@provider_secondary_practice_address_country_code_if, ''),
-    `provider_secondary_practice_address_telephone_numbe` = NULLIF(@provider_secondary_practice_address_telephone_numbe, ''),
-    `provider_secondary_practice_address_telephone_exten` = NULLIF(@provider_secondary_practice_address_telephone_exten, ''),
+    `provider_secondary_practice_address_telephone_number` = NULLIF(@provider_secondary_practice_address_telephone_numbe, ''),
+    `provider_secondary_practice_address_telephone_extension` = NULLIF(@provider_secondary_practice_address_telephone_exten, ''),
     `provider_practice_address_fax_number` = NULLIF(@provider_practice_address_fax_number, '')
 ;

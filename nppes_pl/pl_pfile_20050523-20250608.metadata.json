@@ -25,8 +25,8 @@
     "provider_secondary_practice_address_state_name",
     "provider_secondary_practice_address_postal_code",
     "provider_secondary_practice_address_country_code_if",
-    "provider_secondary_practice_address_telephone_numbe",
-    "provider_secondary_practice_address_telephone_exten",
+    "provider_secondary_practice_address_telephone_number",
+    "provider_secondary_practice_address_telephone_extension",
     "provider_practice_address_fax_number"
   ],
   "column_name_mapping": {
@@ -37,8 +37,8 @@
     "Provider Secondary Practice Location Address - State Name": "provider_secondary_practice_address_state_name",
     "Provider Secondary Practice Location Address - Postal Code": "provider_secondary_practice_address_postal_code",
     "Provider Secondary Practice Location Address - Country Code (If outside U.S.)": "provider_secondary_practice_address_country_code_if",
-    "Provider Secondary Practice Location Address - Telephone Number": "provider_secondary_practice_address_telephone_numbe",
-    "Provider Secondary Practice Location Address - Telephone Extension": "provider_secondary_practice_address_telephone_exten",
+    "Provider Secondary Practice Location Address - Telephone Number": "provider_secondary_practice_address_telephone_number",
+    "Provider Secondary Practice Location Address - Telephone Extension": "provider_secondary_practice_address_telephone_extension",
     "Provider Practice Location Address - Fax Number": "provider_practice_address_fax_number"
   },
   "max_column_lengths": {
