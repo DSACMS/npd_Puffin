@@ -57,5 +57,7 @@
     "ORG_NAME": 70
   },
   "total_columns": 10,
-  "column_headers_hash": "9dd713a028f1631f23c369a519b9573f"
+  "column_headers_hash": "9dd713a028f1631f23c369a519b9573f",
+  "file_glob_pattern": "PPEF_Enrollment_Extract_*.csv",
+  "recursive_search": true
 }

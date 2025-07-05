@@ -1333,5 +1333,7 @@
     "Healthcare_Provider_Taxonomy_Group_15": 42,
     "Certification_Date": 10
   },
-  "total_columns": 330
+  "total_columns": 330,
+  "file_glob_pattern": "npidata_pfile_*.csv",
+  "recursive_search": true
 }

@@ -54,5 +54,7 @@
     "Provider Practice Location Address - Fax Number": 15
   },
   "total_columns": 10,
-  "column_headers_hash": "ae81d81e06d6e1be0b4efeba3b45f3cd"
+  "column_headers_hash": "ae81d81e06d6e1be0b4efeba3b45f3cd",
+  "file_glob_pattern": "pl_pfile_*.csv",
+  "recursive_search": true
 }

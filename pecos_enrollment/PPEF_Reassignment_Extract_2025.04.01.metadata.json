@@ -25,5 +25,7 @@
     "RCV_BNFT_ENRLMT_ID": 15
   },
   "total_columns": 2,
-  "column_headers_hash": "cf957595735a217d33ed37e184f0e3d3"
+  "column_headers_hash": "cf957595735a217d33ed37e184f0e3d3",
+  "file_glob_pattern": "PPEF_Reassignment_Extract_*.csv",
+  "recursive_search": true
 }
