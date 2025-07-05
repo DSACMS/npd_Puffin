@@ -1334,6 +1334,6 @@
     "Certification_Date": 10
   },
   "total_columns": 330,
-  "file_glob_pattern": "npidata_pfile_*.csv",
+  "file_glob_pattern": "npidata_pfile_**[0-9].csv",
   "recursive_search": true
 }
