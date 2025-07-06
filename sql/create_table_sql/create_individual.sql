@@ -27,6 +27,6 @@ CREATE TABLE ndh.Individual (
     middle_name VARCHAR(21)   NOT NULL,
     name_prefix VARCHAR(6)   NOT NULL,
     name_suffix VARCHAR(6)   NOT NULL,
-    email_address VARCHAR(200)   NOT NULL,
-    maybe_SSN VARCHAR(10)   NOT NULL
+    email_address VARCHAR(200)   DEFAULT NULL,
+    SSN VARCHAR(10)   DEFAULT NULL
 );

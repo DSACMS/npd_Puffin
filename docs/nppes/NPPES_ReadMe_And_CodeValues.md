@@ -10,17 +10,10 @@ Updated: February 1, 2025
 
 This page intentionally left blank.
 
-## Table of Contents
-
-Table of ContentsList of Exhibits. 11 Introduction 21.1 About the Data File. 21.2 Monthly Data File 31.3 Weekly Data File 31.4 Contents of the Download Bundle. 32 File Layouts. 62.1 Data File Layout. 62.2 Other Name Reference File. 202.3 Practice Location Reference File. 212.4 Endpoint Reference File. 22
-
-## List of Exhibits
-
-List of ExhibitsExhibit 2- 1 Data File Layout. 6Exhibit 2- 2 Other Name Reference File Layout. 21Exhibit 2- 3 Practice Location Reference File Layout. 21Exhibit 2- 4 Endpoint Reference File Layout. 22
 
 ### 1 Introduction
 
-Per the NPPES Data Dissemination Notice, CMS- 6060- N, posted on the Federal Register on May 30, 2007, FOIA- dislosable NPPES health care provider data will be provided in a downloadable file format.
+Per the NPPES Data Dissemination Notice, CMS- 6060- N, posted on the Federal Register on May 30, 2007, FOIA-disclosable NPPES health care provider data will be provided in a downloadable file format.
 
 As of 12/24/2024, two versions of these data files will be available as we transition to allow additional characters in all first name and legal business name fields. Version 1 (original) will provide only the original field lengths while Version 2 (v.2) will include the extended field lengths for all relevant fields.
 
@@ -42,8 +35,8 @@ This CSV file can be viewed using a variety of third- party software. Due to lar
 
 The data file contains the fields identified in the NPPES Data Dissemination Notice and certain sub- fields related to those fields will be disclosed in the downloadable file. The sub- fields are:
 
-1. For Other Provider Identifiers, the downloadable file will include the Issuer (the name of the health plan that issued the Other Provider Identifier), and the State (if furnished, the State of the Medicaid plan when Medicaid is the issuer). 
-2. For Taxonomy Code, the downloadable file will denote the Primary Taxonomy with the Primary Taxonomy Flag. 
+1. For Other Provider Identifiers, the downloadable file will include the Issuer (the name of the health plan that issued the Other Provider Identifier), and the State (if furnished, the State of the Medicaid plan when Medicaid is the issuer).
+2. For Taxonomy Code, the downloadable file will denote the Primary Taxonomy with the Primary Taxonomy Flag.
 3. For the Other Name, the downloadable file will include the Other Name Prefix Text, the Other Name Suffix Text, and the Other Name Credentials text if any of that information was furnished by the provider.
 
 Some health care providers reported their SSNs, IRS ITINs or EINs in sections of the NPI application that contain information that is required to be disclosed under FOIA. For example,

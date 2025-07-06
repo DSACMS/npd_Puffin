@@ -4,20 +4,20 @@
 
 
 CREATE TABLE ndh.NPI (
-    id BIGINT SERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     npi BIGINT   NOT NULL,
     entity_type_code SMALLINT   NOT NULL,
     replacement_npi VARCHAR(11)   NOT NULL,
-    enumeration_date DATE   NOT NULL,
+    enumeration_date DATE  NOT NULL,
     last_update_date DATE   NOT NULL,
     deactivation_reason_code VARCHAR(3)   NOT NULL,
-    deactivation_date DATE   NOT NULL,
-    reactivation_date DATE   NOT NULL,
-    certification_date DATE   NOT NULL
+    deactivation_date DATE ,
+    reactivation_date DATE ,
+    certification_date DATE 
 );
 
 CREATE TABLE ndh.NPI_to_Individual (
-    id BIGINT SERIAL PRIMARY KEY,
+    id BIGINT  PRIMARY KEY,
     NPI_id INT   NOT NULL,
     Individual_id INT   NOT NULL,
     is_sole_proprietor BOOLEAN   NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE ndh.NPI_to_Individual (
 );
 
 CREATE TABLE ndh.NPI_to_ClinicalOrganization (
-    id BIGINT SERIAL PRIMARY KEY,
+    id BIGINT  PRIMARY KEY,
     NPI_id BIGINT   NOT NULL,
     ClinicalOrganization_id INT  DEFAULT NULL,
     PrimaryAuthorizedOfficial_Individual_id INT NOT NULL,

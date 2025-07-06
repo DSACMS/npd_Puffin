@@ -3,8 +3,8 @@
 Fixes the npi as varchar import
 """
 
-import plainerflow
-from plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle, InLaw
+import plainerflow  # type: ignore
+from plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle, InLaw # type: ignore
 import pandas as pd
 import sqlalchemy
 from pathlib import Path
@@ -28,11 +28,12 @@ def main():
 
     sql = FrostDict()
 
+# Convert all of the NPI fields from VARCHAR to BIGINT. 
+
     sql['drop the new_npi column if exists from previous run'] = f"""
 ALTER TABLE {npi_DBTable}
 DROP COLUMN IF EXISTS new_NPI;
 """
-
 
     sql['create new_npi column'] = f"""
 ALTER TABLE {npi_DBTable}
@@ -54,6 +55,9 @@ ALTER TABLE {npi_DBTable}
 RENAME COLUMN new_NPI TO "NPI";
 """
     
+
+# Convert the Replacement NPI columns in a similar fashion
+
     sql['drop the new_npi replacement column if exists from previous run'] = f"""
 ALTER TABLE {npi_DBTable}
 DROP COLUMN IF EXISTS "new_Replacement_NPI";
@@ -79,6 +83,7 @@ DROP COLUMN "Replacement_NPI";
 ALTER TABLE {npi_DBTable}
 RENAME COLUMN "new_Replacement_NPI" TO "Replacement_NPI";
 """
+
 
     date_convertion_list = [
             'Provider_Enumeration_Date'
