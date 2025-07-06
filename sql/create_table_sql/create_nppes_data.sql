@@ -6,7 +6,7 @@
 
 -- NPI Core Entity Table
 CREATE TABLE nppes_normal.npidetail (
-    id INT PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     npi BIGINT,
     entity_type_code SMALLINT NOT NULL, -- 1 = individual, 2 = organization
     replacement_npi VARCHAR(11),
@@ -20,7 +20,7 @@ CREATE TABLE nppes_normal.npidetail (
 
 -- Individuals
 CREATE TABLE nppes_normal.npi_individual (
-    npidetail_id INT,  
+    npidetail_id BIGINT,  
     npi BIGINT,
     last_name VARCHAR(36),
     first_name VARCHAR(36),
@@ -34,7 +34,7 @@ CREATE TABLE nppes_normal.npi_individual (
 
 -- Organizations
 CREATE TABLE nppes_normal.npi_organization (
-    npidetail_id INT,    
+    npidetail_id BIGINT,    
     npi BIGINT,
     organization_name VARCHAR(101),
     authorized_official_last_name VARCHAR(36),
@@ -60,7 +60,7 @@ CREATE TABLE nppes_normal.identifier_type_lut (
 -- Identifiers
 CREATE TABLE nppes_normal.npi_identifier (    
     id SERIAL PRIMARY KEY,
-    npidetail_id INT,    
+    npidetail_id BIGINT,    
     npi BIGINT,
     identifier VARCHAR(21),
     identifier_type_code INTEGER REFERENCES nppes_normal.identifier_type_lut(id),
@@ -133,7 +133,7 @@ INSERT INTO nppes_normal.orgname_type_lut (orgname_description, source_file, sou
 -- Organization Alternate Names
 CREATE TABLE nppes_normal.orgname (
     id SERIAL PRIMARY KEY,
-    npidetail_id INT,     
+    npidetail_id BIGINT,     
     npi BIGINT,
     organization_name VARCHAR(70),
     orgname_type_code INTEGER REFERENCES nppes_normal.orgname_type_lut(id),
@@ -143,7 +143,7 @@ CREATE TABLE nppes_normal.orgname (
 -- Addresses
 CREATE TABLE nppes_normal.npi_address (
     id SERIAL PRIMARY KEY,
-    npidetail_id INT,     
+    npidetail_id BIGINT,     
     npi BIGINT,
     address_type_id INTEGER ,
     line_1 VARCHAR(55),
@@ -157,7 +157,7 @@ CREATE TABLE nppes_normal.npi_address (
 -- Phone Numbers
 CREATE TABLE nppes_normal.npi_phone (
     id SERIAL PRIMARY KEY,
-    npidetail_id INT,     
+    npidetail_id BIGINT,     
     npi BIGINT,
     phone_type_id INTEGER ,
     phone_number VARCHAR(20),
@@ -167,7 +167,7 @@ CREATE TABLE nppes_normal.npi_phone (
 -- Taxonomy Entries
 CREATE TABLE nppes_normal.npi_taxonomy (
     id SERIAL PRIMARY KEY,
-    npidetail_id INT,     
+    npidetail_id BIGINT,     
     npi BIGINT,
     taxonomy_code VARCHAR(10),
     license_number VARCHAR(20),
@@ -179,7 +179,7 @@ CREATE TABLE nppes_normal.npi_taxonomy (
 -- Identifiers
 CREATE TABLE nppes_normal.npi_identifiers (
     id SERIAL PRIMARY KEY,
-    npidetail_id INT,     
+    npidetail_id BIGINT,     
     npi BIGINT,
     identifier VARCHAR(20),
     type_code VARCHAR(2),
@@ -189,7 +189,7 @@ CREATE TABLE nppes_normal.npi_identifiers (
 
 CREATE TABLE nppes_normal.npi_endpoints (
     id SERIAL PRIMARY KEY,
-    npidetail_id INT,     
+    npidetail_id BIGINT,     
     npi BIGINT,
     endpoint_type TEXT,                             -- E.g., Direct Messaging, FHIR, etc.
     endpoint_type_description TEXT,

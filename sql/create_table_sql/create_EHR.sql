@@ -7,8 +7,8 @@
 
 CREATE TABLE ndh.EHRToNPI (
     id SERIAL PRIMARY KEY,
-    NPI_id INT   NOT NULL,
-    EHR_id int   NOT NULL
+    NPI_id BIGINT   NOT NULL,
+    EHR_id INT   NOT NULL
 );
 
 CREATE TABLE ndh.EHR (

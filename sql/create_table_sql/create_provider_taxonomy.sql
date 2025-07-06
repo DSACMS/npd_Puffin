@@ -31,7 +31,7 @@ CREATE TABLE ndh.NUCCTaxonomyCodePath (
 
 CREATE TABLE ndh.NPITaxonomy (
     id SERIAL PRIMARY KEY,
-    NPI_id INT   NOT NULL,
+    NPI_id BIGINT   NOT NULL,
     NUCCTaxonomyCode_id INT   NOT NULL,
     license_number VARCHAR(20)   NOT NULL,
     StateCode_id INTEGER   NOT NULL,

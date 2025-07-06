@@ -15,7 +15,7 @@ CREATE TABLE ndh.PhoneTypeLUT (
 
 CREATE TABLE ndh.NPIToPhone (
     id SERIAL PRIMARY KEY,
-    NPI_id INT   NOT NULL,
+    NPI_id BIGINT   NOT NULL,
     PhoneType_id INTEGER   NOT NULL,
     PhoneNumber_id INTEGER   NOT NULL,
     PhoneExtension_id INTEGER  NULL,

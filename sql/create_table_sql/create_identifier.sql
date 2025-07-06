@@ -15,7 +15,7 @@ CREATE TABLE ndh.IdentifierTypeLUT (
 
 CREATE TABLE ndh.NPIIdentifier (
     id SERIAL PRIMARY KEY,
-    NPI_id INT   NOT NULL,
+    NPI_id BIGINT   NOT NULL,
     identifier VARCHAR(21)   NOT NULL,
     IdentifierType_id INTEGER   NOT NULL,
     state VARCHAR(3)   NOT NULL,

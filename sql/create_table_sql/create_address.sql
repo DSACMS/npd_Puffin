@@ -159,7 +159,7 @@ CREATE TABLE ndh.StateCodeLUT (
 
 CREATE TABLE ndh.NPIAddress (
     id SERIAL PRIMARY KEY,
-    NPI_id INT   NOT NULL,
+    NPI_id BIGINT   NOT NULL,
     AddressType_id INTEGER   NOT NULL,
     Address_id INT   NOT NULL
 );
