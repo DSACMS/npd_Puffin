@@ -54,20 +54,20 @@ ALTER TABLE {npi_DBTable}
 RENAME COLUMN new_NPI TO "NPI";
 """
     
-    sql['drop the new_npi column if exists from previous run'] = f"""
+    sql['drop the new_npi replacement column if exists from previous run'] = f"""
 ALTER TABLE {npi_DBTable}
-DROP COLUMN IF EXISTS new_Replacement_NPI;
+DROP COLUMN IF EXISTS "new_Replacement_NPI";
 """
 
 
     sql['create new_npi replacement column'] = f"""
 ALTER TABLE {npi_DBTable}
-ADD COLUMN new_Replacement_NPI BIGINT DEFAULT NULL;        
+ADD COLUMN "new_Replacement_NPI" BIGINT DEFAULT NULL;        
     """
 
     sql['populate the bigint version from the varchar version  replacement '] = f"""
 UPDATE {npi_DBTable}
-SET new_Replacement_NPI = NULLIF("Replacement_NPI", '')::BIGINT
+SET "new_Replacement_NPI" = NULLIF("Replacement_NPI", '')::BIGINT
 """ 
  
     sql['drop the varchar  replacement column'] = f"""
@@ -80,8 +80,28 @@ ALTER TABLE {npi_DBTable}
 RENAME COLUMN "new_Replacement_NPI" TO "Replacement_NPI";
 """
 
-    # TODO 
+    date_convertion_list = [
+            'Provider_Enumeration_Date'
+            ,'Last_Update_Date'
+            ,'NPI_Deactivation_Date'
+            ,'NPI_Reactivation_Date'
+            ,'Certification_Date'
+            ]
+    
+    for this_date_col in date_convertion_list:
+        sql[f"Adding new col for {this_date_col}"] = f"""
+ALTER TABLE {npi_DBTable}
+ADD COLUMN "{this_date_col}_real_date" DATE DEFAULT NULL;
+"""
 
+        sql[f"convert string to date for {this_date_col}"] =f"""
+UPDATE {npi_DBTable}
+SET "{this_date_col}_real_date" = to_date(NULLIF("{this_date_col}", ''), 'MM/DD/YYYY');
+"""
+        
+        sql[f"drop varchar for {this_date_col}"] = f"""ALTER TABLE {npi_DBTable} DROP COLUMN "{this_date_col}"; """
+
+        sql[f"rename new col back to {this_date_col}"] = f"""ALTER TABLE {npi_DBTable} RENAME COLUMN "{this_date_col}_real_date" TO "{this_date_col}";"""
 
     print("About to run SQL")
     SQLoopcicle.run_sql_loop(   sql_dict=sql,
@@ -89,26 +109,6 @@ RENAME COLUMN "new_Replacement_NPI" TO "Replacement_NPI";
                                 engine=alchemy_engine
     )
     
-
-    class ValidateTotalSpentIsPositive(InLaw):
-        title = "Active customers with orders should have positive total_spent"
-        
-        @staticmethod
-        def run(alchemy_engine):
-            sql = f"""
-            SELECT COUNT(*) as invalid_count 
-            FROM {npi_DBTable} 
-            """
-            validation_gx_df = InLaw.sql_to_gx_df(sql=sql, engine=alchemy_engine)
-            
-            invalid_count = validation_gx_df.iloc[0]['invalid_count']
-            
-            if invalid_count == 0:
-                return True
-            return f"Found {invalid_count} customers with orders but non-positive spending"
-    
-
-    #test_results = InLaw.run_all(engine=engine)
     
 
 

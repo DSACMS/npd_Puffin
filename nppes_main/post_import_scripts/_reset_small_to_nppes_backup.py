@@ -32,23 +32,12 @@ def main():
 DROP TABLE IF EXISTS {npi_small_DBTable}
 """
 
-    sql['drop the prod database'] = f"""
-DROP TABLE IF EXISTS {npi_DBTable}
-"""
     sql['create the small database'] = f"""
 CREATE TABLE {npi_small_DBTable} AS 
 SELECT * FROM {npi_backup_DBTable}
 LIMIT 10000
 """    
 
-
-
-    big_sql= f"""
-CREATE TABLE {npi_DBTable} AS 
-SELECT * FROM {npi_backup_DBTable}
-"""  
-    # So that we can comment this out.
-    sql['restore the main database from backup'] = big_sql
 
     print("About to run SQL")
     SQLoopcicle.run_sql_loop(   sql_dict=sql,

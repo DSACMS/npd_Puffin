@@ -8,6 +8,7 @@ python-dotenv>=1.0.0
 chardet>=5.0.0
 pandas>=2.0.0
 great-expectations>=0.18.0
+phonenumbers>=8.13.0
 
 # Database drivers (install as needed)
 # For MySQL support:
