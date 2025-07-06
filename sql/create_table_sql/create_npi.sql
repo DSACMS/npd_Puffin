@@ -26,7 +26,8 @@ CREATE TABLE ndh.NPI_to_Individual (
 
 CREATE TABLE ndh.NPI_to_ClinicalOrganization (
     id BIGINT SERIAL PRIMARY KEY,
-    NPI_id INT   NOT NULL,
-    ClinicalOrganization_id INT   NOT NULL,
-    PrimaryAuthorizedOfficial_Individual_id INT NOT NULL -- TODO shold this be its own intermediate table? With an is_primary boolean in it?
+    NPI_id BIGINT   NOT NULL,
+    ClinicalOrganization_id INT  DEFAULT NULL,
+    PrimaryAuthorizedOfficial_Individual_id INT NOT NULL,
+    Parent_NPI_id BIGINT DEFAULT NULL-- TODO shold this be its own intermediate table? With an is_primary boolean in it?
 );
