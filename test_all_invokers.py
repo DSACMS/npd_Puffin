@@ -75,7 +75,9 @@ def test_invoker(import_dir, test_data_dir, db_type="postgresql"):
         "python", "-m", "csviper", "invoke-compiled-script",
         f"--run_import_from=./{import_dir}",
         f"--import_data_from_dir=./{test_data_dir}",
-        f"--database_type={db_type}"
+        f"--database_type={db_type}",
+        "--db_schema_name=test_schema",
+        f"--table_name={import_dir}_table"
     ]
     
     try:
