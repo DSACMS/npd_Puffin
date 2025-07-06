@@ -113,8 +113,6 @@ SET "{this_date_col}_real_date" = to_date(NULLIF("{this_date_col}", ''), 'MM/DD/
                                 is_just_print=is_just_print,
                                 engine=alchemy_engine
     )
-    
-    
 
 
 if __name__ == "__main__":
@@ -125,4 +123,3 @@ if __name__ == "__main__":
         print("\nMake sure you have installed the required dependencies:")
         print("pip install plainerflow pandas great-expectations")
         raise
-        

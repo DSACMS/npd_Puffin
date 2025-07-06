@@ -1,11 +1,63 @@
 -- Merged SQL statements for schema: intake
--- Generated on: 2025-07-06 01:34:37
--- Total statements for this schema: 2
+-- Generated on: 2025-07-06 02:12:38
+-- Total statements for this schema: 6
 --
 -- Source files:
+--   sql/create_table_sql/create_intake_npi_changes.sql
 --   sql/create_table_sql/create_intake_phone.sql
 --   sql/create_table_sql/create_intake_wrongnpi.sql
 
+
+-- Source: sql/create_table_sql/create_intake_npi_changes.sql
+CREATE TABLE IF NOT EXISTS intake.npi_processing_run (
+    id SERIAL PRIMARY KEY,
+    run_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    source_table VARCHAR(100) NOT NULL,
+    total_npis_processed INTEGER,
+    new_npis INTEGER,
+    updated_npis INTEGER,
+    deactivated_npis INTEGER,
+    processing_status VARCHAR(50) DEFAULT 'IN_PROGRESS',
+    notes TEXT
+);
+
+-- Source: sql/create_table_sql/create_intake_npi_changes.sql
+CREATE TABLE IF NOT EXISTS intake.npi_change_log (
+    id SERIAL PRIMARY KEY,
+    processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
+    npi BIGINT NOT NULL,
+    change_type VARCHAR(50) NOT NULL, -- 'NEW', 'UPDATED', 'DEACTIVATED', 'REACTIVATED'
+    change_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    old_last_update_date DATE,
+    new_last_update_date DATE,
+    change_details JSONB,
+    processed BOOLEAN DEFAULT FALSE
+);
+
+-- Source: sql/create_table_sql/create_intake_npi_changes.sql
+CREATE TABLE IF NOT EXISTS intake.individual_change_log (
+    id SERIAL PRIMARY KEY,
+    processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
+    individual_id INTEGER,
+    npi BIGINT,
+    change_type VARCHAR(50) NOT NULL, -- 'NEW', 'UPDATED', 'NAME_CHANGE'
+    change_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    old_values JSONB,
+    new_values JSONB,
+    processed BOOLEAN DEFAULT FALSE
+);
+
+-- Source: sql/create_table_sql/create_intake_npi_changes.sql
+CREATE TABLE IF NOT EXISTS intake.parent_relationship_change_log (
+    id SERIAL PRIMARY KEY,
+    processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
+    child_npi BIGINT NOT NULL,
+    old_parent_npi BIGINT,
+    new_parent_npi BIGINT,
+    change_type VARCHAR(50) NOT NULL, -- 'NEW_PARENT', 'PARENT_CHANGED', 'PARENT_REMOVED'
+    change_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    processed BOOLEAN DEFAULT FALSE
+);
 
 -- Source: sql/create_table_sql/create_intake_phone.sql
 CREATE TABLE intake.staging_phone (
