@@ -29,8 +29,8 @@ def main():
     
     # Define table references
     # Use small table for testing, main table for production
-    npi_table = 'main_file_small'  # Switch to 'main_file' for production
-    # npi_table = 'main_file'  # For production
+    # npi_table = 'main_file_small'  # Switch to 'main_file' for production
+    npi_table = 'main_file'  # For production
     
     npi_main_DBTable = DBTable(schema='nppes_raw', table=npi_table)
     npi_pl_DBTable = DBTable(schema='nppes_raw', table='pl_file')
