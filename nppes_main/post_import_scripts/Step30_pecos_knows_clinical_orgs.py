@@ -22,7 +22,7 @@ from pathlib import Path
 import os
 
 def main():
-    is_just_print = True  # Start with dry-run mode
+    is_just_print = False  # Start with dry-run mode
     
     print("Connecting to DB")
     base_path = os.path.dirname(os.path.abspath(__file__))
@@ -104,15 +104,35 @@ def main():
     
     # Phase 2: Add required unique constraints for INSERT ON CONFLICT
     sql['add_individual_unique_constraint'] = f"""
-    ALTER TABLE {individual_DBTable}
-    ADD CONSTRAINT IF NOT EXISTS uc_individual_name_components 
-    UNIQUE (last_name, first_name, middle_name, name_prefix, name_suffix);
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.table_constraints 
+            WHERE constraint_name = 'uc_individual_name_components' 
+            AND table_name = 'individual'
+            AND table_schema = 'ndh'
+        ) THEN
+            ALTER TABLE {individual_DBTable}
+            ADD CONSTRAINT uc_individual_name_components 
+            UNIQUE (last_name, first_name, middle_name, name_prefix, name_suffix);
+        END IF;
+    END $$;
     """
     
     sql['add_orgname_unique_constraint'] = f"""
-    ALTER TABLE {orgname_DBTable}
-    ADD CONSTRAINT IF NOT EXISTS uc_orgname_combination 
-    UNIQUE (ClinicalOrganization_id, ClinicalOrganization_name, ClinicalOrgnameType_id);
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.table_constraints 
+            WHERE constraint_name = 'uc_orgname_combination' 
+            AND table_name = 'orgname'
+            AND table_schema = 'ndh'
+        ) THEN
+            ALTER TABLE {orgname_DBTable}
+            ADD CONSTRAINT uc_orgname_combination 
+            UNIQUE (ClinicalOrganization_id, ClinicalOrganization_name, ClinicalOrgnameType_id);
+        END IF;
+    END $$;
     """
     
     # Phase 3: Add organization name type LUT entries
@@ -231,12 +251,14 @@ def main():
     # Phase 8: Create NPI to ClinicalOrganization links
     sql['populate_npi_to_clinical_organization'] = f"""
     INSERT INTO {npi_to_clinical_org_DBTable} (
+        id,
         NPI_id,
         ClinicalOrganization_id,
         PrimaryAuthorizedOfficial_Individual_id,
         Parent_NPI_id
     )
     SELECT DISTINCT
+        nppes_main."NPI" AS id,    
         nppes_main."NPI" AS NPI_id,
         clinical_org.id AS ClinicalOrganization_id,
         individual.id AS PrimaryAuthorizedOfficial_Individual_id,
