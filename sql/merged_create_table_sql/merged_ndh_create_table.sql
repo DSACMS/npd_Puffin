@@ -1,6 +1,6 @@
 -- Merged SQL statements for schema: ndh
--- Generated on: 2025-07-07 00:08:28
--- Total statements for this schema: 48
+-- Generated on: 2025-07-07 02:33:21
+-- Total statements for this schema: 47
 --
 -- Source files:
 --   ./sql/create_table_sql/create_EHR.sql
@@ -185,21 +185,12 @@ CREATE TABLE ndh.ClinicalOrganization (
     id SERIAL PRIMARY KEY,
     ClinicalOrganization_legal_name VARCHAR(200)   NOT NULL,
     AuthorizedOfficial_Individual_id INT   NOT NULL,
-    ParentOrganization_id INT   NOT NULL,
-    OrganizationTIN VARCHAR(10)   NOT NULL,
-    primary_VTIN_id INT   NOT NULL,
-    OrganizationGLIEF VARCHAR(300)   NOT NULL,
+    Organization_TIN VARCHAR(10)   DEFAULT NULL,
+    Organization_VTIN VARCHAR(50) DEFAULT NULL,
+    OrganizationGLIEF VARCHAR(300)  DEFAULT NULL,
     CONSTRAINT uc_Organization_OrganizationTIN UNIQUE (
-        OrganizationTIN
+        Organization_VTIN
     )
-);
-
--- Source: ./sql/create_table_sql/create_clinical_organization.sql
-CREATE TABLE ndh.VTIN (
-    id SERIAL PRIMARY KEY,
-    ClinicalOrganization_id INT NOT NULL,
-    VTIN VARCHAR(37) NOT NULL,
-    VTIN_extension_number INT NOT NULL -- defaults to 0
 );
 
 -- Source: ./sql/create_table_sql/create_clinical_organization.sql

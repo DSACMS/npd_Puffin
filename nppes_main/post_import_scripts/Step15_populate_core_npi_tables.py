@@ -32,8 +32,8 @@ def main():
     alchemy_engine = CredentialFinder.detect_config(verbose=True, env_path=env_location)
     
     # Define source and target tables
-    npi_table = 'main_file_small'  # For testing
-    #npi_table = 'main_file'  # For production
+    #npi_table = 'main_file_small'  # For testing
+    npi_table = 'main_file'  # For production
     source_DBTable = DBTable(schema='nppes_raw', table=npi_table)
     
     # Target NDH tables

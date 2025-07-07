@@ -55,6 +55,11 @@ ALTER TABLE {pecos_DBTable}
 RENAME COLUMN new_npi TO "npi";
 """
 
+    # Add index on npi column to improve performance
+    sql['add index on npi column'] = f"""
+CREATE INDEX idx_npi ON {pecos_DBTable} ("npi");
+"""
+
     print("About to run SQL")
     SQLoopcicle.run_sql_loop(   sql_dict=sql,
                                 is_just_print=is_just_print,

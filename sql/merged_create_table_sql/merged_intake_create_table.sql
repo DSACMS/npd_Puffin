@@ -1,5 +1,5 @@
 -- Merged SQL statements for schema: intake
--- Generated on: 2025-07-07 00:08:28
+-- Generated on: 2025-07-07 02:33:21
 -- Total statements for this schema: 6
 --
 -- Source files:
@@ -89,6 +89,6 @@ CREATE TABLE intake.staging_phone (
 -- Source: ./sql/create_table_sql/create_intake_wrongnpi.sql
 CREATE TABLE intake.wrongnpi (
     npi BIGINT,
-    error_type_string VARCHAR(10),
+    error_type_string VARCHAR(50),
     reason_npi_is_wrong TEXT
 );

@@ -21,8 +21,8 @@ def main():
     
 
 
-    npi_table = 'main_file_small' # For testing
-    #npi_table = 'main_file' # for production
+    #npi_table = 'main_file_small' # For testing
+    npi_table = 'main_file' # for production
 
     npi_DBTable = DBTable(schema='nppes_raw', table=npi_table)
 
@@ -114,6 +114,11 @@ SET "{this_date_col}_real_date" = to_date(NULLIF("{this_date_col}", ''), 'MM/DD/
 #                                        ("Provider_Organization_Name_Legal_Business_Name" != '' OR "Provider_Last_Name_Legal_Name" != '')
 # is a start... but really it should check for every column except for the NPI_Deactivation_Date and possible NPI_Deactivation_Reason_Code
 
+    # Add unique key on NPI column to improve performance
+    sql['add unique key on NPI column'] = f"""
+ALTER TABLE {npi_DBTable}
+ADD CONSTRAINT unique_npi_key UNIQUE ("NPI");
+"""
 
     print("About to run SQL")
     SQLoopcicle.run_sql_loop(   sql_dict=sql,
@@ -130,5 +135,3 @@ if __name__ == "__main__":
         print("\nMake sure you have installed the required dependencies:")
         print("pip install plainerflow pandas great-expectations")
         raise
-
-

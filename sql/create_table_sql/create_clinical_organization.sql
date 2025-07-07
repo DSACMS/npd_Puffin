@@ -12,21 +12,13 @@ CREATE TABLE ndh.ClinicalOrganization (
     id SERIAL PRIMARY KEY,
     ClinicalOrganization_legal_name VARCHAR(200)   NOT NULL,
     AuthorizedOfficial_Individual_id INT   NOT NULL,
-    ParentOrganization_id INT   NOT NULL,
-    OrganizationTIN VARCHAR(10)   NOT NULL,
-    primary_VTIN_id INT   NOT NULL,
-    OrganizationGLIEF VARCHAR(300)   NOT NULL,
-    CONSTRAINT uc_Organization_OrganizationTIN UNIQUE (
-        OrganizationTIN
+    Organization_TIN VARCHAR(10)   DEFAULT NULL,
+    Organization_VTIN VARCHAR(50) DEFAULT NULL,
+    OrganizationGLIEF VARCHAR(300)  DEFAULT NULL,
+    CONSTRAINT uc_Organization_Organization_VTIN UNIQUE (
+        Organization_VTIN
     )
 );
-
-CREATE TABLE ndh.VTIN (
-    id SERIAL PRIMARY KEY,
-    ClinicalOrganization_id INT NOT NULL,
-    VTIN VARCHAR(37) NOT NULL,
-    VTIN_extension_number INT NOT NULL -- defaults to 0
-)
 
 
 CREATE TABLE ndh.ClinicalOrgnameTypeLUT (
@@ -38,6 +30,17 @@ CREATE TABLE ndh.ClinicalOrgnameTypeLUT (
         orgname_type_description
     )
 );
+
+INSERT INTO ndh.ClinicalOrgnameTypeLUT (orgname_type_description, source_file, source_field)
+VALUES ('NPPES', 'main file', 'name_field');
+
+INSERT INTO ndh.ClinicalOrgnameTypeLUT (orgname_type_description, source_file, source_field)
+VALUES ('NPPES', 'endpoint file', 'name_field');
+
+INSERT INTO ndh.ClinicalOrgnameTypeLUT (orgname_type_description, source_file, source_field)
+VALUES ('NPPES', 'othername file', 'name_field');
+
+
 
 CREATE TABLE ndh.Orgname (
     id SERIAL PRIMARY KEY,
