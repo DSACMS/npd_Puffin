@@ -18,7 +18,7 @@ CREATE TABLE ndh.NPI (
 
 CREATE TABLE ndh.NPI_to_Individual (
     id BIGINT  PRIMARY KEY,
-    NPI_id INT   NOT NULL,
+    NPI_id BIGINT   NOT NULL UNIQUE,
     Individual_id INT   NOT NULL,
     is_sole_proprietor BOOLEAN   NOT NULL,
     sex_code CHAR(1)   NOT NULL
@@ -26,7 +26,7 @@ CREATE TABLE ndh.NPI_to_Individual (
 
 CREATE TABLE ndh.NPI_to_ClinicalOrganization (
     id BIGINT  PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL,
+    NPI_id BIGINT   NOT NULL UNIQUE,
     ClinicalOrganization_id INT  DEFAULT NULL,
     PrimaryAuthorizedOfficial_Individual_id INT NOT NULL,
     Parent_NPI_id BIGINT DEFAULT NULL-- TODO shold this be its own intermediate table? With an is_primary boolean in it?

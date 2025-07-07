@@ -108,6 +108,13 @@ SET "{this_date_col}_real_date" = to_date(NULLIF("{this_date_col}", ''), 'MM/DD/
 
         sql[f"rename new col back to {this_date_col}"] = f"""ALTER TABLE {npi_DBTable} RENAME COLUMN "{this_date_col}_real_date" TO "{this_date_col}";"""
 
+ 
+# TODO Lets make a new InLaw to check that all retired NPIs are in fact entirely blank in the data. Something like:
+# SELECT * FROM nppes_raw.main_file WHERE "Entity_Type_Code" = '' AND
+#                                        ("Provider_Organization_Name_Legal_Business_Name" != '' OR "Provider_Last_Name_Legal_Name" != '')
+# is a start... but really it should check for every column except for the NPI_Deactivation_Date and possible NPI_Deactivation_Reason_Code
+
+
     print("About to run SQL")
     SQLoopcicle.run_sql_loop(   sql_dict=sql,
                                 is_just_print=is_just_print,
@@ -123,3 +130,5 @@ if __name__ == "__main__":
         print("\nMake sure you have installed the required dependencies:")
         print("pip install plainerflow pandas great-expectations")
         raise
+
+

@@ -1,5 +1,5 @@
 -- Merged SQL statements for schema: ndh
--- Generated on: 2025-07-06 23:21:40
+-- Generated on: 2025-07-07 00:08:28
 -- Total statements for this schema: 48
 --
 -- Source files:
@@ -352,7 +352,7 @@ CREATE TABLE ndh.NPI (
 -- Source: ./sql/create_table_sql/create_npi.sql
 CREATE TABLE ndh.NPI_to_Individual (
     id BIGINT  PRIMARY KEY,
-    NPI_id INT   NOT NULL,
+    NPI_id BIGINT   NOT NULL UNIQUE,
     Individual_id INT   NOT NULL,
     is_sole_proprietor BOOLEAN   NOT NULL,
     sex_code CHAR(1)   NOT NULL
@@ -361,7 +361,7 @@ CREATE TABLE ndh.NPI_to_Individual (
 -- Source: ./sql/create_table_sql/create_npi.sql
 CREATE TABLE ndh.NPI_to_ClinicalOrganization (
     id BIGINT  PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL,
+    NPI_id BIGINT   NOT NULL UNIQUE,
     ClinicalOrganization_id INT  DEFAULT NULL,
     PrimaryAuthorizedOfficial_Individual_id INT NOT NULL,
     Parent_NPI_id BIGINT DEFAULT NULL-- TODO shold this be its own intermediate table? With an is_primary boolean in it?

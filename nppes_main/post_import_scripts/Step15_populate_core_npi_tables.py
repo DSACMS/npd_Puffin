@@ -157,7 +157,7 @@ def main():
     sql['02_create_current_run_temp_table'] = f"""
     DROP TABLE IF EXISTS {current_run_DBTable};
     CREATE TABLE {current_run_DBTable} AS
-    SELECT id as run_id 
+    SELECT id AS run_id 
     FROM {processing_run_DBTable} 
     WHERE processing_status = 'IN_PROGRESS' 
     ORDER BY run_date DESC 
@@ -172,25 +172,25 @@ def main():
     DROP TABLE IF EXISTS {npi_changes_DBTable};
     CREATE TABLE {npi_changes_DBTable} AS
     SELECT 
-        s."NPI" as npi,
-        s."Last_Update_Date" as new_last_update_date,
-        n.last_update_date as old_last_update_date,
+        nppes_main."NPI" AS npi,
+        nppes_main."Last_Update_Date" AS new_last_update_date,
+        npi_table.last_update_date AS old_last_update_date,
         CASE 
-            WHEN n.id IS NULL THEN 'NEW'
-            WHEN s."Last_Update_Date" > n.last_update_date THEN 'UPDATED'
-            WHEN s."NPI_Deactivation_Date" IS NOT NULL AND n.deactivation_date IS NULL THEN 'DEACTIVATED'
-            WHEN s."NPI_Reactivation_Date" IS NOT NULL AND n.reactivation_date IS NULL THEN 'REACTIVATED'
+            WHEN npi_table.id IS NULL THEN 'NEW'
+            WHEN nppes_main."Last_Update_Date" > npi_table.last_update_date THEN 'UPDATED'
+            WHEN nppes_main."NPI_Deactivation_Date" IS NOT NULL AND npi_table.deactivation_date IS NULL THEN 'DEACTIVATED'
+            WHEN nppes_main."NPI_Reactivation_Date" IS NOT NULL AND npi_table.reactivation_date IS NULL THEN 'REACTIVATED'
             ELSE NULL
-        END as change_type,
+        END AS change_type,
         jsonb_build_object(
-            'entity_type_code', s."Entity_Type_Code",
-            'deactivation_date', s."NPI_Deactivation_Date",
-            'reactivation_date', s."NPI_Reactivation_Date",
-            'replacement_npi', s."Replacement_NPI"
-        ) as change_details
-    FROM {source_DBTable} s
-    LEFT JOIN {npi_DBTable} n ON s."NPI" = n.npi
-    WHERE s."NPI" IS NOT NULL;
+            'entity_type_code', nppes_main."Entity_Type_Code",
+            'deactivation_date', nppes_main."NPI_Deactivation_Date",
+            'reactivation_date', nppes_main."NPI_Reactivation_Date",
+            'replacement_npi', nppes_main."Replacement_NPI"
+        ) AS change_details
+    FROM {source_DBTable} AS nppes_main
+    LEFT JOIN {npi_DBTable} AS npi_table ON nppes_main."NPI" = npi_table.npi
+    WHERE nppes_main."NPI" IS NOT NULL;
     """
     
     sql['04_log_npi_changes'] = f"""
@@ -203,20 +203,22 @@ def main():
         change_details
     )
     SELECT 
-        cr.run_id,
-        nc.npi,
-        nc.change_type,
-        nc.old_last_update_date,
-        nc.new_last_update_date,
-        nc.change_details
-    FROM {npi_changes_DBTable} nc
-    CROSS JOIN {current_run_DBTable} cr
-    WHERE nc.change_type IS NOT NULL;
+        current_run.run_id,
+        npi_changes.npi,
+        npi_changes.change_type,
+        npi_changes.old_last_update_date,
+        npi_changes.new_last_update_date,
+        npi_changes.change_details
+    FROM {npi_changes_DBTable} AS npi_changes
+    CROSS JOIN {current_run_DBTable} AS current_run
+    WHERE npi_changes.change_type IS NOT NULL;
     """
     
     # ========================================
     # PHASE 3: Process NPI record changes (UPSERT)
     # ========================================
+
+    # Note This is where we filter out the deactivated NPI records, which have no Entity_Type_Code
     
     sql['05_upsert_npi_records'] = f"""
     INSERT INTO {npi_DBTable} (
@@ -231,25 +233,27 @@ def main():
         reactivation_date,
         certification_date
     )
-    SELECT 
-        s."NPI" as id,
-        s."NPI" as npi,
-        s."Entity_Type_Code"::SMALLINT as entity_type_code,
+    SELECT DISTINCT
+        nppes_main."NPI" AS id,
+        nppes_main."NPI" AS npi,
+        nppes_main."Entity_Type_Code"::SMALLINT AS entity_type_code,
         CASE 
-            WHEN s."Replacement_NPI" IS NOT NULL 
-            THEN s."Replacement_NPI"::VARCHAR(11)
+            WHEN nppes_main."Replacement_NPI" IS NOT NULL 
+            THEN nppes_main."Replacement_NPI"::BIGINT
             ELSE NULL 
-        END as replacement_npi,
-        s."Provider_Enumeration_Date" as enumeration_date,
-        s."Last_Update_Date" as last_update_date,
-        COALESCE(s."NPI_Deactivation_Reason_Code", '') as deactivation_reason_code,
-        s."NPI_Deactivation_Date" as deactivation_date,
-        s."NPI_Reactivation_Date" as reactivation_date,
-        s."Certification_Date" as certification_date
-    FROM {source_DBTable} s
-    JOIN {npi_change_log_DBTable} cl ON s."NPI" = cl.npi
-    WHERE cl.processed = FALSE
-    AND cl.change_type IN ('NEW', 'UPDATED', 'DEACTIVATED', 'REACTIVATED')
+        END AS replacement_npi,
+        nppes_main."Provider_Enumeration_Date" AS enumeration_date,
+        nppes_main."Last_Update_Date" AS last_update_date,
+        COALESCE(nppes_main."NPI_Deactivation_Reason_Code", '') AS deactivation_reason_code,
+        nppes_main."NPI_Deactivation_Date" AS deactivation_date,
+        nppes_main."NPI_Reactivation_Date" AS reactivation_date,
+        nppes_main."Certification_Date" AS certification_date
+    FROM {source_DBTable} AS nppes_main
+    JOIN {npi_change_log_DBTable} AS change_log ON nppes_main."NPI" = change_log.npi
+    WHERE 
+        change_log.processed = FALSE 
+        AND nppes_main."Entity_Type_Code" != '' -- filters out deactivated blank records.
+    AND change_log.change_type IN ('NEW', 'UPDATED', 'DEACTIVATED', 'REACTIVATED')
     ON CONFLICT (id) DO UPDATE SET
         entity_type_code = EXCLUDED.entity_type_code,
         replacement_npi = EXCLUDED.replacement_npi,
@@ -269,98 +273,98 @@ def main():
     DROP TABLE IF EXISTS {individual_provider_changes_DBTable};
     CREATE TABLE {individual_provider_changes_DBTable} AS
     SELECT 
-        s."NPI" as npi,
-        COALESCE(s."Provider_Last_Name_Legal_Name", '') as last_name,
-        COALESCE(s."Provider_First_Name", '') as first_name,
-        COALESCE(s."Provider_Middle_Name", '') as middle_name,
-        COALESCE(s."Provider_Name_Prefix_Text", '') as name_prefix,
-        COALESCE(s."Provider_Name_Suffix_Text", '') as name_suffix,
-        i.id as existing_individual_id,
+        nppes_main."NPI" AS npi,
+        COALESCE(nppes_main."Provider_Last_Name_Legal_Name", '') AS last_name,
+        COALESCE(nppes_main."Provider_First_Name", '') AS first_name,
+        COALESCE(nppes_main."Provider_Middle_Name", '') AS middle_name,
+        COALESCE(nppes_main."Provider_Name_Prefix_Text", '') AS name_prefix,
+        COALESCE(nppes_main."Provider_Name_Suffix_Text", '') AS name_suffix,
+        individual_table.id AS existing_individual_id,
         CASE 
-            WHEN i.id IS NULL THEN 'NEW'
-            WHEN (i.last_name != COALESCE(s."Provider_Last_Name_Legal_Name", '') OR
-                  i.first_name != COALESCE(s."Provider_First_Name", '') OR
-                  i.middle_name != COALESCE(s."Provider_Middle_Name", '') OR
-                  i.name_prefix != COALESCE(s."Provider_Name_Prefix_Text", '') OR
-                  i.name_suffix != COALESCE(s."Provider_Name_Suffix_Text", '')) THEN 'UPDATED'
+            WHEN individual_table.id IS NULL THEN 'NEW'
+            WHEN (individual_table.last_name != COALESCE(nppes_main."Provider_Last_Name_Legal_Name", '') OR
+                  individual_table.first_name != COALESCE(nppes_main."Provider_First_Name", '') OR
+                  individual_table.middle_name != COALESCE(nppes_main."Provider_Middle_Name", '') OR
+                  individual_table.name_prefix != COALESCE(nppes_main."Provider_Name_Prefix_Text", '') OR
+                  individual_table.name_suffix != COALESCE(nppes_main."Provider_Name_Suffix_Text", '')) THEN 'UPDATED'
             ELSE NULL
-        END as change_type,
+        END AS change_type,
         jsonb_build_object(
-            'old_last_name', i.last_name,
-            'old_first_name', i.first_name,
-            'old_middle_name', i.middle_name,
-            'old_name_prefix', i.name_prefix,
-            'old_name_suffix', i.name_suffix
-        ) as old_values,
+            'old_last_name', individual_table.last_name,
+            'old_first_name', individual_table.first_name,
+            'old_middle_name', individual_table.middle_name,
+            'old_name_prefix', individual_table.name_prefix,
+            'old_name_suffix', individual_table.name_suffix
+        ) AS old_values,
         jsonb_build_object(
-            'new_last_name', COALESCE(s."Provider_Last_Name_Legal_Name", ''),
-            'new_first_name', COALESCE(s."Provider_First_Name", ''),
-            'new_middle_name', COALESCE(s."Provider_Middle_Name", ''),
-            'new_name_prefix', COALESCE(s."Provider_Name_Prefix_Text", ''),
-            'new_name_suffix', COALESCE(s."Provider_Name_Suffix_Text", '')
-        ) as new_values
-    FROM {source_DBTable} s
-    JOIN {npi_change_log_DBTable} cl ON s."NPI" = cl.npi
-    LEFT JOIN {individual_DBTable} i ON (
-        i.last_name = COALESCE(s."Provider_Last_Name_Legal_Name", '')
-        AND i.first_name = COALESCE(s."Provider_First_Name", '')
-        AND i.middle_name = COALESCE(s."Provider_Middle_Name", '')
-        AND i.name_prefix = COALESCE(s."Provider_Name_Prefix_Text", '')
-        AND i.name_suffix = COALESCE(s."Provider_Name_Suffix_Text", '')
+            'new_last_name', COALESCE(nppes_main."Provider_Last_Name_Legal_Name", ''),
+            'new_first_name', COALESCE(nppes_main."Provider_First_Name", ''),
+            'new_middle_name', COALESCE(nppes_main."Provider_Middle_Name", ''),
+            'new_name_prefix', COALESCE(nppes_main."Provider_Name_Prefix_Text", ''),
+            'new_name_suffix', COALESCE(nppes_main."Provider_Name_Suffix_Text", '')
+        ) AS new_values
+    FROM {source_DBTable} AS nppes_main
+    JOIN {npi_change_log_DBTable} AS change_log ON nppes_main."NPI" = change_log.npi
+    LEFT JOIN {individual_DBTable} AS individual_table ON (
+        individual_table.last_name = COALESCE(nppes_main."Provider_Last_Name_Legal_Name", '')
+        AND individual_table.first_name = COALESCE(nppes_main."Provider_First_Name", '')
+        AND individual_table.middle_name = COALESCE(nppes_main."Provider_Middle_Name", '')
+        AND individual_table.name_prefix = COALESCE(nppes_main."Provider_Name_Prefix_Text", '')
+        AND individual_table.name_suffix = COALESCE(nppes_main."Provider_Name_Suffix_Text", '')
     )
-    WHERE s."Entity_Type_Code" = '1'
-    AND cl.processed = FALSE
-    AND s."Provider_Last_Name_Legal_Name" IS NOT NULL
-    AND s."Provider_First_Name" IS NOT NULL;
+    WHERE nppes_main."Entity_Type_Code" = '1'
+    AND change_log.processed = FALSE
+    AND nppes_main."Provider_Last_Name_Legal_Name" IS NOT NULL
+    AND nppes_main."Provider_First_Name" IS NOT NULL;
     """
     
     sql['07_create_authorized_official_changes_temp_table'] = f"""
     DROP TABLE IF EXISTS {authorized_official_changes_DBTable};
     CREATE TABLE {authorized_official_changes_DBTable} AS
     SELECT 
-        s."NPI" as npi,
-        COALESCE(s."Authorized_Official_Last_Name", '') as last_name,
-        COALESCE(s."Authorized_Official_First_Name", '') as first_name,
-        COALESCE(s."Authorized_Official_Middle_Name", '') as middle_name,
-        COALESCE(s."Authorized_Official_Name_Prefix_Text", '') as name_prefix,
-        COALESCE(s."Authorized_Official_Name_Suffix_Text", '') as name_suffix,
-        i.id as existing_individual_id,
+        nppes_main."NPI" AS npi,
+        COALESCE(nppes_main."Authorized_Official_Last_Name", '') AS last_name,
+        COALESCE(nppes_main."Authorized_Official_First_Name", '') AS first_name,
+        COALESCE(nppes_main."Authorized_Official_Middle_Name", '') AS middle_name,
+        COALESCE(nppes_main."Authorized_Official_Name_Prefix_Text", '') AS name_prefix,
+        COALESCE(nppes_main."Authorized_Official_Name_Suffix_Text", '') AS name_suffix,
+        individual_table.id AS existing_individual_id,
         CASE 
-            WHEN i.id IS NULL THEN 'NEW'
-            WHEN (i.last_name != COALESCE(s."Authorized_Official_Last_Name", '') OR
-                  i.first_name != COALESCE(s."Authorized_Official_First_Name", '') OR
-                  i.middle_name != COALESCE(s."Authorized_Official_Middle_Name", '') OR
-                  i.name_prefix != COALESCE(s."Authorized_Official_Name_Prefix_Text", '') OR
-                  i.name_suffix != COALESCE(s."Authorized_Official_Name_Suffix_Text", '')) THEN 'UPDATED'
+            WHEN individual_table.id IS NULL THEN 'NEW'
+            WHEN (individual_table.last_name != COALESCE(nppes_main."Authorized_Official_Last_Name", '') OR
+                  individual_table.first_name != COALESCE(nppes_main."Authorized_Official_First_Name", '') OR
+                  individual_table.middle_name != COALESCE(nppes_main."Authorized_Official_Middle_Name", '') OR
+                  individual_table.name_prefix != COALESCE(nppes_main."Authorized_Official_Name_Prefix_Text", '') OR
+                  individual_table.name_suffix != COALESCE(nppes_main."Authorized_Official_Name_Suffix_Text", '')) THEN 'UPDATED'
             ELSE NULL
-        END as change_type,
+        END AS change_type,
         jsonb_build_object(
-            'old_last_name', i.last_name,
-            'old_first_name', i.first_name,
-            'old_middle_name', i.middle_name,
-            'old_name_prefix', i.name_prefix,
-            'old_name_suffix', i.name_suffix
-        ) as old_values,
+            'old_last_name', individual_table.last_name,
+            'old_first_name', individual_table.first_name,
+            'old_middle_name', individual_table.middle_name,
+            'old_name_prefix', individual_table.name_prefix,
+            'old_name_suffix', individual_table.name_suffix
+        ) AS old_values,
         jsonb_build_object(
-            'new_last_name', COALESCE(s."Authorized_Official_Last_Name", ''),
-            'new_first_name', COALESCE(s."Authorized_Official_First_Name", ''),
-            'new_middle_name', COALESCE(s."Authorized_Official_Middle_Name", ''),
-            'new_name_prefix', COALESCE(s."Authorized_Official_Name_Prefix_Text", ''),
-            'new_name_suffix', COALESCE(s."Authorized_Official_Name_Suffix_Text", '')
-        ) as new_values
-    FROM {source_DBTable} s
-    JOIN {npi_change_log_DBTable} cl ON s."NPI" = cl.npi
-    LEFT JOIN {individual_DBTable} i ON (
-        i.last_name = COALESCE(s."Authorized_Official_Last_Name", '')
-        AND i.first_name = COALESCE(s."Authorized_Official_First_Name", '')
-        AND i.middle_name = COALESCE(s."Authorized_Official_Middle_Name", '')
-        AND i.name_prefix = COALESCE(s."Authorized_Official_Name_Prefix_Text", '')
-        AND i.name_suffix = COALESCE(s."Authorized_Official_Name_Suffix_Text", '')
+            'new_last_name', COALESCE(nppes_main."Authorized_Official_Last_Name", ''),
+            'new_first_name', COALESCE(nppes_main."Authorized_Official_First_Name", ''),
+            'new_middle_name', COALESCE(nppes_main."Authorized_Official_Middle_Name", ''),
+            'new_name_prefix', COALESCE(nppes_main."Authorized_Official_Name_Prefix_Text", ''),
+            'new_name_suffix', COALESCE(nppes_main."Authorized_Official_Name_Suffix_Text", '')
+        ) AS new_values
+    FROM {source_DBTable} AS nppes_main
+    JOIN {npi_change_log_DBTable} AS change_log ON nppes_main."NPI" = change_log.npi
+    LEFT JOIN {individual_DBTable} AS individual_table ON (
+        individual_table.last_name = COALESCE(nppes_main."Authorized_Official_Last_Name", '')
+        AND individual_table.first_name = COALESCE(nppes_main."Authorized_Official_First_Name", '')
+        AND individual_table.middle_name = COALESCE(nppes_main."Authorized_Official_Middle_Name", '')
+        AND individual_table.name_prefix = COALESCE(nppes_main."Authorized_Official_Name_Prefix_Text", '')
+        AND individual_table.name_suffix = COALESCE(nppes_main."Authorized_Official_Name_Suffix_Text", '')
     )
-    WHERE s."Entity_Type_Code" = '2'
-    AND cl.processed = FALSE
-    AND s."Authorized_Official_Last_Name" IS NOT NULL
-    AND s."Authorized_Official_First_Name" IS NOT NULL;
+    WHERE nppes_main."Entity_Type_Code" = '2'
+    AND change_log.processed = FALSE
+    AND nppes_main."Authorized_Official_Last_Name" IS NOT NULL
+    AND nppes_main."Authorized_Official_First_Name" IS NOT NULL;
     """
     
     sql['08_log_individual_provider_changes'] = f"""
@@ -373,15 +377,15 @@ def main():
         new_values
     )
     SELECT 
-        cr.run_id,
-        ipc.existing_individual_id,
-        ipc.npi,
-        ipc.change_type,
-        ipc.old_values,
-        ipc.new_values
-    FROM {individual_provider_changes_DBTable} ipc
-    CROSS JOIN {current_run_DBTable} cr
-    WHERE ipc.change_type IS NOT NULL;
+        current_run.run_id,
+        individual_provider_changes.existing_individual_id,
+        individual_provider_changes.npi,
+        individual_provider_changes.change_type,
+        individual_provider_changes.old_values,
+        individual_provider_changes.new_values
+    FROM {individual_provider_changes_DBTable} AS individual_provider_changes
+    CROSS JOIN {current_run_DBTable} AS current_run
+    WHERE individual_provider_changes.change_type IS NOT NULL;
     """
     
     sql['09_log_authorized_official_changes'] = f"""
@@ -394,15 +398,15 @@ def main():
         new_values
     )
     SELECT 
-        cr.run_id,
-        aoc.existing_individual_id,
-        aoc.npi,
-        aoc.change_type,
-        aoc.old_values,
-        aoc.new_values
-    FROM {authorized_official_changes_DBTable} aoc
-    CROSS JOIN {current_run_DBTable} cr
-    WHERE aoc.change_type IS NOT NULL;
+        current_run.run_id,
+        authorized_official_changes.existing_individual_id,
+        authorized_official_changes.npi,
+        authorized_official_changes.change_type,
+        authorized_official_changes.old_values,
+        authorized_official_changes.new_values
+    FROM {authorized_official_changes_DBTable} AS authorized_official_changes
+    CROSS JOIN {current_run_DBTable} AS current_run
+    WHERE authorized_official_changes.change_type IS NOT NULL;
     """
     
     # ========================================
@@ -420,22 +424,22 @@ def main():
         SSN
     )
     SELECT DISTINCT
-        ipc.last_name,
-        ipc.first_name,
-        ipc.middle_name,
-        ipc.name_prefix,
-        ipc.name_suffix,
-        NULL as email_address,
-        NULL as SSN
-    FROM {individual_provider_changes_DBTable} ipc
-    WHERE ipc.change_type = 'NEW'
+        individual_provider_changes.last_name,
+        individual_provider_changes.first_name,
+        individual_provider_changes.middle_name,
+        individual_provider_changes.name_prefix,
+        individual_provider_changes.name_suffix,
+        NULL AS email_address,
+        NULL AS SSN
+    FROM {individual_provider_changes_DBTable} AS individual_provider_changes
+    WHERE individual_provider_changes.change_type = 'NEW'
     AND NOT EXISTS (
-        SELECT 1 FROM {individual_DBTable} i
-        WHERE i.last_name = ipc.last_name
-        AND i.first_name = ipc.first_name
-        AND i.middle_name = ipc.middle_name
-        AND i.name_prefix = ipc.name_prefix
-        AND i.name_suffix = ipc.name_suffix
+        SELECT 1 FROM {individual_DBTable} AS individual_table
+        WHERE individual_table.last_name = individual_provider_changes.last_name
+        AND individual_table.first_name = individual_provider_changes.first_name
+        AND individual_table.middle_name = individual_provider_changes.middle_name
+        AND individual_table.name_prefix = individual_provider_changes.name_prefix
+        AND individual_table.name_suffix = individual_provider_changes.name_suffix
     );
     """
     
@@ -450,22 +454,22 @@ def main():
         SSN
     )
     SELECT DISTINCT
-        aoc.last_name,
-        aoc.first_name,
-        aoc.middle_name,
-        aoc.name_prefix,
-        aoc.name_suffix,
-        NULL as email_address,
-        NULL as SSN
-    FROM {authorized_official_changes_DBTable} aoc
-    WHERE aoc.change_type = 'NEW'
+        authorized_official_changes.last_name,
+        authorized_official_changes.first_name,
+        authorized_official_changes.middle_name,
+        authorized_official_changes.name_prefix,
+        authorized_official_changes.name_suffix,
+        NULL AS email_address,
+        NULL AS SSN
+    FROM {authorized_official_changes_DBTable} AS authorized_official_changes
+    WHERE authorized_official_changes.change_type = 'NEW'
     AND NOT EXISTS (
-        SELECT 1 FROM {individual_DBTable} i
-        WHERE i.last_name = aoc.last_name
-        AND i.first_name = aoc.first_name
-        AND i.middle_name = aoc.middle_name
-        AND i.name_prefix = aoc.name_prefix
-        AND i.name_suffix = aoc.name_suffix
+        SELECT 1 FROM {individual_DBTable} AS individual_table
+        WHERE individual_table.last_name = authorized_official_changes.last_name
+        AND individual_table.first_name = authorized_official_changes.first_name
+        AND individual_table.middle_name = authorized_official_changes.middle_name
+        AND individual_table.name_prefix = authorized_official_changes.name_prefix
+        AND individual_table.name_suffix = authorized_official_changes.name_suffix
     );
     """
     
@@ -475,32 +479,34 @@ def main():
     
     sql['12_upsert_npi_to_individual_relationships'] = f"""
     INSERT INTO {npi_to_individual_DBTable} (
+        id,
         NPI_id,
         Individual_id,
         is_sole_proprietor,
         sex_code
     )
-    SELECT 
-        n.id::INT as NPI_id,
-        i.id as Individual_id,
+    SELECT DISTINCT
+        npi_table.id AS id,
+        npi_table.id AS NPI_id,
+        individual_table.id AS Individual_id,
         CASE 
-            WHEN s."Is_Sole_Proprietor" = 'Y' THEN TRUE
-            WHEN s."Is_Sole_Proprietor" = 'N' THEN FALSE
+            WHEN source_table."Is_Sole_Proprietor" = 'Y' THEN TRUE
+            WHEN source_table."Is_Sole_Proprietor" = 'N' THEN FALSE
             ELSE FALSE
-        END as is_sole_proprietor,
-        COALESCE(s."Provider_Sex_Code", '') as sex_code
-    FROM {npi_DBTable} n
-    JOIN {source_DBTable} s ON n.npi = s."NPI"
-    JOIN {npi_change_log_DBTable} cl ON s."NPI" = cl.npi
-    JOIN {individual_DBTable} i ON (
-        i.last_name = COALESCE(s."Provider_Last_Name_Legal_Name", '')
-        AND i.first_name = COALESCE(s."Provider_First_Name", '')
-        AND i.middle_name = COALESCE(s."Provider_Middle_Name", '')
-        AND i.name_prefix = COALESCE(s."Provider_Name_Prefix_Text", '')
-        AND i.name_suffix = COALESCE(s."Provider_Name_Suffix_Text", '')
+        END AS is_sole_proprietor,
+        COALESCE(source_table."Provider_Sex_Code", '') AS sex_code
+    FROM {npi_DBTable} AS npi_table
+    JOIN {source_DBTable} AS source_table ON npi_table.npi = source_table."NPI"
+    JOIN {npi_change_log_DBTable} AS change_log ON source_table."NPI" = change_log.npi
+    JOIN {individual_DBTable} AS individual_table ON (
+        individual_table.last_name = COALESCE(source_table."Provider_Last_Name_Legal_Name", '')
+        AND individual_table.first_name = COALESCE(source_table."Provider_First_Name", '')
+        AND individual_table.middle_name = COALESCE(source_table."Provider_Middle_Name", '')
+        AND individual_table.name_prefix = COALESCE(source_table."Provider_Name_Prefix_Text", '')
+        AND individual_table.name_suffix = COALESCE(source_table."Provider_Name_Suffix_Text", '')
     )
-    WHERE s."Entity_Type_Code" = '1'
-    AND cl.processed = FALSE
+    WHERE source_table."Entity_Type_Code" = '1'
+    AND change_log.processed = FALSE
     ON CONFLICT (NPI_id) DO UPDATE SET
         Individual_id = EXCLUDED.Individual_id,
         is_sole_proprietor = EXCLUDED.is_sole_proprietor,
@@ -517,22 +523,22 @@ def main():
     DROP TABLE IF EXISTS {normalized_org_names_DBTable};
     CREATE TABLE {normalized_org_names_DBTable} AS
     SELECT 
-        s."NPI",
-        s."Provider_Organization_Name_Legal_Business_Name",
-        s."Parent_Organization_LBN",
-        s."Is_Organization_Subpart",
+        source_table."NPI",
+        source_table."Provider_Organization_Name_Legal_Business_Name",
+        source_table."Parent_Organization_LBN",
+        source_table."Is_Organization_Subpart",
         LOWER(REGEXP_REPLACE(
-            COALESCE(s."Provider_Organization_Name_Legal_Business_Name", ''), 
+            COALESCE(source_table."Provider_Organization_Name_Legal_Business_Name", ''), 
             '[^a-zA-Z0-9]', '', 'g'
-        )) as normalized_legal_name,
+        )) AS normalized_legal_name,
         LOWER(REGEXP_REPLACE(
-            COALESCE(s."Parent_Organization_LBN", ''), 
+            COALESCE(source_table."Parent_Organization_LBN", ''), 
             '[^a-zA-Z0-9]', '', 'g'
-        )) as normalized_parent_name
-    FROM {source_DBTable} s
-    JOIN {npi_change_log_DBTable} cl ON s."NPI" = cl.npi
-    WHERE s."Entity_Type_Code" = '2'
-    AND cl.processed = FALSE;
+        )) AS normalized_parent_name
+    FROM {source_DBTable} AS source_table
+    JOIN {npi_change_log_DBTable} AS change_log ON source_table."NPI" = change_log.npi
+    WHERE source_table."Entity_Type_Code" = '2'
+    AND change_log.processed = FALSE;
     """
     
     sql['14_create_parent_matches_temp_table'] = f"""
@@ -556,32 +562,32 @@ def main():
     DROP TABLE IF EXISTS {resolved_parents_DBTable};
     CREATE TABLE {resolved_parents_DBTable} AS
     SELECT 
-        pm.subpart_npi,
-        pm."Parent_Organization_LBN",
+        parent_matches.subpart_npi,
+        parent_matches."Parent_Organization_LBN",
         CASE 
-            WHEN COUNT(pm.parent_npi) = 1 THEN MAX(pm.parent_npi)
+            WHEN COUNT(parent_matches.parent_npi) = 1 THEN MAX(parent_matches.parent_npi)
             ELSE NULL
-        END as resolved_parent_npi,
-        COUNT(pm.parent_npi) as match_count
-    FROM {parent_matches_DBTable} pm
-    GROUP BY pm.subpart_npi, pm."Parent_Organization_LBN";
+        END AS resolved_parent_npi,
+        COUNT(parent_matches.parent_npi) AS match_count
+    FROM {parent_matches_DBTable} AS parent_matches
+    GROUP BY parent_matches.subpart_npi, parent_matches."Parent_Organization_LBN";
     """
     
     sql['16_create_parent_changes_temp_table'] = f"""
     DROP TABLE IF EXISTS {parent_changes_DBTable};
     CREATE TABLE {parent_changes_DBTable} AS
     SELECT 
-        rp.subpart_npi as child_npi,
-        nco.Parent_NPI_id as old_parent_npi,
-        rp.resolved_parent_npi as new_parent_npi,
+        resolved_parents.subpart_npi AS child_npi,
+        npi_to_clinical_org.Parent_NPI_id AS old_parent_npi,
+        resolved_parents.resolved_parent_npi AS new_parent_npi,
         CASE 
-            WHEN nco.Parent_NPI_id IS NULL AND rp.resolved_parent_npi IS NOT NULL THEN 'NEW_PARENT'
-            WHEN nco.Parent_NPI_id IS NOT NULL AND rp.resolved_parent_npi IS NULL THEN 'PARENT_REMOVED'
-            WHEN nco.Parent_NPI_id != rp.resolved_parent_npi THEN 'PARENT_CHANGED'
+            WHEN npi_to_clinical_org.Parent_NPI_id IS NULL AND resolved_parents.resolved_parent_npi IS NOT NULL THEN 'NEW_PARENT'
+            WHEN npi_to_clinical_org.Parent_NPI_id IS NOT NULL AND resolved_parents.resolved_parent_npi IS NULL THEN 'PARENT_REMOVED'
+            WHEN npi_to_clinical_org.Parent_NPI_id != resolved_parents.resolved_parent_npi THEN 'PARENT_CHANGED'
             ELSE NULL
-        END as change_type
-    FROM {resolved_parents_DBTable} rp
-    LEFT JOIN {npi_to_clinical_org_DBTable} nco ON rp.subpart_npi = nco.NPI_id;
+        END AS change_type
+    FROM {resolved_parents_DBTable} AS resolved_parents
+    LEFT JOIN {npi_to_clinical_org_DBTable} AS npi_to_clinical_org ON resolved_parents.subpart_npi = npi_to_clinical_org.NPI_id;
     """
     
     sql['17_log_parent_relationship_changes'] = f"""
@@ -609,29 +615,31 @@ def main():
     
     sql['18_upsert_npi_to_clinical_organization_relationships'] = f"""
     INSERT INTO {npi_to_clinical_org_DBTable} (
+        id, 
         NPI_id,
         ClinicalOrganization_id,
         PrimaryAuthorizedOfficial_Individual_id,
         Parent_NPI_id
     )
-    SELECT 
-        n.npi as NPI_id,
-        NULL as ClinicalOrganization_id,
-        i.id as PrimaryAuthorizedOfficial_Individual_id,
-        pcl.new_parent_npi as Parent_NPI_id
-    FROM {npi_DBTable} n
-    JOIN {source_DBTable} s ON n.npi = s."NPI"
-    JOIN {npi_change_log_DBTable} cl ON s."NPI" = cl.npi
-    JOIN {individual_DBTable} i ON (
-        i.last_name = COALESCE(s."Authorized_Official_Last_Name", '')
-        AND i.first_name = COALESCE(s."Authorized_Official_First_Name", '')
-        AND i.middle_name = COALESCE(s."Authorized_Official_Middle_Name", '')
-        AND i.name_prefix = COALESCE(s."Authorized_Official_Name_Prefix_Text", '')
-        AND i.name_suffix = COALESCE(s."Authorized_Official_Name_Suffix_Text", '')
+    SELECT DISTINCT
+        npi_table.id AS id,
+        npi_table.id AS NPI_id,
+        NULL::INTEGER AS ClinicalOrganization_id,
+        individual_table.id AS PrimaryAuthorizedOfficial_Individual_id,
+        parent_change_log.new_parent_npi AS Parent_NPI_id
+    FROM {npi_DBTable} AS npi_table
+    JOIN {source_DBTable} AS source_table ON npi_table.npi = source_table."NPI"
+    JOIN {npi_change_log_DBTable} AS change_log ON source_table."NPI" = change_log.npi
+    JOIN {individual_DBTable} AS individual_table ON (
+        individual_table.last_name = COALESCE(source_table."Authorized_Official_Last_Name", '')
+        AND individual_table.first_name = COALESCE(source_table."Authorized_Official_First_Name", '')
+        AND individual_table.middle_name = COALESCE(source_table."Authorized_Official_Middle_Name", '')
+        AND individual_table.name_prefix = COALESCE(source_table."Authorized_Official_Name_Prefix_Text", '')
+        AND individual_table.name_suffix = COALESCE(source_table."Authorized_Official_Name_Suffix_Text", '')
     )
-    LEFT JOIN {parent_change_log_DBTable} pcl ON n.npi = pcl.child_npi AND pcl.processed = FALSE
-    WHERE s."Entity_Type_Code" = '2'
-    AND cl.processed = FALSE
+    LEFT JOIN {parent_change_log_DBTable} AS parent_change_log ON npi_table.npi = parent_change_log.child_npi AND parent_change_log.processed = FALSE
+    WHERE source_table."Entity_Type_Code" = '2'
+    AND change_log.processed = FALSE
     ON CONFLICT (NPI_id) DO UPDATE SET
         PrimaryAuthorizedOfficial_Individual_id = EXCLUDED.PrimaryAuthorizedOfficial_Individual_id,
         Parent_NPI_id = EXCLUDED.Parent_NPI_id;
@@ -723,20 +731,20 @@ def main():
         COUNT(*) FILTER (WHERE change_type = 'NEW') as new_npis,
         COUNT(*) FILTER (WHERE change_type = 'UPDATED') as updated_npis,
         COUNT(*) FILTER (WHERE change_type = 'DEACTIVATED') as deactivated_npis
-    FROM {npi_change_log_DBTable} ncl
-    JOIN {current_run_DBTable} cr ON ncl.processing_run_id = cr.run_id;
+    FROM {npi_change_log_DBTable} AS npi_change_log
+    JOIN {current_run_DBTable} cr ON npi_change_log.processing_run_id = cr.run_id;
     """
     
     sql['27_finalize_processing_run'] = f"""
     UPDATE {processing_run_DBTable} 
     SET 
         processing_status = 'COMPLETED',
-        total_npis_processed = rs.total_npis_processed,
-        new_npis = rs.new_npis,
-        updated_npis = rs.updated_npis,
-        deactivated_npis = rs.deactivated_npis,
+        total_npis_processed = run_stats.total_npis_processed,
+        new_npis = run_stats.new_npis,
+        updated_npis = run_stats.updated_npis,
+        deactivated_npis = run_stats.deactivated_npis,
         notes = 'Data transformation completed successfully. Run Step20 for indexes and Step25 for analysis.'
-    FROM {run_stats_DBTable} rs
+    FROM {run_stats_DBTable} AS run_stats
     WHERE processing_status = 'IN_PROGRESS';
     """
     
