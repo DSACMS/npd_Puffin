@@ -78,7 +78,7 @@ SQLoopcicle.run_sql_loop(
 ### 5. InLaw - Data Validation Framework
 
 Initial creation of ETLs should not include InLaw statements. But once the user requests that they be added:
-Create validation tests to ensure data quality:
+Create validation tests to ensure data quality using Great Expectations:
 
 ```python
 from plainerflow import InLaw
@@ -89,17 +89,65 @@ class ValidateRowCount(InLaw):
     @staticmethod
     def run(engine):
         sql = "SELECT COUNT(*) as row_count FROM my_table"
-        validation_gx_df = InLaw.sql_to_gx_df(sql=sql, engine=engine)
+        gx_df = InLaw.to_gx_dataframe(sql, engine)
         
-        row_count = validation_gx_df.iloc[0]['row_count']
+        # Use Great Expectations to validate the data
+        result = gx_df.expect_column_values_to_be_between(
+            column="row_count", 
+            min_value=1, 
+            max_value=1000000
+        )
         
-        if row_count > 0:
+        if result.success:
             return True
-        return f"Table is empty: {row_count} rows"
+        return f"Row count validation failed: expected 1-1,000,000 rows"
+
+class ValidateNoNullValues(InLaw):
+    title = "Check for null values in required columns"
+    
+    @staticmethod
+    def run(engine):
+        sql = "SELECT COUNT(*) as null_count FROM my_table WHERE required_column IS NULL"
+        gx_df = InLaw.to_gx_dataframe(sql, engine)
+        
+        # Expect exactly 0 null values (using min=0, max=0 to check for equality)
+        result = gx_df.expect_column_values_to_be_between(
+            column="null_count", 
+            min_value=0,
+            max_value=0
+        )
+        
+        if result.success:
+            return True
+        return f"Found null values in required column"
 
 # Run all validation tests
 test_results = InLaw.run_all(engine=engine)
 ```
+
+**Key InLaw Pattern:**
+1. Write SQL that returns data to validate (not violations)
+2. Use `InLaw.to_gx_dataframe(sql, engine)` to convert to GX DataFrame
+3. Use Great Expectations methods like `expect_column_values_to_be_between()`, `expect_column_values_to_be_unique()`, etc.
+4. Check `result.success` and return True/False with descriptive error messages
+
+**Available GX Expectations (Commonly Used):**
+- `expect_column_values_to_be_between(column, min_value, max_value)` - Range validation
+- `expect_column_values_to_be_unique(column)` - Uniqueness validation
+- `expect_column_values_to_not_be_null(column)` - Non-null validation
+- `expect_column_values_to_be_null(column)` - Null validation
+- `expect_table_row_count_to_equal(value)` - Exact row count
+- `expect_table_row_count_to_be_between(min_value, max_value)` - Row count range
+- `expect_column_sum_to_be_between(column, min_value, max_value)` - Sum validation
+- `expect_column_values_to_match_regex(column, regex)` - Pattern matching
+
+**Tips for equality testing:**
+- Use `expect_column_values_to_be_between(column, min_value=0, max_value=0)` to test for exactly 0
+- Use `expect_table_row_count_to_equal(value)` for exact row counts
+- See ../plainerflow/docs/InLaw_README.md for complete list of available expectations
+
+InLaw `run_all()` prints the results of the tests, so there is nothing to do with test_results unless you want to inspect some specific result for some reason.
+Usually the run_all function is the last thing to do with the InLaw part of the process.
 
 ## Typical Usage Pattern for Post-Import ETL
 

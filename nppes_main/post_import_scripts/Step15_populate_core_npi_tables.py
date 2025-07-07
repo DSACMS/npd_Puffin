@@ -233,7 +233,7 @@ def main():
         reactivation_date,
         certification_date
     )
-    SELECT DISTINCT
+    SELECT
         nppes_main."NPI" AS id,
         nppes_main."NPI" AS npi,
         nppes_main."Entity_Type_Code"::SMALLINT AS entity_type_code,
@@ -249,11 +249,13 @@ def main():
         nppes_main."NPI_Reactivation_Date" AS reactivation_date,
         nppes_main."Certification_Date" AS certification_date
     FROM {source_DBTable} AS nppes_main
-    JOIN {npi_change_log_DBTable} AS change_log ON nppes_main."NPI" = change_log.npi
-    WHERE 
-        change_log.processed = FALSE 
-        AND nppes_main."Entity_Type_Code" != '' -- filters out deactivated blank records.
-    AND change_log.change_type IN ('NEW', 'UPDATED', 'DEACTIVATED', 'REACTIVATED')
+    WHERE nppes_main."NPI" IN (
+        SELECT DISTINCT change_log.npi
+        FROM {npi_change_log_DBTable} AS change_log
+        WHERE change_log.processed = FALSE
+        AND change_log.change_type IN ('NEW', 'UPDATED', 'DEACTIVATED', 'REACTIVATED')
+    )
+    AND nppes_main."Entity_Type_Code" != '' -- filters out deactivated blank records.
     ON CONFLICT (id) DO UPDATE SET
         entity_type_code = EXCLUDED.entity_type_code,
         replacement_npi = EXCLUDED.replacement_npi,
