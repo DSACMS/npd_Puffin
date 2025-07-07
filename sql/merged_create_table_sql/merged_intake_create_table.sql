@@ -1,14 +1,14 @@
 -- Merged SQL statements for schema: intake
--- Generated on: 2025-07-06 02:12:38
+-- Generated on: 2025-07-06 23:21:40
 -- Total statements for this schema: 6
 --
 -- Source files:
---   sql/create_table_sql/create_intake_npi_changes.sql
---   sql/create_table_sql/create_intake_phone.sql
---   sql/create_table_sql/create_intake_wrongnpi.sql
+--   ./sql/create_table_sql/create_intake_npi_changes.sql
+--   ./sql/create_table_sql/create_intake_phone.sql
+--   ./sql/create_table_sql/create_intake_wrongnpi.sql
 
 
--- Source: sql/create_table_sql/create_intake_npi_changes.sql
+-- Source: ./sql/create_table_sql/create_intake_npi_changes.sql
 CREATE TABLE IF NOT EXISTS intake.npi_processing_run (
     id SERIAL PRIMARY KEY,
     run_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS intake.npi_processing_run (
     notes TEXT
 );
 
--- Source: sql/create_table_sql/create_intake_npi_changes.sql
+-- Source: ./sql/create_table_sql/create_intake_npi_changes.sql
 CREATE TABLE IF NOT EXISTS intake.npi_change_log (
     id SERIAL PRIMARY KEY,
     processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS intake.npi_change_log (
     processed BOOLEAN DEFAULT FALSE
 );
 
--- Source: sql/create_table_sql/create_intake_npi_changes.sql
+-- Source: ./sql/create_table_sql/create_intake_npi_changes.sql
 CREATE TABLE IF NOT EXISTS intake.individual_change_log (
     id SERIAL PRIMARY KEY,
     processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS intake.individual_change_log (
     processed BOOLEAN DEFAULT FALSE
 );
 
--- Source: sql/create_table_sql/create_intake_npi_changes.sql
+-- Source: ./sql/create_table_sql/create_intake_npi_changes.sql
 CREATE TABLE IF NOT EXISTS intake.parent_relationship_change_log (
     id SERIAL PRIMARY KEY,
     processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS intake.parent_relationship_change_log (
     processed BOOLEAN DEFAULT FALSE
 );
 
--- Source: sql/create_table_sql/create_intake_phone.sql
+-- Source: ./sql/create_table_sql/create_intake_phone.sql
 CREATE TABLE intake.staging_phone (
     id SERIAL PRIMARY KEY,
 
@@ -86,7 +86,7 @@ CREATE TABLE intake.staging_phone (
     CONSTRAINT uc_staging_phone_raw_source UNIQUE (raw_phone, source_file, is_fax_in_source)
 );
 
--- Source: sql/create_table_sql/create_intake_wrongnpi.sql
+-- Source: ./sql/create_table_sql/create_intake_wrongnpi.sql
 CREATE TABLE intake.wrongnpi (
     npi BIGINT,
     error_type_string VARCHAR(10),

@@ -7,7 +7,7 @@ CREATE TABLE ndh.NPI (
     id BIGINT PRIMARY KEY,
     npi BIGINT   NOT NULL,
     entity_type_code SMALLINT   NOT NULL,
-    replacement_npi VARCHAR(11)   NOT NULL,
+    replacement_npi BIGINT  DEFAULT NULL,
     enumeration_date DATE  NOT NULL,
     last_update_date DATE   NOT NULL,
     deactivation_reason_code VARCHAR(3)   NOT NULL,

@@ -24,7 +24,7 @@ import os
 
 def main():
     # Control dry-run mode - start with True to preview SQL
-    is_just_print = True
+    is_just_print = False
     
     print("Connecting to DB")
     base_path = os.path.dirname(os.path.abspath(__file__))
@@ -49,7 +49,7 @@ def main():
     individual_change_log_DBTable = DBTable(schema='intake', table='individual_change_log')
     parent_change_log_DBTable = DBTable(schema='intake', table='parent_relationship_change_log')
     
-    # Intermediate working tables
+    # Intermediate working tables (regular tables in intake schema, cleaned up each run)
     current_run_DBTable = DBTable(schema='intake', table='temp_current_run')
     npi_changes_DBTable = DBTable(schema='intake', table='temp_npi_changes')
     individual_provider_changes_DBTable = DBTable(schema='intake', table='temp_individual_provider_changes')
@@ -63,6 +63,79 @@ def main():
     
     # Create SQL execution plan
     sql = FrostDict()
+    
+    # ========================================
+    # PHASE 0: Create intake tables if they don't exist
+    # ========================================
+    
+    sql['00a_create_npi_processing_run_table'] = """
+    -- Track processing runs and their metadata
+    CREATE TABLE IF NOT EXISTS intake.npi_processing_run (
+        id SERIAL PRIMARY KEY,
+        run_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        source_table VARCHAR(100) NOT NULL,
+        total_npis_processed INTEGER,
+        new_npis INTEGER,
+        updated_npis INTEGER,
+        deactivated_npis INTEGER,
+        processing_status VARCHAR(50) DEFAULT 'IN_PROGRESS',
+        notes TEXT
+    );
+    """
+    
+    sql['00b_create_npi_change_log_table'] = """
+    -- Track individual NPI changes detected during processing
+    CREATE TABLE IF NOT EXISTS intake.npi_change_log (
+        id SERIAL PRIMARY KEY,
+        processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
+        npi BIGINT NOT NULL,
+        change_type VARCHAR(50) NOT NULL, -- 'NEW', 'UPDATED', 'DEACTIVATED', 'REACTIVATED'
+        change_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        old_last_update_date DATE,
+        new_last_update_date DATE,
+        change_details JSONB,
+        processed BOOLEAN DEFAULT FALSE
+    );
+    """
+    
+    sql['00c_create_individual_change_log_table'] = """
+    -- Track Individual record changes
+    CREATE TABLE IF NOT EXISTS intake.individual_change_log (
+        id SERIAL PRIMARY KEY,
+        processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
+        individual_id INTEGER,
+        npi BIGINT,
+        change_type VARCHAR(50) NOT NULL, -- 'NEW', 'UPDATED', 'NAME_CHANGE'
+        change_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        old_values JSONB,
+        new_values JSONB,
+        processed BOOLEAN DEFAULT FALSE
+    );
+    """
+    
+    sql['00d_create_parent_relationship_change_log_table'] = """
+    -- Track parent relationship changes for organizations
+    CREATE TABLE IF NOT EXISTS intake.parent_relationship_change_log (
+        id SERIAL PRIMARY KEY,
+        processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
+        child_npi BIGINT NOT NULL,
+        old_parent_npi BIGINT,
+        new_parent_npi BIGINT,
+        change_type VARCHAR(50) NOT NULL, -- 'NEW_PARENT', 'PARENT_CHANGED', 'PARENT_REMOVED'
+        change_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        processed BOOLEAN DEFAULT FALSE
+    );
+    """
+    
+    sql['00e_create_intake_table_indexes'] = """
+    -- Create indexes for performance on intake tables
+    CREATE INDEX IF NOT EXISTS idx_npi_processing_run_date ON intake.npi_processing_run(run_date);
+    CREATE INDEX IF NOT EXISTS idx_npi_change_log_npi ON intake.npi_change_log(npi);
+    CREATE INDEX IF NOT EXISTS idx_npi_change_log_run ON intake.npi_change_log(processing_run_id);
+    CREATE INDEX IF NOT EXISTS idx_npi_change_log_type ON intake.npi_change_log(change_type);
+    CREATE INDEX IF NOT EXISTS idx_individual_change_log_npi ON intake.individual_change_log(npi);
+    CREATE INDEX IF NOT EXISTS idx_parent_relationship_change_log_child ON intake.parent_relationship_change_log(child_npi);
+    """
     
     # ========================================
     # PHASE 1: Initialize processing run
@@ -83,7 +156,7 @@ def main():
     
     sql['02_create_current_run_temp_table'] = f"""
     DROP TABLE IF EXISTS {current_run_DBTable};
-    CREATE TEMP TABLE {current_run_DBTable} AS
+    CREATE TABLE {current_run_DBTable} AS
     SELECT id as run_id 
     FROM {processing_run_DBTable} 
     WHERE processing_status = 'IN_PROGRESS' 
@@ -97,7 +170,7 @@ def main():
     
     sql['03_create_npi_changes_temp_table'] = f"""
     DROP TABLE IF EXISTS {npi_changes_DBTable};
-    CREATE TEMP TABLE {npi_changes_DBTable} AS
+    CREATE TABLE {npi_changes_DBTable} AS
     SELECT 
         s."NPI" as npi,
         s."Last_Update_Date" as new_last_update_date,
@@ -194,7 +267,7 @@ def main():
     
     sql['06_create_individual_provider_changes_temp_table'] = f"""
     DROP TABLE IF EXISTS {individual_provider_changes_DBTable};
-    CREATE TEMP TABLE {individual_provider_changes_DBTable} AS
+    CREATE TABLE {individual_provider_changes_DBTable} AS
     SELECT 
         s."NPI" as npi,
         COALESCE(s."Provider_Last_Name_Legal_Name", '') as last_name,
@@ -243,7 +316,7 @@ def main():
     
     sql['07_create_authorized_official_changes_temp_table'] = f"""
     DROP TABLE IF EXISTS {authorized_official_changes_DBTable};
-    CREATE TEMP TABLE {authorized_official_changes_DBTable} AS
+    CREATE TABLE {authorized_official_changes_DBTable} AS
     SELECT 
         s."NPI" as npi,
         COALESCE(s."Authorized_Official_Last_Name", '') as last_name,
@@ -442,7 +515,7 @@ def main():
 
     sql['13_create_normalized_org_names_temp_table'] = f"""
     DROP TABLE IF EXISTS {normalized_org_names_DBTable};
-    CREATE TEMP TABLE {normalized_org_names_DBTable} AS
+    CREATE TABLE {normalized_org_names_DBTable} AS
     SELECT 
         s."NPI",
         s."Provider_Organization_Name_Legal_Business_Name",
@@ -464,7 +537,7 @@ def main():
     
     sql['14_create_parent_matches_temp_table'] = f"""
     DROP TABLE IF EXISTS {parent_matches_DBTable};
-    CREATE TEMP TABLE {parent_matches_DBTable} AS
+    CREATE TABLE {parent_matches_DBTable} AS
     SELECT 
         subpart."NPI" as subpart_npi,
         subpart."Parent_Organization_LBN",
@@ -481,7 +554,7 @@ def main():
     
     sql['15_create_resolved_parents_temp_table'] = f"""
     DROP TABLE IF EXISTS {resolved_parents_DBTable};
-    CREATE TEMP TABLE {resolved_parents_DBTable} AS
+    CREATE TABLE {resolved_parents_DBTable} AS
     SELECT 
         pm.subpart_npi,
         pm."Parent_Organization_LBN",
@@ -496,7 +569,7 @@ def main():
     
     sql['16_create_parent_changes_temp_table'] = f"""
     DROP TABLE IF EXISTS {parent_changes_DBTable};
-    CREATE TEMP TABLE {parent_changes_DBTable} AS
+    CREATE TABLE {parent_changes_DBTable} AS
     SELECT 
         rp.subpart_npi as child_npi,
         nco.Parent_NPI_id as old_parent_npi,
@@ -595,7 +668,7 @@ def main():
     
     sql['21_create_multi_parent_npis_temp_table'] = f"""
     DROP TABLE IF EXISTS {multi_parent_npis_DBTable};
-    CREATE TEMP TABLE {multi_parent_npis_DBTable} AS
+    CREATE TABLE {multi_parent_npis_DBTable} AS
     SELECT DISTINCT
         rp.subpart_npi as npi,
         rp."Parent_Organization_LBN"
@@ -644,7 +717,7 @@ def main():
     
     sql['26_create_run_stats_temp_table'] = f"""
     DROP TABLE IF EXISTS {run_stats_DBTable};
-    CREATE TEMP TABLE {run_stats_DBTable} AS
+    CREATE TABLE {run_stats_DBTable} AS
     SELECT 
         COUNT(*) as total_npis_processed,
         COUNT(*) FILTER (WHERE change_type = 'NEW') as new_npis,

@@ -35,8 +35,8 @@ def main():
     print(f"✅ Found {len(normalized_columns)} columns in metadata")
 
     # Table selection
-    #npi_table = 'main_file_small'  # For testing
-    npi_table = 'main_file'  # For production
+    npi_table = 'main_file_small'  # For testing
+    #npi_table = 'main_file'  # For production
 
     npi_DBTable = DBTable(schema='nppes_raw', table=npi_table)
     print(f"🎯 Target table: {npi_DBTable}")

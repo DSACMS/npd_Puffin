@@ -21,8 +21,8 @@ def main():
     
 
 
-    #npi_table = 'main_file_small' # For testing
-    npi_table = 'main_file' # for production
+    npi_table = 'main_file_small' # For testing
+    #npi_table = 'main_file' # for production
 
     npi_DBTable = DBTable(schema='nppes_raw', table=npi_table)
 

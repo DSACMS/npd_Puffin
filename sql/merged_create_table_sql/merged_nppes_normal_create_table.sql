@@ -1,12 +1,12 @@
 -- Merged SQL statements for schema: nppes_normal
--- Generated on: 2025-07-06 02:12:39
+-- Generated on: 2025-07-06 23:21:40
 -- Total statements for this schema: 15
 --
 -- Source files:
---   sql/create_table_sql/create_nppes_data.sql
+--   ./sql/create_table_sql/create_nppes_data.sql
 
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.npidetail (
     id BIGINT PRIMARY KEY,
     npi BIGINT,
@@ -20,7 +20,7 @@ CREATE TABLE nppes_normal.npidetail (
     certification_date DATE
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.npi_individual (
     npidetail_id BIGINT,  
     npi BIGINT,
@@ -34,7 +34,7 @@ CREATE TABLE nppes_normal.npi_individual (
     sex_code CHAR(1)
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.npi_organization (
     npidetail_id BIGINT,    
     npi BIGINT,
@@ -52,13 +52,13 @@ CREATE TABLE nppes_normal.npi_organization (
     is_org_subpart BOOLEAN
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.identifier_type_lut (
     id SERIAL PRIMARY KEY,
     identifier_type_description TEXT UNIQUE NOT NULL
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.npi_identifier (    
     id SERIAL PRIMARY KEY,
     npidetail_id BIGINT,    
@@ -69,26 +69,26 @@ CREATE TABLE nppes_normal.npi_identifier (
     issuer VARCHAR(81)
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.address_type_lut (
     id SERIAL PRIMARY KEY,
     address_type_description TEXT UNIQUE NOT NULL
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.phone_type_lut (
     id SERIAL PRIMARY KEY,
     phone_type_description TEXT UNIQUE NOT NULL
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.state_code_lut (
     id SERIAL PRIMARY KEY,
     state_code VARCHAR(100) UNIQUE NOT NULL,
     state_name VARCHAR(100) NOT NULL
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.orgname_type_lut (
     id SERIAL PRIMARY KEY,
     orgname_description TEXT UNIQUE NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE nppes_normal.orgname_type_lut (
     source_field TEXT NOT NULL
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.orgname (
     id SERIAL PRIMARY KEY,
     npidetail_id BIGINT,     
@@ -106,7 +106,7 @@ CREATE TABLE nppes_normal.orgname (
     code_description VARCHAR(100)
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.npi_address (
     id SERIAL PRIMARY KEY,
     npidetail_id BIGINT,     
@@ -120,7 +120,7 @@ CREATE TABLE nppes_normal.npi_address (
     country_code VARCHAR(2)
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.npi_phone (
     id SERIAL PRIMARY KEY,
     npidetail_id BIGINT,     
@@ -130,7 +130,7 @@ CREATE TABLE nppes_normal.npi_phone (
     is_fax BOOLEAN
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.npi_taxonomy (
     id SERIAL PRIMARY KEY,
     npidetail_id BIGINT,     
@@ -142,7 +142,7 @@ CREATE TABLE nppes_normal.npi_taxonomy (
     taxonomy_group VARCHAR(10)
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.npi_identifiers (
     id SERIAL PRIMARY KEY,
     npidetail_id BIGINT,     
@@ -153,7 +153,7 @@ CREATE TABLE nppes_normal.npi_identifiers (
     issuer VARCHAR(80)
 );
 
--- Source: sql/create_table_sql/create_nppes_data.sql
+-- Source: ./sql/create_table_sql/create_nppes_data.sql
 CREATE TABLE nppes_normal.npi_endpoints (
     id SERIAL PRIMARY KEY,
     npidetail_id BIGINT,     
