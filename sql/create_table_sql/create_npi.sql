@@ -16,7 +16,11 @@ CREATE TABLE ndh.NPI (
     certification_date DATE 
 );
 
-CREATE TABLE ndh.NPI_to_Individual (
+-- TODO should we rename these to IndividualNPI and OrganizationalNPI respectively. 
+-- They are not many-to-many against NPI and each NPI only has one or the other. 
+-- These names better 
+
+CREATE TABLE ndh.individual_npi (
     id BIGINT  PRIMARY KEY,
     NPI_id BIGINT   NOT NULL UNIQUE,
     Individual_id INT   NOT NULL,
@@ -24,7 +28,7 @@ CREATE TABLE ndh.NPI_to_Individual (
 
 );
 
-CREATE TABLE ndh.NPI_to_ClinicalOrganization (
+CREATE TABLE ndh.organizational_npi (
     id BIGINT  PRIMARY KEY,
     NPI_id BIGINT   NOT NULL UNIQUE,
     ClinicalOrganization_id INT  DEFAULT NULL,

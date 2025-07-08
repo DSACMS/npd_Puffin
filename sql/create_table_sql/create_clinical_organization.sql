@@ -48,3 +48,9 @@ CREATE TABLE ndh.Orgname (
     ClinicalOrganization_name VARCHAR(70)   NOT NULL,
     ClinicalOrgnameType_id INTEGER   NOT NULL
 );
+
+
+CREATE TABLE ndh.employed_npi (
+    ClinicalOrganization_id INT   NOT NULL,
+    npi_id INT NOT NULL
+);
