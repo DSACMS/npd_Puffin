@@ -1,5 +1,5 @@
 -- Merged SQL statements for schema: ndh
--- Generated on: 2025-07-07 02:33:21
+-- Generated on: 2025-07-07 09:25:10
 -- Total statements for this schema: 47
 --
 -- Source files:
@@ -188,7 +188,7 @@ CREATE TABLE ndh.ClinicalOrganization (
     Organization_TIN VARCHAR(10)   DEFAULT NULL,
     Organization_VTIN VARCHAR(50) DEFAULT NULL,
     OrganizationGLIEF VARCHAR(300)  DEFAULT NULL,
-    CONSTRAINT uc_Organization_OrganizationTIN UNIQUE (
+    CONSTRAINT uc_Organization_Organization_VTIN UNIQUE (
         Organization_VTIN
     )
 );
@@ -287,7 +287,8 @@ CREATE TABLE ndh.Individual (
     name_prefix VARCHAR(6)   NOT NULL,
     name_suffix VARCHAR(6)   NOT NULL,
     email_address VARCHAR(200)   DEFAULT NULL,
-    SSN VARCHAR(10)   DEFAULT NULL
+    SSN VARCHAR(10)   DEFAULT NULL.
+    sex_code CHAR(1)  DEFAULT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_interop_endpoint.sql
@@ -345,8 +346,8 @@ CREATE TABLE ndh.NPI_to_Individual (
     id BIGINT  PRIMARY KEY,
     NPI_id BIGINT   NOT NULL UNIQUE,
     Individual_id INT   NOT NULL,
-    is_sole_proprietor BOOLEAN   NOT NULL,
-    sex_code CHAR(1)   NOT NULL
+    is_sole_proprietor BOOLEAN   NOT NULL
+
 );
 
 -- Source: ./sql/create_table_sql/create_npi.sql

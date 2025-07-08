@@ -20,8 +20,8 @@ CREATE TABLE ndh.NPI_to_Individual (
     id BIGINT  PRIMARY KEY,
     NPI_id BIGINT   NOT NULL UNIQUE,
     Individual_id INT   NOT NULL,
-    is_sole_proprietor BOOLEAN   NOT NULL,
-    sex_code CHAR(1)   NOT NULL
+    is_sole_proprietor BOOLEAN   NOT NULL
+
 );
 
 CREATE TABLE ndh.NPI_to_ClinicalOrganization (
