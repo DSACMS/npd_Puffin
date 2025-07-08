@@ -248,7 +248,8 @@ def main():
     ON CONFLICT (last_name, first_name, middle_name, name_prefix, name_suffix) DO NOTHING;
     """
     
-    # Phase 8: Create NPI to ClinicalOrganization links
+    # Phase 8: Create Organizational NPI to ClinicalOrganization links
+    # Note the "WHERE nppes_main."Entity_Type_Code" = '2'" this si ensuring 
     sql['populate_npi_to_clinical_organization'] = f"""
     INSERT INTO {npi_to_clinical_org_DBTable} (
         id,

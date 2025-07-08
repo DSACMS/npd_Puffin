@@ -50,7 +50,7 @@ CREATE TABLE ndh.Orgname (
 );
 
 
-CREATE TABLE ndh.employed_npi (
+CREATE TABLE ndh.assigning_npi (
     ClinicalOrganization_id INT   NOT NULL,
     npi_id INT NOT NULL
 );
