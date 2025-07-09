@@ -30,7 +30,7 @@ CREATE TABLE ndh.interopendpoint (
     -- endpoint NPPES file as endpoint_comments
     endpoint_desc VARCHAR(100)   NOT NULL,
     endpoint_address_id INT   DEFAULT NULL, -- this I am unsure about. It is specified in the FHIR standard, but perhaps it is ephemerial? What does it mean for a mutli-ONPI EHR endpoint to have 'an' address?
-    interopendpointtype_id INT DEFAULT 1  NOT NULL
+    interopendpointtype_id INT DEFAULT 1  NOT NULL,
     -- Prevent duplicate FHIR endpoint URLs
     CONSTRAINT uq_interopendpoint_url UNIQUE (fhir_endpoint_url)    
 );
