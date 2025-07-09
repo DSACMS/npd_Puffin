@@ -13,7 +13,7 @@ There are three types of NPIs in the raw NPPES file:
  2. Individual
  3. Retired
 
-Core Data Validation Expectations - Each of these should be a seperate InLaw class. 
+Core Data Validation Expectations - Each of these should be a seperate InLaw class.
 
  1. Exclude Retired
  • After accounting for retired NPIs using a WHERE on the raw NPPES data, every remaining NPI should be one-to-one in the NDH npi table.
@@ -23,11 +23,9 @@ Core Data Validation Expectations - Each of these should be a seperate InLaw cla
  • Every NPI listed in ndh.organizational_npi should exist in the raw nppes data, and there should be the same number of tem
  • A left join of raw organizational NPIs to ndh.organizational_npi, followed by a WHERE IS NULL, should return zero rows, when joining in both directions
  • The same applies to individual_npi: Every individual NPI must be matched in the NDH target.
- 5. Attribute-Level Sanity Checks
- • For the most part other attributes in NPPES normalize, and are not 1:1. But for those few things that are, they should be validated to be identical to the source data. 
+ 4. Attribute-Level Sanity Checks
+ • For the most part other attributes in NPPES normalize, and are not 1:1. But for those few things that are, they should be validated to be identical to the source data.
 
 ETL Model: In-Law Classes
 
 These expectations will be implemented as InLaw classes, where each class represents a single expectation.
-
-
