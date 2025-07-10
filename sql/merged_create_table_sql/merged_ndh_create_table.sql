@@ -1,5 +1,5 @@
 -- Merged SQL statements for schema: ndh
--- Generated on: 2025-07-07 09:25:10
+-- Generated on: 2025-07-09 09:36:43
 -- Total statements for this schema: 47
 --
 -- Source files:
@@ -212,6 +212,12 @@ CREATE TABLE ndh.Orgname (
     ClinicalOrgnameType_id INTEGER   NOT NULL
 );
 
+-- Source: ./sql/create_table_sql/create_clinical_organization.sql
+CREATE TABLE ndh.assigning_npi (
+    ClinicalOrganization_id INT   NOT NULL,
+    npi_id INT NOT NULL
+);
+
 -- Source: ./sql/create_table_sql/create_EHR.sql
 CREATE TABLE ndh.EHRToNPI (
     id SERIAL PRIMARY KEY,
@@ -292,14 +298,7 @@ CREATE TABLE ndh.Individual (
 );
 
 -- Source: ./sql/create_table_sql/create_interop_endpoint.sql
-CREATE TABLE ndh.NPIToEndpoint (
-    id SERIAL PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL,
-    Endpoint_id INT   NOT NULL
-);
-
--- Source: ./sql/create_table_sql/create_interop_endpoint.sql
-CREATE TABLE ndh.InteropEndpointTypeLUT (
+CREATE TABLE ndh.interopendpointtype_LUT (
     id SERIAL PRIMARY KEY,
     identifier_type_description TEXT   NOT NULL,
     CONSTRAINT uc_EndpointTypeLUT_identifier_type_description UNIQUE (
@@ -308,7 +307,7 @@ CREATE TABLE ndh.InteropEndpointTypeLUT (
 );
 
 -- Source: ./sql/create_table_sql/create_interop_endpoint.sql
-CREATE TABLE ndh.InteropEndpoint (
+CREATE TABLE ndh.interopendpoint (
     id SERIAL PRIMARY KEY,
     -- for now only FHIR and Direct
     fhir_endpoint_url VARCHAR(500)   NOT NULL,
@@ -316,15 +315,17 @@ CREATE TABLE ndh.InteropEndpoint (
     endpoint_name VARCHAR(100)   NOT NULL,
     -- endpoint NPPES file as endpoint_comments
     endpoint_desc VARCHAR(100)   NOT NULL,
-    EndpointAddress_id int   NOT NULL, -- this I am unsure about. It is specified in the FHIR standard, but perhaps it is ephemerial? What does it mean for a mutli-ONPI EHR endpoint to have 'an' address?
-    InteropEndpointType_id int   NOT NULL
+    endpoint_address_id INT   DEFAULT NULL, -- this I am unsure about. It is specified in the FHIR standard, but perhaps it is ephemerial? What does it mean for a mutli-ONPI EHR endpoint to have 'an' address?
+    interopendpointtype_id INT DEFAULT 1  NOT NULL,
+    -- Prevent duplicate FHIR endpoint URLs
+    CONSTRAINT uq_interopendpoint_url UNIQUE (fhir_endpoint_url)    
 );
 
 -- Source: ./sql/create_table_sql/create_interop_endpoint.sql
-CREATE TABLE ndh.OrgToInteropEndpoint (
+CREATE TABLE ndh.clinicalorg_to_interopendpoint (
     id SERIAL PRIMARY KEY,
-    Organization_id int   NOT NULL,
-    InteropEndpoint_id int   NOT NULL
+    clinicalorganization_id INT   NOT NULL,
+    interopendpoint_id INT   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_npi.sql
@@ -342,7 +343,7 @@ CREATE TABLE ndh.NPI (
 );
 
 -- Source: ./sql/create_table_sql/create_npi.sql
-CREATE TABLE ndh.NPI_to_Individual (
+CREATE TABLE ndh.individual_npi (
     id BIGINT  PRIMARY KEY,
     NPI_id BIGINT   NOT NULL UNIQUE,
     Individual_id INT   NOT NULL,
@@ -351,7 +352,7 @@ CREATE TABLE ndh.NPI_to_Individual (
 );
 
 -- Source: ./sql/create_table_sql/create_npi.sql
-CREATE TABLE ndh.NPI_to_ClinicalOrganization (
+CREATE TABLE ndh.organizational_npi (
     id BIGINT  PRIMARY KEY,
     NPI_id BIGINT   NOT NULL UNIQUE,
     ClinicalOrganization_id INT  DEFAULT NULL,

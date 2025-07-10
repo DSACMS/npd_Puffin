@@ -5,8 +5,8 @@ Core NPI Pipeline: Incremental Update of NDH NPI tables from NPPES raw data
 This script implements the Core NPI Pipeline with incremental update support for monthly NPPES releases.
 It populates three main NDH tables:
 1. ndh.NPI - Core NPI records for both individual and organizational providers
-2. ndh.NPI_to_Individual - Links individual NPIs to Individual records
-3. ndh.NPI_to_ClinicalOrganization - Links organizational NPIs to Clinical Organizations
+2. ndh.individual_npi - Links individual NPIs to Individual records
+3. ndh.organizational_npi - Links organizational NPIs to Clinical Organizations
 
 Key Features:
 - Incremental updates: Only processes changed/new NPIs
@@ -39,8 +39,8 @@ def main():
     # Target NDH tables
     npi_DBTable = DBTable(schema='ndh', table='NPI')
     individual_DBTable = DBTable(schema='ndh', table='Individual')
-    npi_to_individual_DBTable = DBTable(schema='ndh', table='NPI_to_Individual')
-    npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='NPI_to_ClinicalOrganization')
+    npi_to_individual_DBTable = DBTable(schema='ndh', table='individual_npi')
+    npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='organizational_npi')
     wrongnpi_DBTable = DBTable(schema='intake', table='wrongnpi')
     
     # Intake tracking tables
