@@ -1,11 +1,11 @@
 -- Merged SQL statements for schema: ndh
--- Generated on: 2025-07-09 09:36:43
--- Total statements for this schema: 47
+-- Generated on: 2025-07-11 16:04:47
+-- Total statements for this schema: 48
 --
 -- Source files:
---   ./sql/create_table_sql/create_EHR.sql
 --   ./sql/create_table_sql/create_address.sql
 --   ./sql/create_table_sql/create_clinical_organization.sql
+--   ./sql/create_table_sql/create_ehr.sql
 --   ./sql/create_table_sql/create_healthcarebrand.sql
 --   ./sql/create_table_sql/create_identifier.sql
 --   ./sql/create_table_sql/create_individual.sql
@@ -154,16 +154,16 @@ CREATE TABLE ndh.address_nonstandard (
 );
 
 -- Source: ./sql/create_table_sql/create_address.sql
-CREATE TABLE ndh.AddressTypeLUT (
+CREATE TABLE ndh.address_type (
     id SERIAL PRIMARY KEY,
     address_type_description TEXT   NOT NULL,
-    CONSTRAINT uc_AddressTypeLUT_address_type_description UNIQUE (
+    CONSTRAINT uc_address_type_address_type_description UNIQUE (
         address_type_description
     )
 );
 
 -- Source: ./sql/create_table_sql/create_address.sql
-CREATE TABLE ndh.StateCodeLUT (
+CREATE TABLE ndh.state_code (
     id SERIAL PRIMARY KEY,
     state_code VARCHAR(100)   NOT NULL,
     state_name VARCHAR(100)   NOT NULL,
@@ -173,82 +173,82 @@ CREATE TABLE ndh.StateCodeLUT (
 );
 
 -- Source: ./sql/create_table_sql/create_address.sql
-CREATE TABLE ndh.NPIAddress (
+CREATE TABLE ndh.npi_address (
     id SERIAL PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL,
-    AddressType_id INTEGER   NOT NULL,
-    Address_id INT   NOT NULL
+    npi_id BIGINT   NOT NULL,
+    address_type_id INTEGER   NOT NULL,
+    address_id INT   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_clinical_organization.sql
-CREATE TABLE ndh.ClinicalOrganization (
+CREATE TABLE ndh.clinical_organization (
     id SERIAL PRIMARY KEY,
-    ClinicalOrganization_legal_name VARCHAR(200)   NOT NULL,
-    AuthorizedOfficial_Individual_id INT   NOT NULL,
-    Organization_TIN VARCHAR(10)   DEFAULT NULL,
-    Organization_VTIN VARCHAR(50) DEFAULT NULL,
-    OrganizationGLIEF VARCHAR(300)  DEFAULT NULL,
-    CONSTRAINT uc_Organization_Organization_VTIN UNIQUE (
-        Organization_VTIN
+    clinical_organization_legal_name VARCHAR(200)   NOT NULL,
+    authorized_official_individual_id INT   NOT NULL,
+    organization_tin VARCHAR(10)   DEFAULT NULL,
+    organization_vtin VARCHAR(50) DEFAULT NULL,
+    organization_glief VARCHAR(300)  DEFAULT NULL,
+    CONSTRAINT uc_organization_organization_vtin UNIQUE (
+        organization_vtin
     )
 );
 
 -- Source: ./sql/create_table_sql/create_clinical_organization.sql
-CREATE TABLE ndh.ClinicalOrgnameTypeLUT (
+CREATE TABLE ndh.clinical_orgname_type (
     id SERIAL PRIMARY KEY,
     orgname_type_description TEXT   NOT NULL,
     source_file TEXT   NOT NULL,
     source_field TEXT   NOT NULL,
-    CONSTRAINT uc_OrgnameTypeLUT_orgname_description UNIQUE (
+    CONSTRAINT uc_orgname_type_orgname_description UNIQUE (
         orgname_type_description
     )
 );
 
 -- Source: ./sql/create_table_sql/create_clinical_organization.sql
-CREATE TABLE ndh.Orgname (
+CREATE TABLE ndh.orgname (
     id SERIAL PRIMARY KEY,
-    ClinicalOrganization_id INT   NOT NULL,
-    ClinicalOrganization_name VARCHAR(70)   NOT NULL,
-    ClinicalOrgnameType_id INTEGER   NOT NULL
+    clinical_organization_id INT   NOT NULL,
+    clinical_organization_name VARCHAR(70)   NOT NULL,
+    clinical_orgname_type_id INTEGER   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_clinical_organization.sql
 CREATE TABLE ndh.assigning_npi (
-    ClinicalOrganization_id INT   NOT NULL,
+    clinical_organization_id INT   NOT NULL,
     npi_id INT NOT NULL
 );
 
--- Source: ./sql/create_table_sql/create_EHR.sql
-CREATE TABLE ndh.EHRToNPI (
+-- Source: ./sql/create_table_sql/create_ehr.sql
+CREATE TABLE ndh.ehr_instance_to_npi (
     id SERIAL PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL,
-    EHR_id INT   NOT NULL
+    npi_id BIGINT   NOT NULL,
+    ehr_id INT   NOT NULL
 );
 
--- Source: ./sql/create_table_sql/create_EHR.sql
-CREATE TABLE ndh.EHR (
+-- Source: ./sql/create_table_sql/create_ehr.sql
+CREATE TABLE ndh.ehr_instance (
     id SERIAL PRIMARY KEY,
     -- Sourced from CHPL data here https://chpl.healthit.gov/
-    CHPL_ID VARCHAR(200)   NOT NULL,
+    chpl_if VARCHAR(200)   NOT NULL,
     bulk_endpoint_json_url VARCHAR(500) NULL
 );
 
 -- Source: ./sql/create_table_sql/create_healthcarebrand.sql
-CREATE TABLE ndh.HealthcareBrand (
+CREATE TABLE ndh.healthcare_brand (
     id SERIAL PRIMARY KEY,
-    HealthcareBrand_name VARCHAR(200)   NOT NULL,
-    TrademarkSerialNumber VARCHAR(20)   NOT NULL
+    healthcare_brand_name VARCHAR(200)   NOT NULL,
+    trademark_serial_number VARCHAR(20)   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_healthcarebrand.sql
-CREATE TABLE ndh.OrganizationToHealthcareBrand (
+CREATE TABLE ndh.organization_healthcare_brand (
     id SERIAL PRIMARY KEY,
-    HealthcareBrand_id INT   NOT NULL,
-    Organization_id INT   NOT NULL
+    healthcare_brand_id INT   NOT NULL,
+    organization_id INT   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_identifier.sql
-CREATE TABLE ndh.IdentifierTypeLUT (
+CREATE TABLE ndh.identifier_type (
     id SERIAL PRIMARY KEY,
     identifier_type_description TEXT   NOT NULL,
     CONSTRAINT uc_IdentifierTypeLUT_identifier_type_description UNIQUE (
@@ -257,35 +257,45 @@ CREATE TABLE ndh.IdentifierTypeLUT (
 );
 
 -- Source: ./sql/create_table_sql/create_identifier.sql
-CREATE TABLE ndh.NPIIdentifier (
+CREATE TABLE ndh.npi_identifier (
     id SERIAL PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL,
+    npi_id BIGINT   NOT NULL,
     identifier VARCHAR(21)   NOT NULL,
-    IdentifierType_id INTEGER   NOT NULL,
-    state VARCHAR(3)   NOT NULL,
-    issuer VARCHAR(81)   NOT NULL
+    identifier_type_id INTEGER   NOT NULL,
+    state_id INT   NOT NULL,
+    identifier_issuer_name VARCHAR(81)   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_individual.sql
-CREATE TABLE ndh.CredentialLUT (
+CREATE TABLE ndh.clinical_credential (
     id SERIAL PRIMARY KEY,
     -- i.e. M.D.
-    Credential_acronym VARCHAR(20)   NOT NULL,
+    credential_acronym VARCHAR(20)   NOT NULL,
     -- i.e. Medical Doctor
-    Credential_name VARCHAR(100)   NOT NULL,
+    credential_name VARCHAR(100)   NOT NULL,
     -- for when there is only one source for the credential (unlike medical schools etc)
-    Credential_source_url VARCHAR(250)   NOT NULL
+    credential_source_url VARCHAR(250)   NOT NULL,
+    graduation_date DATE,
+    clinical_school_id INT 
 );
 
 -- Source: ./sql/create_table_sql/create_individual.sql
-CREATE TABLE ndh.IndividualToCredential (
+CREATE TABLE ndh.clinical_school (
     id SERIAL PRIMARY KEY,
-    Individual_id int   NOT NULL,
-    Credential_id int   NOT NULL
+    -- i.e. M.D.
+    clinical_school_name VARCHAR(20)   NOT NULL,
+    clinical_school_url VARCHAR(500)
 );
 
 -- Source: ./sql/create_table_sql/create_individual.sql
-CREATE TABLE ndh.Individual (
+CREATE TABLE ndh.individual_to_credential (
+    id SERIAL PRIMARY KEY,
+    individual_id int   NOT NULL,
+    clinical_credential_id int   NOT NULL
+);
+
+-- Source: ./sql/create_table_sql/create_individual.sql
+CREATE TABLE ndh.individual (
     id SERIAL PRIMARY KEY,
     last_name VARCHAR(100)   NOT NULL,
     first_name VARCHAR(100)   NOT NULL,
@@ -293,21 +303,22 @@ CREATE TABLE ndh.Individual (
     name_prefix VARCHAR(6)   NOT NULL,
     name_suffix VARCHAR(6)   NOT NULL,
     email_address VARCHAR(200)   DEFAULT NULL,
-    SSN VARCHAR(10)   DEFAULT NULL.
-    sex_code CHAR(1)  DEFAULT NULL
+    ssn VARCHAR(10)   DEFAULT NULL.
+    sex_code CHAR(1)  DEFAULT NULL,
+    birth_date DATE
 );
 
 -- Source: ./sql/create_table_sql/create_interop_endpoint.sql
-CREATE TABLE ndh.interopendpointtype_LUT (
+CREATE TABLE ndh.interop_endpoint_type (
     id SERIAL PRIMARY KEY,
     identifier_type_description TEXT   NOT NULL,
-    CONSTRAINT uc_EndpointTypeLUT_identifier_type_description UNIQUE (
+    CONSTRAINT uc_endpoint_type_identifier_type_description UNIQUE (
         identifier_type_description
     )
 );
 
 -- Source: ./sql/create_table_sql/create_interop_endpoint.sql
-CREATE TABLE ndh.interopendpoint (
+CREATE TABLE ndh.interop_endpoint (
     id SERIAL PRIMARY KEY,
     -- for now only FHIR and Direct
     fhir_endpoint_url VARCHAR(500)   NOT NULL,
@@ -316,7 +327,7 @@ CREATE TABLE ndh.interopendpoint (
     -- endpoint NPPES file as endpoint_comments
     endpoint_desc VARCHAR(100)   NOT NULL,
     endpoint_address_id INT   DEFAULT NULL, -- this I am unsure about. It is specified in the FHIR standard, but perhaps it is ephemerial? What does it mean for a mutli-ONPI EHR endpoint to have 'an' address?
-    interopendpointtype_id INT DEFAULT 1  NOT NULL,
+    interop_endpoint_type_id INT DEFAULT 1  NOT NULL,
     -- Prevent duplicate FHIR endpoint URLs
     CONSTRAINT uq_interopendpoint_url UNIQUE (fhir_endpoint_url)    
 );
@@ -324,12 +335,12 @@ CREATE TABLE ndh.interopendpoint (
 -- Source: ./sql/create_table_sql/create_interop_endpoint.sql
 CREATE TABLE ndh.clinicalorg_to_interopendpoint (
     id SERIAL PRIMARY KEY,
-    clinicalorganization_id INT   NOT NULL,
-    interopendpoint_id INT   NOT NULL
+    clinical_organization_id INT   NOT NULL,
+    interop_endpoint_id INT   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_npi.sql
-CREATE TABLE ndh.NPI (
+CREATE TABLE ndh.npi (
     id BIGINT PRIMARY KEY,
     npi BIGINT   NOT NULL,
     entity_type_code SMALLINT   NOT NULL,
@@ -345,8 +356,8 @@ CREATE TABLE ndh.NPI (
 -- Source: ./sql/create_table_sql/create_npi.sql
 CREATE TABLE ndh.individual_npi (
     id BIGINT  PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL UNIQUE,
-    Individual_id INT   NOT NULL,
+    npi_id BIGINT   NOT NULL UNIQUE,
+    individual_id INT   NOT NULL,
     is_sole_proprietor BOOLEAN   NOT NULL
 
 );
@@ -354,10 +365,10 @@ CREATE TABLE ndh.individual_npi (
 -- Source: ./sql/create_table_sql/create_npi.sql
 CREATE TABLE ndh.organizational_npi (
     id BIGINT  PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL UNIQUE,
-    ClinicalOrganization_id INT  DEFAULT NULL,
-    PrimaryAuthorizedOfficial_Individual_id INT NOT NULL,
-    Parent_NPI_id BIGINT DEFAULT NULL-- TODO shold this be its own intermediate table? With an is_primary boolean in it?
+    npi_id BIGINT   NOT NULL UNIQUE,
+    clinical_organization_id INT  DEFAULT NULL,
+    primary_authorized_official_individual_id INT NOT NULL,
+    parent_npi_id BIGINT DEFAULT NULL-- TODO shold this be its own intermediate table? With an is_primary boolean in it?
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
@@ -416,71 +427,71 @@ CREATE TABLE ndh.PlanNetworkToPlan (
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
-CREATE TABLE ndh.PlanNetwork (
+CREATE TABLE ndh.plannetwork (
     -- marketplace/network-puf.NetworkID
     id SERIAL PRIMARY KEY,
     -- marketplace/network-puf.NetworkName
-    PlanNetworkName varchar   NOT NULL,
+    plannetwork_name varchar(100)   NOT NULL,
     -- marketplace/network-puf.NetworkURL
-    PlanNetworkURL varchar   NOT NULL
+    plannetwork_url varchar(500)   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
-CREATE TABLE ndh.ServiceArea (
+CREATE TABLE ndh.service_area (
     -- marketplace/plan-attributes-puf.ServiceAreaId
     id SERIAL PRIMARY KEY,
     -- marketplace/service-area-puf.ServiceAreaName
-    ServiceAreaName varchar   NOT NULL,
+    service_area_name varchar   NOT NULL,
     -- marketplace/service-area-puf.StateCode
-    StateCode varchar   NOT NULL
+    state_code_id INT   NOT NULL
     -- wishlist
     -- , service_area_shape GEOMETRY(MULTIPOLYGON, 4326)   NOT NULL -- enable with PostGIS turned on! 
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
-CREATE TABLE ndh.PlanNetworkToOrg (
+CREATE TABLE ndh.plannetwork_clinical_organization (
     id SERIAL PRIMARY KEY,
-    PlanNetwork_id int   NOT NULL,
-    Organization_id int   NOT NULL
+    plannetwork_id int   NOT NULL,
+    clinical_organization_id int   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_phone.sql
-CREATE TABLE ndh.PhoneTypeLUT (
+CREATE TABLE ndh.phone_type (
     id SERIAL PRIMARY KEY,
     phone_type_description TEXT   NOT NULL,
-    CONSTRAINT uc_PhoneTypeLUT_phone_type_description UNIQUE (
+    CONSTRAINT uc_phone_type_phone_type_description UNIQUE (
         phone_type_description
     )
 );
 
 -- Source: ./sql/create_table_sql/create_phone.sql
-CREATE TABLE ndh.NPIToPhone (
+CREATE TABLE ndh.npi_phone (
     id SERIAL PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL,
-    PhoneType_id INTEGER   NOT NULL,
-    PhoneNumber_id INTEGER   NOT NULL,
-    PhoneExtension_id INTEGER  NULL,
-    is_fax BOOLEAN   NOT NULL
+    npi_id BIGINT   NOT NULL,
+    phonetype_id INTEGER   NOT NULL,
+    phone_number_id INTEGER   NOT NULL,
+    phone_extension_id INTEGER  NULL,
+    is_fax BOOLEAN   NOT NULL   -- TODO there is an edge case where one provider lists a phone as a fax and another lists it as a phone. Rare, but it could cause complexity
 );
 
 -- Source: ./sql/create_table_sql/create_phone.sql
-Create TABLE ndh.PhoneNumber (
+Create TABLE ndh.phone_number (
     id SERIAL PRIMARY KEY,
     phone_number VARCHAR(20)   NOT NULL,
-    CONSTRAINT uc_PhoneNumber_phone_number UNIQUE (phone_number)
+    CONSTRAINT uc_phonenumber_phone_number UNIQUE (phone_number)
 );
 
 -- Source: ./sql/create_table_sql/create_phone.sql
-Create TABLE ndh.PhoneExtension (
+Create TABLE ndh.phone_extension (
     id SERIAL PRIMARY KEY,
     phone_extension VARCHAR(10)   NOT NULL,
-    CONSTRAINT uc_PhoneExtension_phone_extension UNIQUE (phone_extension)
+    CONSTRAINT uc_phone_extension_phone_extension UNIQUE (phone_extension)
 );
 
 -- Source: ./sql/create_table_sql/create_provider_taxonomy.sql
-CREATE TABLE ndh.NUCCTaxonomyCode (
+CREATE TABLE ndh.nucc_taxonomy_code (
     id SERIAL PRIMARY KEY,
-    ParentNUCCTaxonomyCode_id INT   NOT NULL,
+    parent_nucc_taxonomy_code_id INT   NOT NULL,
     taxonomy_code VARCHAR(10)   NOT NULL,
     tax_grouping TEXT   NOT NULL,
     tax_classification TEXT   NOT NULL,
@@ -490,61 +501,61 @@ CREATE TABLE ndh.NUCCTaxonomyCode (
     tax_display_name TEXT   NOT NULL,
     tax_certifying_board_name TEXT   NOT NULL,
     tax_certifying_board_url TEXT   NOT NULL,
-    CONSTRAINT uc_NUCCTaxonomyCode_taxonomy_code UNIQUE (
+    CONSTRAINT uc_nucctaxonomycode_taxonomy_code UNIQUE (
         taxonomy_code
     )
 );
 
 -- Source: ./sql/create_table_sql/create_provider_taxonomy.sql
-CREATE TABLE ndh.NUCCTaxonomyCodePath (
+CREATE TABLE ndh.nucc_taxonomy_code_ancestor_path (
     id SERIAL PRIMARY KEY,
-    NUCCTaxonomyCodeDecendant_id INT   NOT NULL,
-    NUCCTaxonomyCodeAncestor_id INT   NOT NULL
+    decendant_nucc_taxonomy_code_id INT   NOT NULL,
+    ancestor_nucc_taxonomy_code_id INT   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_provider_taxonomy.sql
-CREATE TABLE ndh.NPITaxonomy (
+CREATE TABLE ndh.npi_nucc_taxonomy_code (
     id SERIAL PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL,
-    NUCCTaxonomyCode_id INT   NOT NULL,
+    npi_id BIGINT   NOT NULL,
+    nucc_taxonomy_code_id INT   NOT NULL,
     license_number VARCHAR(20)   NOT NULL,
-    StateCode_id INTEGER   NOT NULL,
+    state_code_id INTEGER   NOT NULL,
     is_primary BOOLEAN   NOT NULL,
     taxonomy_group VARCHAR(10)   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_provider_taxonomy.sql
-CREATE TABLE ndh.MedicareProviderType (
+CREATE TABLE ndh.medicare_provider_type_code (
     id SERIAL PRIMARY KEY,
-    MedicareProviderType_name VARCHAR   NOT NULL
+    medicare_provider_type_name VARCHAR   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_provider_taxonomy.sql
-CREATE TABLE ndh.NUCCMedicareProviderType (
+CREATE TABLE ndh.nucc_medicare_provider_type_code (
     id SERIAL PRIMARY KEY,
-    MedicareProviderType_id INT   NOT NULL,
-    NUCCTaxonomyCode_id INT   NOT NULL
+    medicare_provider_type_code_id INT   NOT NULL,
+    nucc_taxonomy_code_id INT   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_user_tables.sql
-CREATE TABLE ndh.User (
+CREATE TABLE ndh.user (
     id SERIAL PRIMARY KEY,
-    Email varchar   NOT NULL,
-    FirstName varchar   NOT NULL,
-    LastName varchar   NOT NULL,
-    IdentityVerified boolean   NOT NULL
+    email varchar   NOT NULL,
+    first_name varchar   NOT NULL,
+    last_name varchar   NOT NULL,
+    is_identity_verified boolean   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_user_tables.sql
-CREATE TABLE ndh.UserAccessRole (
+CREATE TABLE ndh.user_access_role (
     id SERIAL PRIMARY KEY,
-    User_id INT   NOT NULL,
-    Role_id INT   NOT NULL,
-    NPI_id BIGINT   NOT NULL
+    user_id INT   NOT NULL,
+    user_role_id INT   NOT NULL,
+    npi_id BIGINT   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_user_tables.sql
-CREATE TABLE ndh."Role" (
+CREATE TABLE ndh.user_role (
     id SERIAL PRIMARY KEY,
-    "Role" varchar(100)   NOT NULL
+    role_name varchar(100)   NOT NULL
 );
