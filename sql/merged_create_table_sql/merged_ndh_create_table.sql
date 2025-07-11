@@ -1,5 +1,5 @@
 -- Merged SQL statements for schema: ndh
--- Generated on: 2025-07-11 16:04:47
+-- Generated on: 2025-07-11 18:00:40
 -- Total statements for this schema: 48
 --
 -- Source files:
@@ -329,7 +329,7 @@ CREATE TABLE ndh.interop_endpoint (
     endpoint_address_id INT   DEFAULT NULL, -- this I am unsure about. It is specified in the FHIR standard, but perhaps it is ephemerial? What does it mean for a mutli-ONPI EHR endpoint to have 'an' address?
     interop_endpoint_type_id INT DEFAULT 1  NOT NULL,
     -- Prevent duplicate FHIR endpoint URLs
-    CONSTRAINT uq_interopendpoint_url UNIQUE (fhir_endpoint_url)    
+    CONSTRAINT uq_interop_endpoint_url UNIQUE (fhir_endpoint_url)    
 );
 
 -- Source: ./sql/create_table_sql/create_interop_endpoint.sql
@@ -372,68 +372,68 @@ CREATE TABLE ndh.organizational_npi (
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
-CREATE TABLE ndh.PayerToInteropEndpoint (
+CREATE TABLE ndh.payer_interop_endpoint (
     id SERIAL PRIMARY KEY,
-    Payer_id int   NOT NULL,
-    InteropEndpoint_id int   NOT NULL
+    payer_id int   NOT NULL,
+    interop_endpoint_id int   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
-CREATE TABLE ndh.Payer (
+CREATE TABLE ndh.payer (
     -- marketplace/network-puf.IssuerID
     id SERIAL PRIMARY KEY,
     -- marketplace/plan-attributes-puf.IssuerMarketPlaceMarketingName
-    PayerName varchar   NOT NULL
+    payer_nme varchar   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
-CREATE TABLE ndh.Plan (
+CREATE TABLE ndh.plan (
     -- marketplace/plan-attributes-puf.PlanId
     id SERIAL PRIMARY KEY,
-    Payer_id int   NOT NULL,
-    MarketCoverage_id int   NOT NULL,
+    payer_id int   NOT NULL,
+    marketcoverage_id int   NOT NULL,
     -- marketplace/plan-attributes-puf.ServiceAreaId
-    ServiceArea_id int   NOT NULL,
+    service_area_id int   NOT NULL,
     -- marketplace/plan-attributes-puf.DentalOnlyPlan
-    DentalOnlyPlan boolean   NOT NULL,
+    is_dental_only_lan boolean   NOT NULL,
     -- marketplace/plan-attributes-puf.PlanMarketingName
-    PlanMarketingName varchar   NOT NULL,
+    plan_marketing_name varchar   NOT NULL,
     -- marketplace/plan-attributes-puf.HIOSProductId
-    HIOSProductID varchar   NOT NULL,
-    PlanType_id int   NOT NULL,
+    hios_product_id varchar   NOT NULL,
+    plan_type_id int   NOT NULL,
     -- marketplace/plan-attributes-puf.IsNewPlan
-    IsNewPlan boolean   NOT NULL
+    is_new_plan boolean   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
-CREATE TABLE ndh.PlanType (
+CREATE TABLE ndh.plan_type (
     id SERIAL PRIMARY KEY,
     -- marketplace/plan-attributes-puf.PlanType
-    PlanType varchar   NOT NULL
+    plan_type_name varchar   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
-CREATE TABLE ndh.MarketCoverage (
+CREATE TABLE ndh.marketcoverage (
     id SERIAL PRIMARY KEY,
     -- marketplace/plan-attributes-puf.MarketCoverage
-    MarketCoverage varchar   NOT NULL
+    marketcoverage_name varchar   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
-CREATE TABLE ndh.PlanNetworkToPlan (
+CREATE TABLE ndh.plan_network_plan (
     id SERIAL PRIMARY KEY,
-    Plan_id int   NOT NULL,
-    PlanNetwork_id int   NOT NULL
+    plan_id int   NOT NULL,
+    plan_network_id int   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
-CREATE TABLE ndh.plannetwork (
+CREATE TABLE ndh.plan_network (
     -- marketplace/network-puf.NetworkID
     id SERIAL PRIMARY KEY,
     -- marketplace/network-puf.NetworkName
-    plannetwork_name varchar(100)   NOT NULL,
+    plan_network_name varchar(100)   NOT NULL,
     -- marketplace/network-puf.NetworkURL
-    plannetwork_url varchar(500)   NOT NULL
+    plan_network_url varchar(500)   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
@@ -449,9 +449,9 @@ CREATE TABLE ndh.service_area (
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
-CREATE TABLE ndh.plannetwork_clinical_organization (
+CREATE TABLE ndh.plan_network_clinical_organization (
     id SERIAL PRIMARY KEY,
-    plannetwork_id int   NOT NULL,
+    plan_network_id int   NOT NULL,
     clinical_organization_id int   NOT NULL
 );
 
