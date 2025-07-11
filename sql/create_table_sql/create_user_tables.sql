@@ -18,5 +18,5 @@ CREATE TABLE ndh.user_access_role (
 
 CREATE TABLE ndh.user_role (
     id SERIAL PRIMARY KEY,
-    "Role" varchar(100)   NOT NULL
+    role_name varchar(100)   NOT NULL
 );
