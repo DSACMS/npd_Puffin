@@ -137,17 +137,17 @@ CREATE TABLE ndh.address_nonstandard (
 );
 
 
-CREATE TABLE ndh.AddressTypeLUT (
+CREATE TABLE ndh.address_type (
     id SERIAL PRIMARY KEY,
     address_type_description TEXT   NOT NULL,
-    CONSTRAINT uc_AddressTypeLUT_address_type_description UNIQUE (
+    CONSTRAINT uc_address_type_address_type_description UNIQUE (
         address_type_description
     )
 );
 
 -- We keep this seperate because there are several state-data-not-address data elements we need it for.
 -- Notable, medical licensing is handled on a per state basis 
-CREATE TABLE ndh.StateCodeLUT (
+CREATE TABLE ndh.state_code (
     id SERIAL PRIMARY KEY,
     state_code VARCHAR(100)   NOT NULL,
     state_name VARCHAR(100)   NOT NULL,
@@ -156,10 +156,12 @@ CREATE TABLE ndh.StateCodeLUT (
     )
 );
 
+-- TODO Do we need county FIPS tables for plan coverage?
 
-CREATE TABLE ndh.NPIAddress (
+
+CREATE TABLE ndh.npi_address (
     id SERIAL PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL,
-    AddressType_id INTEGER   NOT NULL,
-    Address_id INT   NOT NULL
+    npi_id BIGINT   NOT NULL,
+    address_type_id INTEGER   NOT NULL,
+    address_id INT   NOT NULL
 );

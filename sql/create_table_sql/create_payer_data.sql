@@ -53,29 +53,30 @@ CREATE TABLE ndh.PlanNetworkToPlan (
     PlanNetwork_id int   NOT NULL
 );
 
-CREATE TABLE ndh.PlanNetwork (
+CREATE TABLE ndh.plannetwork (
     -- marketplace/network-puf.NetworkID
     id SERIAL PRIMARY KEY,
     -- marketplace/network-puf.NetworkName
-    PlanNetworkName varchar   NOT NULL,
+    plannetwork_name varchar(100)   NOT NULL,
     -- marketplace/network-puf.NetworkURL
-    PlanNetworkURL varchar   NOT NULL
+    plannetwork_url varchar(500)   NOT NULL
 );
 
-CREATE TABLE ndh.ServiceArea (
+-- TODO how does this relate to FIPS counties and the sub-counties concept from MA plans?
+CREATE TABLE ndh.service_area (
     -- marketplace/plan-attributes-puf.ServiceAreaId
     id SERIAL PRIMARY KEY,
     -- marketplace/service-area-puf.ServiceAreaName
-    ServiceAreaName varchar   NOT NULL,
+    service_area_name varchar   NOT NULL,
     -- marketplace/service-area-puf.StateCode
-    StateCode varchar   NOT NULL
+    state_code_id INT   NOT NULL
     -- wishlist
     -- , service_area_shape GEOMETRY(MULTIPOLYGON, 4326)   NOT NULL -- enable with PostGIS turned on! 
 );
 
 -- PECOS Sourced initially, then UX Maintained
-CREATE TABLE ndh.PlanNetworkToOrg (
+CREATE TABLE ndh.plannetwork_clinical_organization (
     id SERIAL PRIMARY KEY,
-    PlanNetwork_id int   NOT NULL,
-    Organization_id int   NOT NULL
+    plannetwork_id int   NOT NULL,
+    clinical_organization_id int   NOT NULL
 );

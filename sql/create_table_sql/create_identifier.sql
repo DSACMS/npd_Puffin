@@ -5,7 +5,7 @@
 -- i.e. some states still have Medicaid identifiers I think
 
 
-CREATE TABLE ndh.IdentifierTypeLUT (
+CREATE TABLE ndh.identifier_type (
     id SERIAL PRIMARY KEY,
     identifier_type_description TEXT   NOT NULL,
     CONSTRAINT uc_IdentifierTypeLUT_identifier_type_description UNIQUE (
@@ -13,11 +13,11 @@ CREATE TABLE ndh.IdentifierTypeLUT (
     )
 );
 
-CREATE TABLE ndh.NPIIdentifier (
+CREATE TABLE ndh.npi_identifier (
     id SERIAL PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL,
+    npi_id BIGINT   NOT NULL,
     identifier VARCHAR(21)   NOT NULL,
-    IdentifierType_id INTEGER   NOT NULL,
-    state VARCHAR(3)   NOT NULL,
-    issuer VARCHAR(81)   NOT NULL
+    identifier_type_id INTEGER   NOT NULL,
+    state_id INT   NOT NULL,
+    identifier_issuer_name VARCHAR(81)   NOT NULL
 );

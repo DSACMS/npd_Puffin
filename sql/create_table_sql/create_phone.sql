@@ -4,33 +4,33 @@
 
 
 
-CREATE TABLE ndh.PhoneTypeLUT (
+CREATE TABLE ndh.phone_type (
     id SERIAL PRIMARY KEY,
     phone_type_description TEXT   NOT NULL,
-    CONSTRAINT uc_PhoneTypeLUT_phone_type_description UNIQUE (
+    CONSTRAINT uc_phone_type_phone_type_description UNIQUE (
         phone_type_description
     )
 );
 
 
-CREATE TABLE ndh.NPIToPhone (
+CREATE TABLE ndh.npi_phone (
     id SERIAL PRIMARY KEY,
-    NPI_id BIGINT   NOT NULL,
-    PhoneType_id INTEGER   NOT NULL,
-    PhoneNumber_id INTEGER   NOT NULL,
-    PhoneExtension_id INTEGER  NULL,
-    is_fax BOOLEAN   NOT NULL
+    npi_id BIGINT   NOT NULL,
+    phonetype_id INTEGER   NOT NULL,
+    phone_number_id INTEGER   NOT NULL,
+    phone_extension_id INTEGER  NULL,
+    is_fax BOOLEAN   NOT NULL   -- TODO there is an edge case where one provider lists a phone as a fax and another lists it as a phone. Rare, but it could cause complexity
 );
 
 
-Create TABLE ndh.PhoneNumber (
+Create TABLE ndh.phone_number (
     id SERIAL PRIMARY KEY,
     phone_number VARCHAR(20)   NOT NULL,
-    CONSTRAINT uc_PhoneNumber_phone_number UNIQUE (phone_number)
+    CONSTRAINT uc_phonenumber_phone_number UNIQUE (phone_number)
 );
 
-Create TABLE ndh.PhoneExtension (
+Create TABLE ndh.phone_extension (
     id SERIAL PRIMARY KEY,
     phone_extension VARCHAR(10)   NOT NULL,
-    CONSTRAINT uc_PhoneExtension_phone_extension UNIQUE (phone_extension)
+    CONSTRAINT uc_phone_extension_phone_extension UNIQUE (phone_extension)
 );
