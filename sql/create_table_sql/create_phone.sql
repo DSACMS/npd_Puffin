@@ -18,16 +18,11 @@ CREATE TABLE ndh.npi_phone (
     npi_id BIGINT   NOT NULL,
     phonetype_id INTEGER   NOT NULL,
     phone_number_id INTEGER   NOT NULL,
-    phone_extension_id INTEGER  NULL,
+    phone_number VARCHAR(20)   NOT NULL
     is_fax BOOLEAN   NOT NULL   -- TODO there is an edge case where one provider lists a phone as a fax and another lists it as a phone. Rare, but it could cause complexity
 );
 
 
-Create TABLE ndh.phone_number (
-    id SERIAL PRIMARY KEY,
-    phone_number VARCHAR(20)   NOT NULL,
-    CONSTRAINT uc_phonenumber_phone_number UNIQUE (phone_number)
-);
 
 Create TABLE ndh.phone_extension (
     id SERIAL PRIMARY KEY,
