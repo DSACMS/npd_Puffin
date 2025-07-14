@@ -1,6 +1,8 @@
 {
   "filename": "PPEF_Enrollment_Extract_2025.04.01.csv",
   "filename_without_extension": "PPEF_Enrollment_Extract_2025.04.01",
+  "file_glob_pattern": "PPEF_Enrollment_Extract_2025.04.01.csv",
+  "recursive_search": true,
   "full_path": "/Users/ftrotter/Downloads/Medicare_Fee-For-Service_Public_Provider_Enrollment/2025-Q1/PPEF_Enrollment_Extract_2025.04.01.csv",
   "file_size_bytes": 309112162,
   "delimiter": ",",
@@ -57,7 +59,5 @@
     "ORG_NAME": 70
   },
   "total_columns": 10,
-  "column_headers_hash": "9dd713a028f1631f23c369a519b9573f",
-  "file_glob_pattern": "PPEF_Enrollment_Extract_*.csv",
-  "recursive_search": true
+  "column_headers_hash": "9dd713a028f1631f23c369a519b9573f"
 }
