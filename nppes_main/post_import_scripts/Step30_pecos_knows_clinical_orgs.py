@@ -24,6 +24,9 @@ import os
 def main():
     is_just_print = False  # Start with dry-run mode
     
+
+    pecos_vtin_prefix = 'PECOS_'
+
     print("Connecting to DB")
     base_path = os.path.dirname(os.path.abspath(__file__))
     env_location = os.path.abspath(os.path.join(base_path, "..", "..", ".env"))
@@ -37,7 +40,7 @@ def main():
     
     # Target tables in NDH schema
     clinical_org_DBTable = DBTable(schema='ndh', table='clinical_organization')
-    orgname_type_lut_DBTable = DBTable(schema='ndh', table='clinical_orgname_type_lut')
+    orgname_type_DBTable = DBTable(schema='ndh', table='clinical_orgname_type')
     orgname_DBTable = DBTable(schema='ndh', table='orgname')
     individual_DBTable = DBTable(schema='ndh', table='individual')
     npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='organizational_npi')
@@ -101,7 +104,23 @@ def main():
     GROUP BY pecos_enrollment.pecos_asct_cntl_id, nppes_endpoint.affiliation_legal_business_name
     ORDER BY pecos_npi_count DESC;
     """
-    
+    # the simplest case last.
+    sql['insert_staging_from_pecos_enrollment'] = f"""
+    INSERT INTO {staging_table_DBTable}
+    SELECT
+        pecos_enrollment.pecos_asct_cntl_id,
+        'pecos_enrollment' AS data_source,
+        MAX(pecos_enrollment.org_name) AS one_org_name,
+        COUNT(DISTINCT(pecos_enrollment.npi)) AS pecos_npi_count,
+        MAX(pecos_enrollment.org_name) AS organization_name
+    FROM {pecos_enrollment_DBTable} AS pecos_enrollment
+    WHERE pecos_enrollment.org_name IS NOT NULL
+    GROUP BY pecos_asct_cntl_id
+    ORDER BY pecos_npi_count DESC;
+    """
+
+
+
     # Phase 2: Add required unique constraints for INSERT ON CONFLICT
     sql['add_individual_unique_constraint'] = f"""
     DO $$
@@ -137,25 +156,25 @@ def main():
     
     # Phase 3: Add organization name type LUT entries
     sql['insert_pecos_orgname_type'] = f"""
-    INSERT INTO {orgname_type_lut_DBTable} (orgname_type_description, source_file, source_field)
+    INSERT INTO {orgname_type_DBTable} (orgname_type_description, source_file, source_field)
     VALUES ('PECOS', 'pecos_enrollment', 'org_name')
     ON CONFLICT (orgname_type_description) DO NOTHING;
     """
     
     sql['insert_nppes_main_orgname_type'] = f"""
-    INSERT INTO {orgname_type_lut_DBTable} (orgname_type_description, source_file, source_field)
+    INSERT INTO {orgname_type_DBTable} (orgname_type_description, source_file, source_field)
     VALUES ('NPPES_main_file', 'main_file', 'Provider_Organization_Name_Legal_Business_Name')
     ON CONFLICT (orgname_type_description) DO NOTHING;
     """
     
     sql['insert_nppes_othername_orgname_type'] = f"""
-    INSERT INTO {orgname_type_lut_DBTable} (orgname_type_description, source_file, source_field)
+    INSERT INTO {orgname_type_DBTable} (orgname_type_description, source_file, source_field)
     VALUES ('NPPES_othername_file', 'othername_file', 'provider_other_organization_name')
     ON CONFLICT (orgname_type_description) DO NOTHING;
     """
     
     sql['insert_nppes_endpoint_orgname_type'] = f"""
-    INSERT INTO {orgname_type_lut_DBTable} (orgname_type_description, source_file, source_field)
+    INSERT INTO {orgname_type_DBTable} (orgname_type_description, source_file, source_field)
     VALUES ('NPPES_endpoint_file', 'endpoint_file', 'affiliation_legal_business_name')
     ON CONFLICT (orgname_type_description) DO NOTHING;
     """
@@ -173,7 +192,7 @@ def main():
         staging.one_org_name,
         0 AS authorized_official_individual_id,
         NULL AS organization_tin,
-        'PECOS' || staging.pecos_asct_cntl_id AS organization_vtin,
+        '{pecos_vtin_prefix}' || staging.pecos_asct_cntl_id AS organization_vtin,
         NULL AS organization_glief
     FROM {staging_table_DBTable} AS staging
     WHERE staging.one_org_name IS NOT NULL
@@ -193,8 +212,8 @@ def main():
         orgname_type.id
     FROM {staging_table_DBTable} AS staging
     JOIN {clinical_org_DBTable} AS clinical_org ON
-        clinical_org.organization_vtin = 'PECOS' || staging.pecos_asct_cntl_id
-    JOIN {orgname_type_lut_DBTable} AS orgname_type ON
+        clinical_org.organization_vtin = '{pecos_vtin_prefix}' || staging.pecos_asct_cntl_id
+    JOIN {orgname_type_DBTable} AS orgname_type ON
         orgname_type.orgname_type_description = 'PECOS'
     WHERE staging.one_org_name IS NOT NULL
     ON CONFLICT (clinical_organization_id, clinical_organization_name, clinical_orgname_type_id) DO NOTHING;
@@ -213,8 +232,8 @@ def main():
         orgname_type.id
     FROM {staging_table_DBTable} AS staging
     JOIN {clinical_org_DBTable} AS clinical_org ON
-        clinical_org.organization_vtin = 'PECOS' || staging.pecos_asct_cntl_id
-    JOIN {orgname_type_lut_DBTable} AS orgname_type ON
+        clinical_org.organization_vtin = '{pecos_vtin_prefix}' || staging.pecos_asct_cntl_id
+    JOIN {orgname_type_DBTable} AS orgname_type ON
         orgname_type.orgname_type_description = staging.data_source
     WHERE staging.organization_name IS NOT NULL
     AND staging.organization_name != ''
@@ -268,7 +287,7 @@ def main():
     JOIN {nppes_main_DBTable} AS nppes_main ON
         nppes_main."NPI" = pecos_enrollment.npi
     JOIN {clinical_org_DBTable} AS clinical_org ON
-        clinical_org.organization_vtin = 'PECOS' || pecos_enrollment.pecos_asct_cntl_id
+        clinical_org.organization_vtin = '{pecos_vtin_prefix}' || pecos_enrollment.pecos_asct_cntl_id
     JOIN {individual_DBTable} AS individual ON
         individual.last_name = COALESCE(nppes_main."Authorized_Official_Last_Name", '')
         AND individual.first_name = COALESCE(nppes_main."Authorized_Official_First_Name", '')
