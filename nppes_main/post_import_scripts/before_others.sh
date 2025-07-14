@@ -23,17 +23,9 @@ python3 Step16_verify_core_npi_tables.py
 echo "Running Step20_create_npi_indexes.py"
 python3 Step20_create_npi_indexes.py
 
-echo "Running Step25_analyze_npi_data.py"
-python3 Step25_analyze_npi_data.py
-
 echo "Running Step30_pecos_knows_clinical_orgs.py"
 python3 Step30_pecos_knows_clinical_orgs.py
 
 echo "Running Step35_pecos_knows_reassignment.py"
 python3 Step35_pecos_knows_reassignment.py
 
-echo "Running Step40_validate_assignment_to_endpoint.py"
-python3 Step40_validate_assignment_to_endpoint.py
-
-echo "Running Step47_check_ehr_fhir_url.py"
-python3 Step47_check_ehr_fhir_url.py
