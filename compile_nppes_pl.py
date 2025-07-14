@@ -17,6 +17,7 @@ if missing:
 
 cmd = [
     "csviper", "full-compile",
+    f"--overwrite_previous",
     f"--from_csv={os.getenv('NPPES_PL_CSV')}",
     f"--output_dir={os.getenv('NPPES_PL_DIR')}"
 ]

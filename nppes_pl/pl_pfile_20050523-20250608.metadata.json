@@ -1,10 +1,15 @@
 {
   "filename": "pl_pfile_20050523-20250608.csv",
   "filename_without_extension": "pl_pfile_20050523-20250608",
-  "full_path": "/Users/ftrotter/Downloads/NPPES_Data_Dissemination_June_2025_V2/pl_pfile_20050523-20250608.csv",
+  "file_glob_pattern": "pl_pfile_20050523-20250608.csv",
+  "recursive_search": true,
+  "full_path": "/Users/ftrotter/nppes_data/NPPES_Data_Dissemination_June_2025_V2/pl_pfile_20050523-20250608.csv",
   "file_size_bytes": 98787747,
   "delimiter": ",",
   "quote_character": "\"",
+  "encoding": "iso-8859-1",
+  "encoding_confidence": "high",
+  "encoding_notes": "Detected automatically. Can be manually overridden if needed.",
   "original_column_names": [
     "NPI",
     "Provider Secondary Practice Location Address- Address Line 1",
@@ -19,27 +24,27 @@
   ],
   "normalized_column_names": [
     "npi",
-    "provider_secondary_practice_address_address_line_1",
-    "provider_secondary_practice_address_address_line_2",
-    "provider_secondary_practice_address_city_name",
-    "provider_secondary_practice_address_state_name",
-    "provider_secondary_practice_address_postal_code",
-    "provider_secondary_practice_address_country_code",
-    "provider_secondary_practice_address_telephone_number",
-    "provider_secondary_practice_address_telephone_extension",
-    "provider_practice_address_fax_number"
+    "provider_secondary_practice_location_address_address_line_1",
+    "provider_secondary_practice_location_address_address_line_2",
+    "provider_secondary_practice_location_address_city_name",
+    "provider_secondary_practice_location_address_state_name",
+    "provider_secondary_practice_location_address_postal_code",
+    "provider_secondary_practice_location_address_country_code_if",
+    "provider_secondary_practice_location_address_telephone_numbe",
+    "provider_secondary_practice_location_address_telephone_exten",
+    "provider_practice_location_address_fax_number"
   ],
   "column_name_mapping": {
     "NPI": "npi",
-    "Provider Secondary Practice Location Address- Address Line 1": "provider_secondary_practice_address_address_line_1",
-    "Provider Secondary Practice Location Address-  Address Line 2": "provider_secondary_practice_address_address_line_2",
-    "Provider Secondary Practice Location Address - City Name": "provider_secondary_practice_address_city_name",
-    "Provider Secondary Practice Location Address - State Name": "provider_secondary_practice_address_state_name",
-    "Provider Secondary Practice Location Address - Postal Code": "provider_secondary_practice_address_postal_code",
-    "Provider Secondary Practice Location Address - Country Code (If outside U.S.)": "provider_secondary_practice_address_country_code",
-    "Provider Secondary Practice Location Address - Telephone Number": "provider_secondary_practice_address_telephone_number",
-    "Provider Secondary Practice Location Address - Telephone Extension": "provider_secondary_practice_address_telephone_extension",
-    "Provider Practice Location Address - Fax Number": "provider_practice_address_fax_number"
+    "Provider Secondary Practice Location Address- Address Line 1": "provider_secondary_practice_location_address_address_line_1",
+    "Provider Secondary Practice Location Address-  Address Line 2": "provider_secondary_practice_location_address_address_line_2",
+    "Provider Secondary Practice Location Address - City Name": "provider_secondary_practice_location_address_city_name",
+    "Provider Secondary Practice Location Address - State Name": "provider_secondary_practice_location_address_state_name",
+    "Provider Secondary Practice Location Address - Postal Code": "provider_secondary_practice_location_address_postal_code",
+    "Provider Secondary Practice Location Address - Country Code (If outside U.S.)": "provider_secondary_practice_location_address_country_code_if",
+    "Provider Secondary Practice Location Address - Telephone Number": "provider_secondary_practice_location_address_telephone_numbe",
+    "Provider Secondary Practice Location Address - Telephone Extension": "provider_secondary_practice_location_address_telephone_exten",
+    "Provider Practice Location Address - Fax Number": "provider_practice_location_address_fax_number"
   },
   "max_column_lengths": {
     "NPI": 10,
@@ -54,7 +59,5 @@
     "Provider Practice Location Address - Fax Number": 15
   },
   "total_columns": 10,
-  "column_headers_hash": "ae81d81e06d6e1be0b4efeba3b45f3cd",
-  "file_glob_pattern": "pl_pfile_**[0-9].csv",
-  "recursive_search": true
+  "column_headers_hash": "ae81d81e06d6e1be0b4efeba3b45f3cd"
 }
