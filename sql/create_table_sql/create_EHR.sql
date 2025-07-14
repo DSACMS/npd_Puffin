@@ -14,6 +14,6 @@ CREATE TABLE ndh.ehr_instance_to_npi (
 CREATE TABLE ndh.ehr_instance (
     id SERIAL PRIMARY KEY,
     -- Sourced from CHPL data here https://chpl.healthit.gov/
-    chpl_if VARCHAR(200)   NOT NULL,
+    chpl_id VARCHAR(200)   NOT NULL,
     bulk_endpoint_json_url VARCHAR(500) NULL
 );

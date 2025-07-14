@@ -13,7 +13,10 @@
 CREATE TABLE ndh.healthcare_brand (
     id SERIAL PRIMARY KEY,
     healthcare_brand_name VARCHAR(200)   NOT NULL,
-    trademark_serial_number VARCHAR(20)   NOT NULL
+    trademark_serial_number VARCHAR(20)   NOT NULL,
+    CONSTRAINT uc_healthcare_brand_name UNIQUE (
+        healthcare_brand_name
+    )
 );
 
 CREATE TABLE ndh.organization_healthcare_brand (
