@@ -28,10 +28,19 @@ CREATE TABLE ndh.individual_npi (
 
 );
 
+-- 
+-- 2025-07-14: Updated to support multiple clinical organizations per NPI.
+--   - id is now SERIAL PRIMARY KEY (auto-incrementing)
+--   - Removed UNIQUE constraint on npi_id
+--   - Added UNIQUE constraint on (npi_id, clinical_organization_id)
+--   - This supports many-to-many mapping and enables endpoint joins.
+--
 CREATE TABLE ndh.organizational_npi (
-    id BIGINT  PRIMARY KEY,
-    npi_id BIGINT   NOT NULL UNIQUE,
+    id SERIAL PRIMARY KEY,
+    npi_id BIGINT   NOT NULL,
     clinical_organization_id INT  DEFAULT NULL,
     primary_authorized_official_individual_id INT NOT NULL,
-    parent_npi_id BIGINT DEFAULT NULL-- TODO shold this be its own intermediate table? With an is_primary boolean in it?
+    parent_npi_id BIGINT DEFAULT NULL,
+    UNIQUE (npi_id, clinical_organization_id)
+    -- TODO should parent_npi_id be its own intermediate table? With an is_primary boolean in it?
 );
