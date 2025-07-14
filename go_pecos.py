@@ -29,7 +29,7 @@ cmds = [
         "--overwrite_previous"
     ],
     [
-        "python", "pecos_enrollment/go.postgresql.py",
+        "python", "{os.getenv('PECOS_ENROLLMENT_DIR')}/go.postgresql.py",
         "--csv_file", os.getenv("PECOS_ENROLLMENT_CSV"),
         "--db_schema_name", os.getenv("PECOS_SCHEMA"),
         "--table_name", os.getenv("PECOS_ENROLLMENT_TABLE")
@@ -41,7 +41,7 @@ cmds = [
         "--overwrite_previous"
     ],
     [
-        "python", "pecos_assignment/go.postgresql.py",
+        "python", "{os.getenv('PECOS_ASSIGNMENT_DIR')}/go.postgresql.py",
         "--csv_file", os.getenv("PECOS_ASSIGNMENT_CSV"),
         "--db_schema_name", os.getenv("PECOS_SCHEMA"),
         "--table_name", os.getenv("PECOS_ASSIGNMENT_TABLE")

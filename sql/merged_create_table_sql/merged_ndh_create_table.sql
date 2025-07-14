@@ -1,12 +1,13 @@
 -- Merged SQL statements for schema: ndh
--- Generated on: 2025-07-11 18:00:40
--- Total statements for this schema: 48
+-- Generated on: 2025-07-14 12:28:32
+-- Total statements for this schema: 49
 --
 -- Source files:
 --   ./sql/create_table_sql/create_address.sql
 --   ./sql/create_table_sql/create_clinical_organization.sql
+--   ./sql/create_table_sql/create_data_network.sql
 --   ./sql/create_table_sql/create_ehr.sql
---   ./sql/create_table_sql/create_healthcarebrand.sql
+--   ./sql/create_table_sql/create_healthcare_brand.sql
 --   ./sql/create_table_sql/create_identifier.sql
 --   ./sql/create_table_sql/create_individual.sql
 --   ./sql/create_table_sql/create_interop_endpoint.sql
@@ -200,7 +201,7 @@ CREATE TABLE ndh.clinical_orgname_type (
     source_file TEXT   NOT NULL,
     source_field TEXT   NOT NULL,
     CONSTRAINT uc_orgname_type_orgname_description UNIQUE (
-        orgname_type_description
+        orgname_type_description, source_file, source_field
     )
 );
 
@@ -218,6 +219,28 @@ CREATE TABLE ndh.assigning_npi (
     npi_id INT NOT NULL
 );
 
+-- Source: ./sql/create_table_sql/create_data_network.sql
+CREATE TABLE ndh.data_network (
+    -- marketplace/network-puf.NetworkID
+    id SERIAL PRIMARY KEY,
+    -- marketplace/network-puf.NetworkName
+    data_network_name varchar(100)   NOT NULL,
+    -- marketplace/network-puf.NetworkURL
+    data_network_blurb TEXT DEFAULT NULL,
+    data_network_url varchar(500)   DEFAULT NULL,
+    data_network_logo_url varchar(500)   DEFAULT NULL,
+    CONSTRAINT uc_data_network_name UNIQUE (
+        data_network_name
+    )        
+);
+
+-- Source: ./sql/create_table_sql/create_data_network.sql
+CREATE TABLE ndh.npi_data_network (
+    id SERIAL PRIMARY KEY,
+    npi_id BIGINT   NOT NULL,
+    data_network_id INT   NOT NULL
+);
+
 -- Source: ./sql/create_table_sql/create_ehr.sql
 CREATE TABLE ndh.ehr_instance_to_npi (
     id SERIAL PRIMARY KEY,
@@ -229,22 +252,25 @@ CREATE TABLE ndh.ehr_instance_to_npi (
 CREATE TABLE ndh.ehr_instance (
     id SERIAL PRIMARY KEY,
     -- Sourced from CHPL data here https://chpl.healthit.gov/
-    chpl_if VARCHAR(200)   NOT NULL,
+    chpl_id VARCHAR(200)   NOT NULL,
     bulk_endpoint_json_url VARCHAR(500) NULL
 );
 
--- Source: ./sql/create_table_sql/create_healthcarebrand.sql
+-- Source: ./sql/create_table_sql/create_healthcare_brand.sql
 CREATE TABLE ndh.healthcare_brand (
     id SERIAL PRIMARY KEY,
     healthcare_brand_name VARCHAR(200)   NOT NULL,
-    trademark_serial_number VARCHAR(20)   NOT NULL
+    trademark_serial_number VARCHAR(20)   NOT NULL,
+    CONSTRAINT uc_healthcare_brand_name UNIQUE (
+        healthcare_brand_name
+    )
 );
 
--- Source: ./sql/create_table_sql/create_healthcarebrand.sql
+-- Source: ./sql/create_table_sql/create_healthcare_brand.sql
 CREATE TABLE ndh.organization_healthcare_brand (
     id SERIAL PRIMARY KEY,
     healthcare_brand_id INT   NOT NULL,
-    organization_id INT   NOT NULL
+    clinical_organization_id INT   NOT NULL
 );
 
 -- Source: ./sql/create_table_sql/create_identifier.sql
@@ -299,11 +325,11 @@ CREATE TABLE ndh.individual (
     id SERIAL PRIMARY KEY,
     last_name VARCHAR(100)   NOT NULL,
     first_name VARCHAR(100)   NOT NULL,
-    middle_name VARCHAR(21)   NOT NULL,
-    name_prefix VARCHAR(6)   NOT NULL,
-    name_suffix VARCHAR(6)   NOT NULL,
+    middle_name VARCHAR(21)   DEFAULT NULL,
+    name_prefix VARCHAR(6)   DEFAULT NULL,
+    name_suffix VARCHAR(6)   DEFAULT NULL,
     email_address VARCHAR(200)   DEFAULT NULL,
-    ssn VARCHAR(10)   DEFAULT NULL.
+    ssn VARCHAR(10)   DEFAULT NULL,
     sex_code CHAR(1)  DEFAULT NULL,
     birth_date DATE
 );
@@ -311,9 +337,9 @@ CREATE TABLE ndh.individual (
 -- Source: ./sql/create_table_sql/create_interop_endpoint.sql
 CREATE TABLE ndh.interop_endpoint_type (
     id SERIAL PRIMARY KEY,
-    identifier_type_description TEXT   NOT NULL,
-    CONSTRAINT uc_endpoint_type_identifier_type_description UNIQUE (
-        identifier_type_description
+    interop_endpoint_type_description TEXT   NOT NULL,
+    CONSTRAINT uc_endpoint_type_interop_endpoint_type_description UNIQUE (
+        interop_endpoint_type_description
     )
 );
 
@@ -333,7 +359,7 @@ CREATE TABLE ndh.interop_endpoint (
 );
 
 -- Source: ./sql/create_table_sql/create_interop_endpoint.sql
-CREATE TABLE ndh.clinicalorg_to_interopendpoint (
+CREATE TABLE ndh.clinical_organization_interop_endpoint (
     id SERIAL PRIMARY KEY,
     clinical_organization_id INT   NOT NULL,
     interop_endpoint_id INT   NOT NULL
@@ -364,11 +390,13 @@ CREATE TABLE ndh.individual_npi (
 
 -- Source: ./sql/create_table_sql/create_npi.sql
 CREATE TABLE ndh.organizational_npi (
-    id BIGINT  PRIMARY KEY,
-    npi_id BIGINT   NOT NULL UNIQUE,
+    id SERIAL PRIMARY KEY,
+    npi_id BIGINT   NOT NULL,
     clinical_organization_id INT  DEFAULT NULL,
     primary_authorized_official_individual_id INT NOT NULL,
-    parent_npi_id BIGINT DEFAULT NULL-- TODO shold this be its own intermediate table? With an is_primary boolean in it?
+    parent_npi_id BIGINT DEFAULT NULL,
+    UNIQUE (npi_id, clinical_organization_id)
+    -- TODO should parent_npi_id be its own intermediate table? With an is_primary boolean in it?
 );
 
 -- Source: ./sql/create_table_sql/create_payer_data.sql
@@ -470,7 +498,7 @@ CREATE TABLE ndh.npi_phone (
     npi_id BIGINT   NOT NULL,
     phonetype_id INTEGER   NOT NULL,
     phone_number_id INTEGER   NOT NULL,
-    phone_extension_id INTEGER  NULL,
+    phone_extension VARCHAR(10)   NOT NULL,
     is_fax BOOLEAN   NOT NULL   -- TODO there is an edge case where one provider lists a phone as a fax and another lists it as a phone. Rare, but it could cause complexity
 );
 
@@ -478,14 +506,7 @@ CREATE TABLE ndh.npi_phone (
 Create TABLE ndh.phone_number (
     id SERIAL PRIMARY KEY,
     phone_number VARCHAR(20)   NOT NULL,
-    CONSTRAINT uc_phonenumber_phone_number UNIQUE (phone_number)
-);
-
--- Source: ./sql/create_table_sql/create_phone.sql
-Create TABLE ndh.phone_extension (
-    id SERIAL PRIMARY KEY,
-    phone_extension VARCHAR(10)   NOT NULL,
-    CONSTRAINT uc_phone_extension_phone_extension UNIQUE (phone_extension)
+    CONSTRAINT uc_phone_extension_phone UNIQUE (phone_number)
 );
 
 -- Source: ./sql/create_table_sql/create_provider_taxonomy.sql
