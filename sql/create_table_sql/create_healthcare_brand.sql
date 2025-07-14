@@ -22,5 +22,5 @@ CREATE TABLE ndh.healthcare_brand (
 CREATE TABLE ndh.organization_healthcare_brand (
     id SERIAL PRIMARY KEY,
     healthcare_brand_id INT   NOT NULL,
-    organization_id INT   NOT NULL
+    clinical_organization_id INT   NOT NULL
 );

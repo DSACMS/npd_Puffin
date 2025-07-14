@@ -157,7 +157,7 @@ class Step35PecosKnowsReassignment:
         )
         SELECT DISTINCT
             clinical_org.id AS clinical_organization_id, 
-            receiving_enrollment.npi AS npi_id
+            assigning_enrollment.npi AS npi_id
         FROM {pecos_reassignment_DBTable} AS reassignment
         INNER JOIN {pecos_enrollment_DBTable} AS assigning_enrollment ON
             reassignment.reasgn_bnft_enrlmt_id = assigning_enrollment.enrlmt_id

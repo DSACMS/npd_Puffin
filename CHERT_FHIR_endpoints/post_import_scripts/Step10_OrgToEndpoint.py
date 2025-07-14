@@ -25,15 +25,15 @@ def main():
 
     # Table references
     ehr_fhir_url_DBTable = DBTable(schema='lantern_ehr_fhir_raw', table='ehr_fhir_url')
-    interopendpoint_DBTable = DBTable(schema='ndh', table='interopendpoint')
+    interop_endpoint_DBTable = DBTable(schema='ndh', table='interop_endpoint')
     organizational_npi_DBTable = DBTable(schema='ndh', table='organizational_npi')
-    clinicalorg_to_interopendpoint_DBTable = DBTable(schema='ndh', table='clinicalorg_to_interopendpoint')
+    clinical_organization_interopendpoint_DBTable = DBTable(schema='ndh', table='clinical_organization_interop_endpoint')
 
     sql = FrostDict()
 
     # Step 1: Insert unique org_fhir_url into ndh.interopendpoint
     sql['insert_interopendpoints'] = f"""
-    INSERT INTO {interopendpoint_DBTable} (fhir_endpoint_url, endpoint_name, endpoint_desc)
+    INSERT INTO {interop_endpoint_DBTable} (fhir_endpoint_url, endpoint_name, endpoint_desc)
     SELECT DISTINCT org_fhir_url, 'EHR endpoint', 'EHR endpoint'
     FROM {ehr_fhir_url_DBTable}
     WHERE org_fhir_url IS NOT NULL
@@ -42,17 +42,17 @@ def main():
 
     # Step 2: Insert links into ndh.clinicalorg_to_interopendpoint
     sql['insert_clinicalorg_to_interopendpoint'] = f"""
-    INSERT INTO {clinicalorg_to_interopendpoint_DBTable} (clinicalorganization_id, interopendpoint_id)
+    INSERT INTO {clinical_organization_interopendpoint_DBTable} (clinical_organization_id, interop_endpoint_id)
     SELECT DISTINCT
-        npi.ClinicalOrganization_id,
-        ie.id AS interopendpoint_id
-    FROM {ehr_fhir_url_DBTable} ef
-    JOIN {organizational_npi_DBTable} npi
-        ON ef.npi = npi.NPI_id
-    JOIN {interopendpoint_DBTable} ie
-        ON ef.org_fhir_url = ie.fhir_endpoint_url
-    WHERE ef.org_fhir_url IS NOT NULL
-      AND npi.ClinicalOrganization_id IS NOT NULL
+        npi.clinical_organization_id,
+        interop_endpoint.id AS interop_endpoint_id
+    FROM {ehr_fhir_url_DBTable} AS ehr_fhir
+    JOIN {organizational_npi_DBTable} AS npi
+        ON ehr_fhir.npi = npi.NPI_id
+    JOIN {interop_endpoint_DBTable} AS interop_endpoint
+        ON ehr_fhir.org_fhir_url = interop_endpoint.fhir_endpoint_url
+    WHERE ehr_fhir.org_fhir_url IS NOT NULL
+      AND npi.clinical_organization_id IS NOT NULL
     ON CONFLICT DO NOTHING;
     """
 
