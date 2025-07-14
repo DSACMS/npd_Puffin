@@ -292,6 +292,28 @@ class InLawAssigningNpiToClinicalOrg(InLaw):
             return True
         return "assigning_npi join to clinical_organization does not return exactly one row for Dr. Hussain"
 
+
+class InLawAssigningNpiToClinicalOrg(InLaw):
+    title = "full test returns 1 row"
+    @staticmethod
+    def run(engine):
+        sql = """
+SELECT ie.fhir_endpoint_url
+FROM ndh.assigning_npi an
+JOIN ndh.clinical_organization_interop_endpoint coie
+  ON an.clinical_organization_id = coie.clinical_organization_id
+JOIN ndh.interop_endpoint ie
+  ON coie.interop_endpoint_id = ie.id
+WHERE an.npi_id = '1023008976';
+        """
+        gx_df = InLaw.to_gx_dataframe(sql, engine)
+        result = gx_df.expect_table_row_count_to_equal(1)
+        if result.success:
+            return True
+        return "joining all the way from Dr Hussain to the endpoints fails"
+
+
+
 # (Removed InLawAssigningNpiToEndpoint)
 
 def run_inlaw_tests(npi_to_enrlmt_id):

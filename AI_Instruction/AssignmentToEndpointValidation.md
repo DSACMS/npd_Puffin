@@ -8,9 +8,9 @@ I would like you to write a script that validates that CSV files are being impor
 * 1043699168 - Woodridge Primary Clinic
 * 1023008976 - Dr Hussain
 
-Place the the resulting code here: nppes_main/post_import_scripts/Step40_validate_assignment_to_endpoint.py
 
-The first and second steps are complete, please move on to the third step. 
+
+Please move on to the fourth step. The others are provided here just for context. 
 
 First Step - use system calls to grep to examine the source CSV files
 ---------------
@@ -101,3 +101,9 @@ WHERE an.npi_id = '1023008976';
 
 Add these inlaw scripts to the validation class and then run it.
 
+Fourth Step
+-----------
+
+Please the new tests in  nppes_main/post_import_scripts/Step45_ExamineJoins.py
+
+The last query in the third step
