@@ -37,11 +37,11 @@ CREATE TABLE ndh.individual (
     id SERIAL PRIMARY KEY,
     last_name VARCHAR(100)   NOT NULL,
     first_name VARCHAR(100)   NOT NULL,
-    middle_name VARCHAR(21)   NOT NULL,
-    name_prefix VARCHAR(6)   NOT NULL,
-    name_suffix VARCHAR(6)   NOT NULL,
+    middle_name VARCHAR(21)   DEFAULT NULL,
+    name_prefix VARCHAR(6)   DEFAULT NULL,
+    name_suffix VARCHAR(6)   DEFAULT NULL,
     email_address VARCHAR(200)   DEFAULT NULL,
-    ssn VARCHAR(10)   DEFAULT NULL.
+    ssn VARCHAR(10)   DEFAULT NULL,
     sex_code CHAR(1)  DEFAULT NULL,
     birth_date DATE
 );

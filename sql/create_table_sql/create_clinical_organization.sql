@@ -28,7 +28,7 @@ CREATE TABLE ndh.clinical_orgname_type (
     source_file TEXT   NOT NULL,
     source_field TEXT   NOT NULL,
     CONSTRAINT uc_orgname_type_orgname_description UNIQUE (
-        orgname_type_description
+        orgname_type_description, source_file, source_field
     )
 );
 
