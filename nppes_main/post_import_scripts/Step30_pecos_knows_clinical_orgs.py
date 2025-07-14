@@ -163,29 +163,29 @@ def main():
     # Phase 4: Populate ClinicalOrganization table
     sql['populate_clinical_organizations'] = f"""
     INSERT INTO {clinical_org_DBTable} (
-        ClinicalOrganization_legal_name,
-        AuthorizedOfficial_Individual_id,
-        Organization_TIN,
-        Organization_VTIN,
-        OrganizationGLIEF
+        clinical_organization_legal_name,
+        authorized_official_individual_id,
+        organization_tin,
+        organization_vtin,
+        organization_glief
     )
     SELECT DISTINCT
         staging.one_org_name,
-        0 AS AuthorizedOfficial_Individual_id,
-        NULL AS Organization_TIN,
-        'PECOS' || staging.pecos_asct_cntl_id AS Organization_VTIN,
-        NULL AS OrganizationGLIEF
+        0 AS authorized_official_individual_id,
+        NULL AS organization_tin,
+        'PECOS' || staging.pecos_asct_cntl_id AS organization_vtin,
+        NULL AS organization_glief
     FROM {staging_table_DBTable} AS staging
     WHERE staging.one_org_name IS NOT NULL
-    ON CONFLICT (Organization_VTIN) DO NOTHING;
+    ON CONFLICT (organization_vtin) DO NOTHING;
     """
     
     # Phase 5: Populate Orgname table with PECOS names
     sql['populate_orgnames_pecos'] = f"""
     INSERT INTO {orgname_DBTable} (
-        ClinicalOrganization_id,
-        ClinicalOrganization_name,
-        ClinicalOrgnameType_id
+        clinical_organization_id,
+        clinical_organization_name,
+        clinical_orgname_type_id
     )
     SELECT DISTINCT
         clinical_org.id,
@@ -193,19 +193,19 @@ def main():
         orgname_type.id
     FROM {staging_table_DBTable} AS staging
     JOIN {clinical_org_DBTable} AS clinical_org ON
-        clinical_org.Organization_VTIN = 'PECOS' || staging.pecos_asct_cntl_id
+        clinical_org.organization_vtin = 'PECOS' || staging.pecos_asct_cntl_id
     JOIN {orgname_type_lut_DBTable} AS orgname_type ON
         orgname_type.orgname_type_description = 'PECOS'
     WHERE staging.one_org_name IS NOT NULL
-    ON CONFLICT (ClinicalOrganization_id, ClinicalOrganization_name, ClinicalOrgnameType_id) DO NOTHING;
+    ON CONFLICT (clinical_organization_id, clinical_organization_name, clinical_orgname_type_id) DO NOTHING;
     """
     
     # Phase 6: Populate Orgname table with NPPES names
     sql['populate_orgnames_nppes'] = f"""
     INSERT INTO {orgname_DBTable} (
-        ClinicalOrganization_id,
-        ClinicalOrganization_name,
-        ClinicalOrgnameType_id
+        clinical_organization_id,
+        clinical_organization_name,
+        clinical_orgname_type_id
     )
     SELECT DISTINCT
         clinical_org.id,
@@ -213,12 +213,12 @@ def main():
         orgname_type.id
     FROM {staging_table_DBTable} AS staging
     JOIN {clinical_org_DBTable} AS clinical_org ON
-        clinical_org.Organization_VTIN = 'PECOS' || staging.pecos_asct_cntl_id
+        clinical_org.organization_vtin = 'PECOS' || staging.pecos_asct_cntl_id
     JOIN {orgname_type_lut_DBTable} AS orgname_type ON
         orgname_type.orgname_type_description = staging.data_source
     WHERE staging.organization_name IS NOT NULL
     AND staging.organization_name != ''
-    ON CONFLICT (ClinicalOrganization_id, ClinicalOrganization_name, ClinicalOrgnameType_id) DO NOTHING;
+    ON CONFLICT (clinical_organization_id, clinical_organization_name, clinical_orgname_type_id) DO NOTHING;
     """
     
     # Phase 7: Create Individual records for authorized officials
@@ -230,7 +230,7 @@ def main():
         name_prefix,
         name_suffix,
         email_address,
-        SSN
+        ssn
     )
     SELECT DISTINCT
         COALESCE(nppes_main."Authorized_Official_Last_Name", '') AS last_name,
@@ -239,7 +239,7 @@ def main():
         COALESCE(nppes_main."Authorized_Official_Name_Prefix_Text", '') AS name_prefix,
         COALESCE(nppes_main."Authorized_Official_Name_Suffix_Text", '') AS name_suffix,
         NULL AS email_address,
-        NULL AS SSN
+        NULL AS ssn
     FROM {pecos_enrollment_DBTable} AS pecos_enrollment
     JOIN {nppes_main_DBTable} AS nppes_main ON
         nppes_main."NPI" = pecos_enrollment.npi
@@ -253,22 +253,22 @@ def main():
     sql['populate_npi_to_clinical_organization'] = f"""
     INSERT INTO {npi_to_clinical_org_DBTable} (
         id,
-        NPI_id,
-        ClinicalOrganization_id,
-        PrimaryAuthorizedOfficial_Individual_id,
-        Parent_NPI_id
+        npi_id,
+        clinical_organization_id,
+        primary_authorized_official_individual_id,
+        parent_npi_id
     )
     SELECT DISTINCT
         nppes_main."NPI" AS id,    
-        nppes_main."NPI" AS NPI_id,
-        clinical_org.id AS ClinicalOrganization_id,
-        individual.id AS PrimaryAuthorizedOfficial_Individual_id,
-        0 AS Parent_NPI_id
+        nppes_main."NPI" AS npi_id,
+        clinical_org.id AS clinical_organization_id,
+        individual.id AS primary_authorized_official_individual_id,
+        0 AS parent_npi_id
     FROM {pecos_enrollment_DBTable} AS pecos_enrollment
     JOIN {nppes_main_DBTable} AS nppes_main ON
         nppes_main."NPI" = pecos_enrollment.npi
     JOIN {clinical_org_DBTable} AS clinical_org ON
-        clinical_org.Organization_VTIN = 'PECOS' || pecos_enrollment.pecos_asct_cntl_id
+        clinical_org.organization_vtin = 'PECOS' || pecos_enrollment.pecos_asct_cntl_id
     JOIN {individual_DBTable} AS individual ON
         individual.last_name = COALESCE(nppes_main."Authorized_Official_Last_Name", '')
         AND individual.first_name = COALESCE(nppes_main."Authorized_Official_First_Name", '')
@@ -277,7 +277,7 @@ def main():
         AND individual.name_suffix = COALESCE(nppes_main."Authorized_Official_Name_Suffix_Text", '')
     WHERE pecos_enrollment.org_name IS NOT NULL
     AND nppes_main."Entity_Type_Code" = '2'
-    ON CONFLICT (NPI_id) DO NOTHING;
+    ON CONFLICT (npi_id) DO NOTHING;
     """
     
     # Phase 9: Create indexes for performance

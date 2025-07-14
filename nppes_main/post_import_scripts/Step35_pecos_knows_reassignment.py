@@ -41,7 +41,7 @@ class Step35PecosKnowsReassignment:
         assign_expanded_DBTable = DBTable(schema='intake',table='pecos_assign_expanded')
         pac_list_DBTable = DBTable(schema='intake',table='pecos_pac_list')
         pac_count_DBTable = DBTable(schema='intake',table='pecos_pac_count')
-
+        pac_to_onpi_DBTABLE = DBTable(schema='intake', table='pac_to_npi')
 
         sql = FrostDict()
         
@@ -52,13 +52,14 @@ class Step35PecosKnowsReassignment:
         
         sql['create_assigning_npi_table'] = f"""
         CREATE TABLE {assigning_npi_DBTable} (
-            clinical_rganization_id INT NOT NULL,
+            clinical_organization_id INT NOT NULL,
             npi_id BIGINT NOT NULL
         );
         """
         
         pecos_vtin_prefix = 'PECOS_'
 
+        # We do this one so that we can see how the assignment relationships actually look... 
 
         sql['drop the pecos expanded'] = f"DROP TABLE IF EXISTS {assign_expanded_DBTable}"
 
@@ -102,15 +103,16 @@ class Step35PecosKnowsReassignment:
         sql['drop paclist'] = f"DROP TABLE IF EXISTS {pac_list_DBTable}"
 
         # Note that a given PAC ID can potentially have multiple PACIDs since apparently sharing a PACID is one form (at least) of "reassignment"
+        # TODO the InLaw test on this one should be the verify that the enrollment_count is always equal or greater than the npi_count.
 
         sql['create paclist'] = f"""
             CREATE TABLE {pac_list_DBTable} AS 
             SELECT pecos_asct_cntl_id AS pac_id,
-                COALESCE(org_name,'individual_providers') AS org_indv_group,
+                COALESCE(org_name,CONCAT(last_name, ' ', first_name)) AS org_indv_group,
                 COUNT(DISTINCT(enrlmt_id)) AS enrollment_count,
                 COUNT(DISTINCT(npi)) AS npi_count
-            FROM pecos_raw.pecos_enrollment
-            GROUP BY pecos_asct_cntl_id, COALESCE(org_name,'individual_providers')
+            FROM {pecos_enrollment_DBTable}
+            GROUP BY pecos_asct_cntl_id, COALESCE(org_name,CONCAT(last_name, ' ', first_name))
             ORDER BY COUNT(DISTINCT(enrlmt_id)) DESC
         """
 
@@ -120,6 +122,8 @@ class Step35PecosKnowsReassignment:
 
         sql['drop pac count'] = f"DROP TABLE IF EXISTS {pac_count_DBTable}"
 
+
+        # TODO, this one should become a check. There should be no data in this table given this HAVING statement. 
         # We want to be able to see when it is more than a single org and a group of individuals.. so a org_indv_group of at least three values. 
         sql['create pac count'] = f"""
             CREATE TABLE {pac_count_DBTable} AS 
@@ -131,9 +135,19 @@ class Step35PecosKnowsReassignment:
             HAVING COUNT(DISTINCT(org_indv_group)) > 1
         """
 
-        sql['index pac count'] = f"""
-            CREATE INDEX index_pac_count_pac_id ON {pac_count_DBTable} (pac_id);
+        sql['drop the pac to npi table'] = f"""
+            DROP TABLE IF EXISTS {pac_to_onpi_DBTABLE}
         """
+
+        sql['create the pac to npi table'] = f"""
+            CREATE TABLE {pac_to_onpi_DBTABLE} AS 
+            SELECT DISTINCT
+                pecos_asct_cntl_id AS pac_id,
+                COALESCE(org_name, CONCAT(last_name, ' ', first_name)) AS provider_name,
+                npi
+            FROM {pecos_enrollment_DBTable}
+        """
+
 
         # Phase 2: Populate the assigning_npi table with reassignment data
         sql['populate_assigning_npi'] = f"""
