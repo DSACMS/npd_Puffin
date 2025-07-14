@@ -106,4 +106,10 @@ Fourth Step
 
 Please the new tests in  nppes_main/post_import_scripts/Step45_ExamineJoins.py
 
-The last query in the third step
+The last query in the third step above fails. 
+
+Please write out all of the intermediate joins, using Woodridge Primary Clinic and  Dr Hussais NPIs in both directions until we determine what precise intermediate table is not working. 
+
+For this, do not bother to follow the typical InLaw pattern. Instead, just run needed SELECT the queries against the database one at a time to figure out which part of broken.
+
+Use the new file at nppes_main/post_import_scripts/Step45_ExamineJoins.py to record this process. 

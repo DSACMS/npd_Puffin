@@ -269,34 +269,42 @@ def main():
     
     # Phase 8: Create Organizational NPI to ClinicalOrganization links
     # Note the "WHERE nppes_main."Entity_Type_Code" = '2'" this si ensuring 
+    sql['add_organizational_npi_unique_constraint'] = f"""
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.table_constraints
+            WHERE constraint_name = 'uc_organizational_npi_pair'
+            AND table_name = 'organizational_npi'
+            AND table_schema = 'ndh'
+        ) THEN
+            ALTER TABLE {npi_to_clinical_org_DBTable}
+            ADD CONSTRAINT uc_organizational_npi_pair
+            UNIQUE (npi_id, clinical_organization_id);
+        END IF;
+    END $$;
+    """
+
     sql['populate_npi_to_clinical_organization'] = f"""
     INSERT INTO {npi_to_clinical_org_DBTable} (
-        id,
         npi_id,
         clinical_organization_id,
         primary_authorized_official_individual_id,
         parent_npi_id
     )
     SELECT DISTINCT
-        nppes_main."NPI" AS id,    
         nppes_main."NPI" AS npi_id,
         clinical_org.id AS clinical_organization_id,
-        individual.id AS primary_authorized_official_individual_id,
+        0 AS primary_authorized_official_individual_id,
         0 AS parent_npi_id
     FROM {pecos_enrollment_DBTable} AS pecos_enrollment
     JOIN {nppes_main_DBTable} AS nppes_main ON
         nppes_main."NPI" = pecos_enrollment.npi
     JOIN {clinical_org_DBTable} AS clinical_org ON
         clinical_org.organization_vtin = '{pecos_vtin_prefix}' || pecos_enrollment.pecos_asct_cntl_id
-    JOIN {individual_DBTable} AS individual ON
-        individual.last_name = COALESCE(nppes_main."Authorized_Official_Last_Name", '')
-        AND individual.first_name = COALESCE(nppes_main."Authorized_Official_First_Name", '')
-        AND individual.middle_name = COALESCE(nppes_main."Authorized_Official_Middle_Name", '')
-        AND individual.name_prefix = COALESCE(nppes_main."Authorized_Official_Name_Prefix_Text", '')
-        AND individual.name_suffix = COALESCE(nppes_main."Authorized_Official_Name_Suffix_Text", '')
     WHERE pecos_enrollment.org_name IS NOT NULL
     AND nppes_main."Entity_Type_Code" = '2'
-    ON CONFLICT (npi_id) DO NOTHING;
+    ON CONFLICT (npi_id, clinical_organization_id) DO NOTHING;
     """
     
     # Phase 9: Create indexes for performance
