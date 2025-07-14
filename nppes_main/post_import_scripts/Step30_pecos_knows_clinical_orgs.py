@@ -36,11 +36,11 @@ def main():
     nppes_endpoint_DBTable = DBTable(schema='nppes_raw', table='endpoint_file')
     
     # Target tables in NDH schema
-    clinical_org_DBTable = DBTable(schema='ndh', table='ClinicalOrganization')
-    orgname_type_lut_DBTable = DBTable(schema='ndh', table='ClinicalOrgnameTypeLUT')
-    orgname_DBTable = DBTable(schema='ndh', table='Orgname')
-    individual_DBTable = DBTable(schema='ndh', table='Individual')
-    npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='NPI_to_ClinicalOrganization')
+    clinical_org_DBTable = DBTable(schema='ndh', table='clinical_organization')
+    orgname_type_lut_DBTable = DBTable(schema='ndh', table='clinical_orgname_type_lut')
+    orgname_DBTable = DBTable(schema='ndh', table='orgname')
+    individual_DBTable = DBTable(schema='ndh', table='individual')
+    npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='organizational_npi')
     
     # Staging table
     staging_table_DBTable = DBTable(schema='intake', table='PAC_to_NPPES_org_names')

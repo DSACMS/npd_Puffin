@@ -12,10 +12,10 @@ Key Features:
 - Separate from data transformation for modularity
 
 Indexes Created:
-- ndh.NPI: npi, entity_type_code
-- ndh.Individual: name components for matching
-- ndh.NPI_to_Individual: foreign key relationships
-- ndh.NPI_to_ClinicalOrganization: foreign key relationships and parent hierarchy
+- ndh.npi: npi, entity_type_code
+- ndh.individual: name components for matching
+- ndh.individual_npi: foreign key relationships
+- ndh.organizational_npi: foreign key relationships and parent hierarchy
 - intake.wrongnpi: error analysis indexes
 """
 
@@ -33,10 +33,10 @@ def main():
     alchemy_engine = CredentialFinder.detect_config(verbose=True, env_path=env_location)
     
     # Define target tables
-    npi_DBTable = DBTable(schema='ndh', table='NPI')
-    individual_DBTable = DBTable(schema='ndh', table='Individual')
-    npi_to_individual_DBTable = DBTable(schema='ndh', table='NPI_to_Individual')
-    npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='NPI_to_ClinicalOrganization')
+    npi_DBTable = DBTable(schema='ndh', table='npi')
+    individual_DBTable = DBTable(schema='ndh', table='individual')
+    npi_to_individual_DBTable = DBTable(schema='ndh', table='individual_npi')
+    npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='organizational_npi')
     wrongnpi_DBTable = DBTable(schema='intake', table='wrongnpi')
     
     # Intake tracking tables for analysis
@@ -97,19 +97,15 @@ def main():
     # ========================================
     
     sql['10_create_npi_to_individual_npi_index'] = f"""
-    CREATE INDEX IF NOT EXISTS idx_npi_to_individual_npi ON {npi_to_individual_DBTable}(NPI_id);
+    CREATE INDEX IF NOT EXISTS idx_npi_to_individual_npi ON {npi_to_individual_DBTable}(npi_id);
     """
     
     sql['11_create_npi_to_individual_individual_index'] = f"""
-    CREATE INDEX IF NOT EXISTS idx_npi_to_individual_individual ON {npi_to_individual_DBTable}(Individual_id);
+    CREATE INDEX IF NOT EXISTS idx_npi_to_individual_individual ON {npi_to_individual_DBTable}(individual_id);
     """
     
     sql['12_create_npi_to_individual_sole_proprietor_index'] = f"""
     CREATE INDEX IF NOT EXISTS idx_npi_to_individual_sole_proprietor ON {npi_to_individual_DBTable}(is_sole_proprietor) WHERE is_sole_proprietor = TRUE;
-    """
-    
-    sql['13_create_npi_to_individual_sex_index'] = f"""
-    CREATE INDEX IF NOT EXISTS idx_npi_to_individual_sex ON {npi_to_individual_DBTable}(sex_code);
     """
     
     # ========================================
@@ -117,19 +113,19 @@ def main():
     # ========================================
     
     sql['14_create_npi_to_clinical_org_npi_index'] = f"""
-    CREATE INDEX IF NOT EXISTS idx_npi_to_clinical_org_npi ON {npi_to_clinical_org_DBTable}(NPI_id);
+    CREATE INDEX IF NOT EXISTS idx_npi_to_clinical_org_npi ON {npi_to_clinical_org_DBTable}(npi_id);
     """
     
     sql['15_create_npi_to_clinical_org_parent_index'] = f"""
-    CREATE INDEX IF NOT EXISTS idx_npi_to_clinical_org_parent ON {npi_to_clinical_org_DBTable}(Parent_NPI_id) WHERE Parent_NPI_id IS NOT NULL;
+    CREATE INDEX IF NOT EXISTS idx_npi_to_clinical_org_parent ON {npi_to_clinical_org_DBTable}(parent_npi_id) WHERE parent_npi_id IS NOT NULL;
     """
     
     sql['16_create_npi_to_clinical_org_individual_index'] = f"""
-    CREATE INDEX IF NOT EXISTS idx_npi_to_clinical_org_individual ON {npi_to_clinical_org_DBTable}(PrimaryAuthorizedOfficial_Individual_id);
+    CREATE INDEX IF NOT EXISTS idx_npi_to_clinical_org_individual ON {npi_to_clinical_org_DBTable}(primary_authorized_official_individual_id);
     """
     
     sql['17_create_npi_to_clinical_org_clinical_org_index'] = f"""
-    CREATE INDEX IF NOT EXISTS idx_npi_to_clinical_org_clinical_org ON {npi_to_clinical_org_DBTable}(ClinicalOrganization_id) WHERE ClinicalOrganization_id IS NOT NULL;
+    CREATE INDEX IF NOT EXISTS idx_npi_to_clinical_org_clinical_org ON {npi_to_clinical_org_DBTable}(clinical_organization_id) WHERE clinical_organization_id IS NOT NULL;
     """
     
     # ========================================

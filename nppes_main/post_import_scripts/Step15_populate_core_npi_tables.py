@@ -38,7 +38,7 @@ def main():
     
     # Target NDH tables
     npi_DBTable = DBTable(schema='ndh', table='NPI')
-    individual_DBTable = DBTable(schema='ndh', table='Individual')
+    individual_DBTable = DBTable(schema='ndh', table='individual')
     npi_to_individual_DBTable = DBTable(schema='ndh', table='individual_npi')
     npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='organizational_npi')
     wrongnpi_DBTable = DBTable(schema='intake', table='wrongnpi')
@@ -68,9 +68,9 @@ def main():
     # PHASE 0: Create intake tables if they don't exist
     # ========================================
     
-    sql['00a_create_npi_processing_run_table'] = """
+    sql['00a_create_npi_processing_run_table'] = f"""
     -- Track processing runs and their metadata
-    CREATE TABLE IF NOT EXISTS intake.npi_processing_run (
+    CREATE TABLE IF NOT EXISTS {processing_run_DBTable} (
         id SERIAL PRIMARY KEY,
         run_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         source_table VARCHAR(100) NOT NULL,
@@ -83,11 +83,11 @@ def main():
     );
     """
     
-    sql['00b_create_npi_change_log_table'] = """
+    sql['00b_create_npi_change_log_table'] = f"""
     -- Track individual NPI changes detected during processing
-    CREATE TABLE IF NOT EXISTS intake.npi_change_log (
+    CREATE TABLE IF NOT EXISTS {npi_change_log_DBTable} (
         id SERIAL PRIMARY KEY,
-        processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
+        processing_run_id INTEGER REFERENCES {processing_run_DBTable}(id),
         npi BIGINT NOT NULL,
         change_type VARCHAR(50) NOT NULL, -- 'NEW', 'UPDATED', 'DEACTIVATED', 'REACTIVATED'
         change_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -98,11 +98,11 @@ def main():
     );
     """
     
-    sql['00c_create_individual_change_log_table'] = """
+    sql['00c_create_individual_change_log_table'] = f"""
     -- Track Individual record changes
-    CREATE TABLE IF NOT EXISTS intake.individual_change_log (
+    CREATE TABLE IF NOT EXISTS {individual_change_log_DBTable} (
         id SERIAL PRIMARY KEY,
-        processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
+        processing_run_id INTEGER REFERENCES {processing_run_DBTable}(id),
         individual_id INTEGER,
         npi BIGINT,
         change_type VARCHAR(50) NOT NULL, -- 'NEW', 'UPDATED', 'NAME_CHANGE'
@@ -113,11 +113,11 @@ def main():
     );
     """
     
-    sql['00d_create_parent_relationship_change_log_table'] = """
+    sql['00d_create_parent_relationship_change_log_table'] = f"""
     -- Track parent relationship changes for organizations
-    CREATE TABLE IF NOT EXISTS intake.parent_relationship_change_log (
+    CREATE TABLE IF NOT EXISTS {parent_change_log_DBTable} (
         id SERIAL PRIMARY KEY,
-        processing_run_id INTEGER REFERENCES intake.npi_processing_run(id),
+        processing_run_id INTEGER REFERENCES {processing_run_DBTable}(id),
         child_npi BIGINT NOT NULL,
         old_parent_npi BIGINT,
         new_parent_npi BIGINT,
@@ -127,14 +127,14 @@ def main():
     );
     """
     
-    sql['00e_create_intake_table_indexes'] = """
+    sql['00e_create_intake_table_indexes'] = f"""
     -- Create indexes for performance on intake tables
-    CREATE INDEX IF NOT EXISTS idx_npi_processing_run_date ON intake.npi_processing_run(run_date);
-    CREATE INDEX IF NOT EXISTS idx_npi_change_log_npi ON intake.npi_change_log(npi);
-    CREATE INDEX IF NOT EXISTS idx_npi_change_log_run ON intake.npi_change_log(processing_run_id);
-    CREATE INDEX IF NOT EXISTS idx_npi_change_log_type ON intake.npi_change_log(change_type);
-    CREATE INDEX IF NOT EXISTS idx_individual_change_log_npi ON intake.individual_change_log(npi);
-    CREATE INDEX IF NOT EXISTS idx_parent_relationship_change_log_child ON intake.parent_relationship_change_log(child_npi);
+    CREATE INDEX IF NOT EXISTS idx_npi_processing_run_date ON {processing_run_DBTable}(run_date);
+    CREATE INDEX IF NOT EXISTS idx_npi_change_log_npi ON {npi_change_log_DBTable}(npi);
+    CREATE INDEX IF NOT EXISTS idx_npi_change_log_run ON {npi_change_log_DBTable}(processing_run_id);
+    CREATE INDEX IF NOT EXISTS idx_npi_change_log_type ON {npi_change_log_DBTable}(change_type);
+    CREATE INDEX IF NOT EXISTS idx_individual_change_log_npi ON {individual_change_log_DBTable}(npi);
+    CREATE INDEX IF NOT EXISTS idx_parent_relationship_change_log_child ON {parent_change_log_DBTable}(child_npi);
     """
     
     # ========================================
@@ -482,21 +482,19 @@ def main():
     sql['12_upsert_npi_to_individual_relationships'] = f"""
     INSERT INTO {npi_to_individual_DBTable} (
         id,
-        NPI_id,
-        Individual_id,
-        is_sole_proprietor,
-        sex_code
+        npi_id,
+        individual_id,
+        is_sole_proprietor
     )
     SELECT DISTINCT
         npi_table.id AS id,
-        npi_table.id AS NPI_id,
-        individual_table.id AS Individual_id,
+        npi_table.id AS npi_id,
+        individual_table.id AS individual_id,
         CASE 
             WHEN source_table."Is_Sole_Proprietor" = 'Y' THEN TRUE
             WHEN source_table."Is_Sole_Proprietor" = 'N' THEN FALSE
             ELSE FALSE
-        END AS is_sole_proprietor,
-        COALESCE(source_table."Provider_Sex_Code", '') AS sex_code
+        END AS is_sole_proprietor
     FROM {npi_DBTable} AS npi_table
     JOIN {source_DBTable} AS source_table ON npi_table.npi = source_table."NPI"
     JOIN {npi_change_log_DBTable} AS change_log ON source_table."NPI" = change_log.npi
@@ -509,10 +507,9 @@ def main():
     )
     WHERE source_table."Entity_Type_Code" = '1'
     AND change_log.processed = FALSE
-    ON CONFLICT (NPI_id) DO UPDATE SET
-        Individual_id = EXCLUDED.Individual_id,
-        is_sole_proprietor = EXCLUDED.is_sole_proprietor,
-        sex_code = EXCLUDED.sex_code;
+    ON CONFLICT (npi_id) DO UPDATE SET
+        individual_id = EXCLUDED.individual_id,
+        is_sole_proprietor = EXCLUDED.is_sole_proprietor;
     """
     
     # ========================================
@@ -618,17 +615,17 @@ def main():
     sql['18_upsert_npi_to_clinical_organization_relationships'] = f"""
     INSERT INTO {npi_to_clinical_org_DBTable} (
         id, 
-        NPI_id,
-        ClinicalOrganization_id,
-        PrimaryAuthorizedOfficial_Individual_id,
-        Parent_NPI_id
+        npi_id,
+        clinical_organization_id,
+        primary_authorized_official_individual_id,
+        parent_npi_id
     )
     SELECT DISTINCT
         npi_table.id AS id,
-        npi_table.id AS NPI_id,
-        NULL::INTEGER AS ClinicalOrganization_id,
-        individual_table.id AS PrimaryAuthorizedOfficial_Individual_id,
-        parent_change_log.new_parent_npi AS Parent_NPI_id
+        npi_table.id AS npi_id,
+        NULL::INTEGER AS clinical_organization_id,
+        individual_table.id AS primary_authorized_official_individual_id,
+        parent_change_log.new_parent_npi AS parent_npi_id
     FROM {npi_DBTable} AS npi_table
     JOIN {source_DBTable} AS source_table ON npi_table.npi = source_table."NPI"
     JOIN {npi_change_log_DBTable} AS change_log ON source_table."NPI" = change_log.npi
@@ -642,9 +639,9 @@ def main():
     LEFT JOIN {parent_change_log_DBTable} AS parent_change_log ON npi_table.npi = parent_change_log.child_npi AND parent_change_log.processed = FALSE
     WHERE source_table."Entity_Type_Code" = '2'
     AND change_log.processed = FALSE
-    ON CONFLICT (NPI_id) DO UPDATE SET
-        PrimaryAuthorizedOfficial_Individual_id = EXCLUDED.PrimaryAuthorizedOfficial_Individual_id,
-        Parent_NPI_id = EXCLUDED.Parent_NPI_id;
+    ON CONFLICT (npi_id) DO UPDATE SET
+        primary_authorized_official_individual_id = EXCLUDED.primary_authorized_official_individual_id,
+        parent_npi_id = EXCLUDED.parent_npi_id;
     """
     
     # ========================================

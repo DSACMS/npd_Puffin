@@ -32,17 +32,17 @@ def main():
 
     sql['drop the new_npi column if exists from previous run'] = f"""
 ALTER TABLE {npi_DBTable}
-DROP COLUMN IF EXISTS new_NPI;
+DROP COLUMN IF EXISTS new_npi;
 """
 
     sql['create new_npi column'] = f"""
 ALTER TABLE {npi_DBTable}
-ADD COLUMN new_NPI BIGINT;        
+ADD COLUMN new_npi BIGINT;        
     """
 
     sql['populate the bigint version from the varchar version'] = f"""
 UPDATE {npi_DBTable}
-SET new_NPI = "NPI"::BIGINT;
+SET new_npi = "NPI"::BIGINT;
 """ 
  
     sql['drop the varchar column'] = f"""
@@ -52,7 +52,7 @@ DROP COLUMN "NPI";
 
     sql['rename new column'] = f"""
 ALTER TABLE {npi_DBTable}
-RENAME COLUMN new_NPI TO "NPI";
+RENAME COLUMN new_npi TO "NPI";
 """
     
 

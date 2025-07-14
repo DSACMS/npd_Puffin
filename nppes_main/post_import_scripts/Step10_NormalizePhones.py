@@ -35,9 +35,9 @@ def main():
     npi_main_DBTable = DBTable(schema='nppes_raw', table=npi_table)
     npi_pl_DBTable = DBTable(schema='nppes_raw', table='pl_file')
     staging_phone_DBTable = DBTable(schema='intake', table='staging_phone')
-    phone_type_lut_DBTable = DBTable(schema='ndh', table='PhoneTypeLUT')
-    phone_number_DBTable = DBTable(schema='ndh', table='PhoneNumber')
-    phone_extension_DBTable = DBTable(schema='ndh', table='PhoneExtension')
+    phone_type_lut_DBTable = DBTable(schema='ndh', table='phone_type_lut')
+    phone_number_DBTable = DBTable(schema='ndh', table='phone_number')
+    phone_extension_DBTable = DBTable(schema='ndh', table='phone_extension')
     
     # Create SQL execution plan
     sql = FrostDict()

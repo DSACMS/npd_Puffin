@@ -38,10 +38,10 @@ def main():
     alchemy_engine = CredentialFinder.detect_config(verbose=True, env_path=env_location)
     
     # Define target tables
-    npi_DBTable = DBTable(schema='ndh', table='NPI')
-    individual_DBTable = DBTable(schema='ndh', table='Individual')
-    npi_to_individual_DBTable = DBTable(schema='ndh', table='NPI_to_Individual')
-    npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='NPI_to_ClinicalOrganization')
+    npi_DBTable = DBTable(schema='ndh', table='npi')
+    individual_DBTable = DBTable(schema='ndh', table='individual')
+    npi_to_individual_DBTable = DBTable(schema='ndh', table='individual_npi')
+    npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='organizational_npi')
     wrongnpi_DBTable = DBTable(schema='intake', table='wrongnpi')
     
     # Intake tracking tables
@@ -166,23 +166,12 @@ def main():
         'Individual-NPI Relationship Analysis' as analysis_type,
         COUNT(*) as total_relationships,
         COUNT(*) FILTER (WHERE is_sole_proprietor = TRUE) as sole_proprietor_count,
-        COUNT(DISTINCT Individual_id) as unique_individuals_with_npis,
-        COUNT(DISTINCT NPI_id) as unique_npis_with_individuals,
+        COUNT(DISTINCT individual_id) as unique_individuals_with_npis,
+        COUNT(DISTINCT npi_id) as unique_npis_with_individuals,
         ROUND(COUNT(*) FILTER (WHERE is_sole_proprietor = TRUE)::DECIMAL / COUNT(*) * 100, 2) as sole_proprietor_percentage
     FROM {npi_to_individual_DBTable};
     """
     
-    sql['08_sex_code_distribution'] = f"""
-    SELECT 
-        'Sex Code Distribution' as analysis_type,
-        sex_code,
-        COUNT(*) as count,
-        ROUND(COUNT(*)::DECIMAL / SUM(COUNT(*)) OVER () * 100, 2) as percentage
-    FROM {npi_to_individual_DBTable}
-    WHERE sex_code != ''
-    GROUP BY sex_code
-    ORDER BY count DESC;
-    """
     
     # ========================================
     # PHASE 4: Organizational hierarchy analysis
@@ -192,11 +181,11 @@ def main():
     SELECT 
         'Organizational Hierarchy Summary' as analysis_type,
         COUNT(*) as total_organizational_npis,
-        COUNT(*) FILTER (WHERE Parent_NPI_id IS NOT NULL) as npis_with_parents,
-        COUNT(*) FILTER (WHERE Parent_NPI_id IS NULL) as npis_without_parents,
-        COUNT(DISTINCT Parent_NPI_id) as unique_parent_organizations,
-        COUNT(DISTINCT PrimaryAuthorizedOfficial_Individual_id) as unique_authorized_officials,
-        ROUND(COUNT(*) FILTER (WHERE Parent_NPI_id IS NOT NULL)::DECIMAL / COUNT(*) * 100, 2) as subpart_percentage
+        COUNT(*) FILTER (WHERE parent_npi_id IS NOT NULL) as npis_with_parents,
+        COUNT(*) FILTER (WHERE parent_npi_id IS NULL) as npis_without_parents,
+        COUNT(DISTINCT parent_npi_id) as unique_parent_organizations,
+        COUNT(DISTINCT primary_authorized_official_individual_id) as unique_authorized_officials,
+        ROUND(COUNT(*) FILTER (WHERE parent_npi_id IS NOT NULL)::DECIMAL / COUNT(*) * 100, 2) as subpart_percentage
     FROM {npi_to_clinical_org_DBTable};
     """
     
@@ -207,9 +196,9 @@ def main():
         COUNT(*) as child_count,
         RANK() OVER (ORDER BY COUNT(*) DESC) as parent_rank
     FROM (
-        SELECT Parent_NPI_id as parent_npi
+        SELECT parent_npi_id as parent_npi
         FROM {npi_to_clinical_org_DBTable}
-        WHERE Parent_NPI_id IS NOT NULL
+        WHERE parent_npi_id IS NOT NULL
     ) subparts
     GROUP BY parent_npi
     ORDER BY child_count DESC
@@ -224,11 +213,11 @@ def main():
         RANK() OVER (ORDER BY organization_count DESC) as official_rank
     FROM (
         SELECT 
-            PrimaryAuthorizedOfficial_Individual_id as individual_id,
+            primary_authorized_official_individual_id as individual_id,
             COUNT(*) as organization_count
         FROM {npi_to_clinical_org_DBTable}
-        WHERE PrimaryAuthorizedOfficial_Individual_id IS NOT NULL
-        GROUP BY PrimaryAuthorizedOfficial_Individual_id
+        WHERE primary_authorized_official_individual_id IS NOT NULL
+        GROUP BY primary_authorized_official_individual_id
     ) officials
     ORDER BY organization_count DESC
     LIMIT 20;
@@ -336,8 +325,8 @@ def main():
         'Orphaned NPI-Individual Links' as check_type,
         COUNT(*) as issue_count
     FROM {npi_to_individual_DBTable} nti
-    LEFT JOIN {npi_DBTable} n ON nti.NPI_id = n.id
-    LEFT JOIN {individual_DBTable} i ON nti.Individual_id = i.id
+    LEFT JOIN {npi_DBTable} n ON nti.npi_id = n.id
+    LEFT JOIN {individual_DBTable} i ON nti.individual_id = i.id
     WHERE n.id IS NULL OR i.id IS NULL
     
     UNION ALL
@@ -347,7 +336,7 @@ def main():
         'Orphaned NPI-ClinicalOrg Links' as check_type,
         COUNT(*) as issue_count
     FROM {npi_to_clinical_org_DBTable} nco
-    LEFT JOIN {npi_DBTable} n ON nco.NPI_id = n.npi
+    LEFT JOIN {npi_DBTable} n ON nco.npi_id = n.npi
     WHERE n.id IS NULL
     
     UNION ALL
@@ -357,8 +346,8 @@ def main():
         'Invalid Parent References' as check_type,
         COUNT(*) as issue_count
     FROM {npi_to_clinical_org_DBTable} nco
-    LEFT JOIN {npi_DBTable} parent ON nco.Parent_NPI_id = parent.npi
-    WHERE nco.Parent_NPI_id IS NOT NULL AND parent.id IS NULL;
+    LEFT JOIN {npi_DBTable} parent ON nco.parent_npi_id = parent.npi
+    WHERE nco.parent_npi_id IS NOT NULL AND parent.id IS NULL;
     """
     
     # ========================================

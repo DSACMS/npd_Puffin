@@ -5,10 +5,10 @@ This step handles all of the InLaw validation tests for Step15 using Great Expec
 See AI_Instruction/PlainerflowTools.md for how to work with the InLaw framework.
 
 The validations this performs:
-* Verify that ndh.NPI_to_Individual only contains NPIs with entity_type_code = '1' (individuals)
-* Verify that ndh.NPI_to_ClinicalOrganization only contains NPIs with entity_type_code = '2' (organizations)
+* Verify that ndh.individual_npi only contains NPIs with entity_type_code = '1' (individuals)
+* Verify that ndh.organizational_npi only contains NPIs with entity_type_code = '2' (organizations)
 * Verify that no NPI appears in both relationship tables (mutually exclusive)
-* Verify that entity_type_code in ndh.NPI matches the original source data
+* Verify that entity_type_code in ndh.npi matches the original source data
 """
 
 import plainerflow  # type: ignore
@@ -17,9 +17,9 @@ import os
 
 class VerifyIndividualNPIsOnly(InLaw):
     """
-    Verify that ndh.NPI_to_Individual only contains NPIs with entity_type_code = '1' (individuals)
+    Verify that ndh.individual_npi only contains NPIs with entity_type_code = '1' (individuals)
     """
-    title = "NPI_to_Individual table should only contain Individual NPIs (entity_type_code = '1')"
+    title = "individual_npi table should only contain Individual NPIs (entity_type_code = '1')"
     
     @staticmethod
     def run(engine):
@@ -29,14 +29,14 @@ class VerifyIndividualNPIsOnly(InLaw):
         source_DBTable = DBTable(schema='nppes_raw', table=npi_table)
         
         # Target tables
-        npi_DBTable = DBTable(schema='ndh', table='NPI')
-        npi_to_individual_DBTable = DBTable(schema='ndh', table='NPI_to_Individual')
+        npi_DBTable = DBTable(schema='ndh', table='npi')
+        npi_to_individual_DBTable = DBTable(schema='ndh', table='individual_npi')
         
-        # Count violations: NPIs in NPI_to_Individual that are NOT entity_type_code = 1
+        # Count violations: NPIs in individual_npi that are NOT entity_type_code = 1
         sql = f"""
         SELECT COUNT(*) as violation_count
         FROM {npi_to_individual_DBTable} AS npi_to_individual
-        JOIN {npi_DBTable} AS npi_table ON npi_to_individual.NPI_id = npi_table.id
+        JOIN {npi_DBTable} AS npi_table ON npi_to_individual.npi_id = npi_table.id
         WHERE npi_table.entity_type_code != 1
         """
         
@@ -56,9 +56,9 @@ class VerifyIndividualNPIsOnly(InLaw):
 
 class VerifyOrganizationNPIsOnly(InLaw):
     """
-    Verify that ndh.NPI_to_ClinicalOrganization only contains NPIs with entity_type_code = '2' (organizations)
+    Verify that ndh.organizational_npi only contains NPIs with entity_type_code = '2' (organizations)
     """
-    title = "NPI_to_ClinicalOrganization table should only contain Organization NPIs (entity_type_code = '2')"
+    title = "organizational_npi table should only contain Organization NPIs (entity_type_code = '2')"
     
     @staticmethod
     def run(engine):
@@ -68,14 +68,14 @@ class VerifyOrganizationNPIsOnly(InLaw):
         source_DBTable = DBTable(schema='nppes_raw', table=npi_table)
         
         # Target tables
-        npi_DBTable = DBTable(schema='ndh', table='NPI')
-        npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='NPI_to_ClinicalOrganization')
+        npi_DBTable = DBTable(schema='ndh', table='npi')
+        npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='organizational_npi')
         
-        # Count violations: NPIs in NPI_to_ClinicalOrganization that are NOT entity_type_code = 2
+        # Count violations: NPIs in organizational_npi that are NOT entity_type_code = 2
         sql = f"""
         SELECT COUNT(*) as violation_count
         FROM {npi_to_clinical_org_DBTable} AS npi_to_clinical_org
-        JOIN {npi_DBTable} AS npi_table ON npi_to_clinical_org.NPI_id = npi_table.id
+        JOIN {npi_DBTable} AS npi_table ON npi_to_clinical_org.npi_id = npi_table.id
         WHERE npi_table.entity_type_code != 2
         """
         
@@ -98,20 +98,20 @@ class VerifyNoNPIInBothTables(InLaw):
     Verify that no NPI appears in both relationship tables
     An NPI should be either Individual (type 1) or Organization (type 2), not both
     """
-    title = "No NPI should appear in both NPI_to_Individual and NPI_to_ClinicalOrganization tables"
+    title = "No NPI should appear in both individual_npi and organizational_npi tables"
     
     @staticmethod
     def run(engine):
         # Target tables
-        npi_to_individual_DBTable = DBTable(schema='ndh', table='NPI_to_Individual')
-        npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='NPI_to_ClinicalOrganization')
+        npi_to_individual_DBTable = DBTable(schema='ndh', table='individual_npi')
+        npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='organizational_npi')
         
         # Count NPIs that appear in both tables
         sql = f"""
         SELECT COUNT(*) as duplicate_count
         FROM {npi_to_individual_DBTable} AS npi_to_individual
         JOIN {npi_to_clinical_org_DBTable} AS npi_to_clinical_org 
-            ON npi_to_individual.NPI_id = npi_to_clinical_org.NPI_id
+            ON npi_to_individual.npi_id = npi_to_clinical_org.npi_id
         """
         
         gx_df = InLaw.to_gx_dataframe(sql, engine)
@@ -130,9 +130,9 @@ class VerifyNoNPIInBothTables(InLaw):
 
 class VerifyEntityTypeConsistency(InLaw):
     """
-    Verify that entity_type_code in ndh.NPI matches the original source data
+    Verify that entity_type_code in ndh.npi matches the original source data
     """
-    title = "Entity type codes in ndh.NPI should match source data from nppes_raw"
+    title = "Entity type codes in ndh.npi should match source data from nppes_raw"
     
     @staticmethod
     def run(engine):
@@ -142,7 +142,7 @@ class VerifyEntityTypeConsistency(InLaw):
         source_DBTable = DBTable(schema='nppes_raw', table=npi_table)
         
         # Target tables
-        npi_DBTable = DBTable(schema='ndh', table='NPI')
+        npi_DBTable = DBTable(schema='ndh', table='npi')
         
         # Count mismatches between NDH and source entity types
         sql = f"""
@@ -175,7 +175,7 @@ class VerifyNPITableHasData(InLaw):
     @staticmethod
     def run(engine):
         # Target table
-        npi_DBTable = DBTable(schema='ndh', table='NPI')
+        npi_DBTable = DBTable(schema='ndh', table='npi')
         
         # Count total records
         sql = f"""
@@ -206,8 +206,8 @@ class VerifyRelationshipTablesHaveData(InLaw):
     @staticmethod
     def run(engine):
         # Target tables
-        npi_to_individual_DBTable = DBTable(schema='ndh', table='NPI_to_Individual')
-        npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='NPI_to_ClinicalOrganization')
+        npi_to_individual_DBTable = DBTable(schema='ndh', table='individual_npi')
+        npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='organizational_npi')
         
         # Count records in both tables
         sql = f"""
