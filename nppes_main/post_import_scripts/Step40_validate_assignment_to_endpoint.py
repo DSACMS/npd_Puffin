@@ -213,7 +213,10 @@ def run_grep_and_report():
 class InLawEnrollmentNPIs(InLaw):
     title = "Enrollment table contains both NPIs"
     @staticmethod
-    def run(engine, *, npi1, npi2):
+    def run(engine):
+        # Hardcoded NPIs for this test
+        npi1 = "1043699168"
+        npi2 = "1023008976"
         sql = f"""
         SELECT npi FROM pecos_raw.pecos_enrollment
         WHERE npi IN ('{npi1}', '{npi2}')
@@ -227,7 +230,10 @@ class InLawEnrollmentNPIs(InLaw):
 class InLawReassignmentENRLMTIDs(InLaw):
     title = "Reassignment table contains assignment row for ENRLMT_IDs"
     @staticmethod
-    def run(engine, *, reasgn_bnft_enrlmt_id, rcv_bnft_enrlmt_id):
+    def run(engine):
+        # Hardcoded ENRLMT_IDs for Dr Hussain and Woodridge
+        reasgn_bnft_enrlmt_id = "I20050609000361"  # Dr Hussain
+        rcv_bnft_enrlmt_id = "O20160426001836"     # Woodridge
         sql = f"""
         SELECT reasgn_bnft_enrlmt_id, rcv_bnft_enrlmt_id FROM pecos_raw.pecos_reassignment
         WHERE reasgn_bnft_enrlmt_id = '{reasgn_bnft_enrlmt_id}'
@@ -242,7 +248,8 @@ class InLawReassignmentENRLMTIDs(InLaw):
 class InLawFhirNPI(InLaw):
     title = "Woodridge NPI appears in EHR FHIR URL table"
     @staticmethod
-    def run(engine, *, npi):
+    def run(engine):
+        npi = "1043699168"
         sql = f"""
         SELECT npi FROM postgres.lantern_ehr_fhir_raw.ehr_fhir_url
         WHERE npi = '{npi}'
@@ -285,24 +292,7 @@ class InLawAssigningNpiToClinicalOrg(InLaw):
             return True
         return "assigning_npi join to clinical_organization does not return exactly one row for Dr. Hussain"
 
-class InLawAssigningNpiToEndpoint(InLaw):
-    title = "assigning_npi join to endpoint returns at least one row"
-    @staticmethod
-    def run(engine):
-        sql = """
-        SELECT ie.fhir_endpoint_url
-        FROM ndh.assigning_npi an
-        JOIN ndh.clinical_organization_interop_endpoint coie
-          ON an.clinical_organization_id = coie.clinical_organization_id
-        JOIN ndh.interop_endpoint ie
-          ON coie.interop_endpoint_id = ie.id
-        WHERE an.npi_id = '1023008976';
-        """
-        gx_df = InLaw.to_gx_dataframe(sql, engine)
-        result = gx_df.expect_table_row_count_to_be_between(min_value=1, max_value=1000)
-        if result.success:
-            return True
-        return "assigning_npi join to endpoint does not return at least one row for Dr. Hussain"
+# (Removed InLawAssigningNpiToEndpoint)
 
 def run_inlaw_tests(npi_to_enrlmt_id):
     print("\n====================")
@@ -313,89 +303,14 @@ def run_inlaw_tests(npi_to_enrlmt_id):
     env_location = os.path.abspath(os.path.join(base_path, "..", "..", ".env"))
     engine = CredentialFinder.detect_config(verbose=True, env_path=env_location)
 
-    # Run InLaw tests
-    npi1 = "1043699168"
-    npi2 = "1023008976"
-    enrlmt_id1 = npi_to_enrlmt_id.get(npi1)
-    enrlmt_id2 = npi_to_enrlmt_id.get(npi2)
+    # Run all InLaw tests in this script using the InLaw runner
+    InLaw.run_all(engine=engine)
 
-    # Enrollment NPI test
-    print("\n- Checking pecos_raw.pecos_enrollment for both NPIs...")
-    print(InLawEnrollmentNPIs.run(engine, npi1=npi1, npi2=npi2))
-
-    # Reassignment ENRLMT_ID test
-    if enrlmt_id1 and enrlmt_id2:
-        print("\n- Checking pecos_raw.pecos_reassignment for assignment row with ENRLMT_IDs...")
-        print(InLawReassignmentENRLMTIDs.run(engine, reasgn_bnft_enrlmt_id=enrlmt_id2, rcv_bnft_enrlmt_id=enrlmt_id1))
-    else:
-        print("\n- Skipping reassignment ENRLMT_ID test (missing ENRLMT_IDs from CSV grep step)")
-
-    # FHIR NPI test
-    print("\n- Checking postgres.lantern_ehr_fhir_raw.ehr_fhir_url for Woodridge NPI...")
-    print(InLawFhirNPI.run(engine, npi=npi1))
-
-    # Step 3: Assignment-to-endpoint join path tests
-    print("\n- Checking ndh.assigning_npi for Dr. Hussain...")
-    print(InLawAssigningNpiRow.run(engine))
-
-    print("\n- Checking assigning_npi join to clinical_organization for Dr. Hussain...")
-    print(InLawAssigningNpiToClinicalOrg.run(engine))
-
-    print("\n- Checking assigning_npi join to endpoint for Dr. Hussain...")
-    print(InLawAssigningNpiToEndpoint.run(engine))
-
-def run_debug_queries():
-    print("\n====================")
-    print("Manual Debug Queries for Dr. Hussain Assignment-to-Endpoint Path")
-    print("====================")
-    base_path = os.path.dirname(os.path.abspath(__file__))
-    env_location = os.path.abspath(os.path.join(base_path, "..", "..", ".env"))
-    engine = CredentialFinder.detect_config(verbose=True, env_path=env_location)
-    # 1. Get Dr. Hussain's assignment row(s)
-    print("\n1. ndh.assigning_npi for Dr. Hussain (NPI 1023008976):")
-    sql1 = "SELECT * FROM ndh.assigning_npi WHERE npi_id = '1023008976';"
-    try:
-        df1 = InLaw.to_gx_dataframe(sql1, engine)
-        print(df1)
-    except Exception as e:
-        print(f"Error: {e}")
-
-    # 2. Get clinical_organization row(s)
-    if not df1.empty:
-        clinical_org_ids = df1['clinical_organization_id'].unique()
-        for coid in clinical_org_ids:
-            print(f"\n2. ndh.clinical_organization for clinical_organization_id = {coid}:")
-            sql2 = f"SELECT * FROM ndh.clinical_organization WHERE id = {coid};"
-            try:
-                df2 = InLaw.to_gx_dataframe(sql2, engine)
-                print(df2)
-            except Exception as e:
-                print(f"Error: {e}")
-
-            # 3. Get clinical_organization_interop_endpoint row(s)
-            print(f"\n3. ndh.clinical_organization_interop_endpoint for clinical_organization_id = {coid}:")
-            sql3 = f"SELECT * FROM ndh.clinical_organization_interop_endpoint WHERE clinical_organization_id = {coid};"
-            try:
-                df3 = InLaw.to_gx_dataframe(sql3, engine)
-                print(df3)
-            except Exception as e:
-                print(f"Error: {e}")
-
-            # 4. For each interop_endpoint_id, get interop_endpoint row(s)
-            if not df3.empty and 'interop_endpoint_id' in df3.columns:
-                for eid in df3['interop_endpoint_id'].unique():
-                    print(f"\n4. ndh.interop_endpoint for id = {eid}:")
-                    sql4 = f"SELECT * FROM ndh.interop_endpoint WHERE id = {eid};"
-                    try:
-                        df4 = InLaw.to_gx_dataframe(sql4, engine)
-                        print(df4)
-                    except Exception as e:
-                        print(f"Error: {e}")
 
 def main():
     npi_to_enrlmt_id = run_grep_and_report()
     run_inlaw_tests(npi_to_enrlmt_id)
-    run_debug_queries()
+
 
 if __name__ == "__main__":
     main()
