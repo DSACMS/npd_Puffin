@@ -1,14 +1,24 @@
 Validate NPI assignment and endpoint data
 ==================
 
-I would like you to write a script that calls system to use the command-line grep command to grep for precisely, only, and exactly the NPIs that I tell you to look for. The NPIs are the 10 digit numbers that I am going to list shortly. You will look for them in the files that I sepecify will precisely and exactly tell you which files to look for them in. I do not want you to write a general script. I do not want you to write a database script. I want you to do only what I am asking you to do in this message. Do not write a program that searches other files. Do not write a program that searches using different NPIs.
-
-Ignore the database testing instructions, because I am not asking you to test a database. I am asking you to test the contents of CSV files on the file system.
-
-For the first part of the script, I would like you to make system calls using GREP on files in precise locations on the file system. Using this, we will look inside the origin CSV files to make sure that the data that we think is in those files is in those files in the format that we want to see. So the NPIs are:
+Introduction
+--------------
+I would like you to write a script that validates that CSV files are being imported correctly into the database and that JOINS against the database produce the desired results. 
 
 * 1043699168 - Woodridge Primary Clinic
 * 1023008976 - Dr Hussain
+
+Place the the resulting code here: nppes_main/post_import_scripts/Step40_validate_assignment_to_endpoint.py
+
+The first and second steps are complete, please move on to the third step. 
+
+First Step - use system calls to grep to examine the source CSV files
+---------------
+
+Note: the first step is complete.
+
+For the first part of the script, I would like you to make system calls using GREP on files in precise locations on the file system. Using this, we will look inside the origin CSV files to make sure that the data that we think is in those files is in those files in the format that we want to see. So the NPIs are:
+
 
 The files to check are:
 
@@ -30,4 +40,64 @@ What we expect:
 * There should be one identical row of data in the assignment file that shows the Dr. Hussien assigns payment to Woodridge, but via enrollment ids instead of NPIs
 * There should be one row of data in the EHR file that matches the NPI of Woodridge
 
-Place the the resulting code here: nppes_main/post_import_scripts/Step40_validate_assignment_to_endpoint.py
+Second Step - query the database using a series of InLaw tests to ensure that the data is being properly imported and ETLed. 
+---------------
+
+The second step is complete. 
+
+Please write the following tests:
+
+* Confirm that there is a record in pecos_raw.pecos_enrollment for Dr. Hussain and Woodridge clinic. There should be two rows returned in that table, when a WHERE IN clause with those NPIs as content is used against the 'npi' column.
+* Confirm that the enrollment ids return one row of data when querying the pecos_raw.pecos_reassignment table. The columns there are reasgn_bnft_enrlmt_id and rcv_bnft_enrlmt_id respectively
+
+This will confirm that the pecos assignment and enrollment files are properly imported into the database.
+
+* Confirm that Woodridge Clinics NPI appears in the postgres.lantern_ehr_fhir_raw.ehr_fhir_url table when searching for the 'npi' column
+
+This will confirm that the EHR endpoint data is being imported sucessfully.
+
+Third Step
+-------------------
+
+Please read the following code: 
+
+* nppes_main/post_import_scripts/Step30_pecos_knows_clinical_orgs.py
+* nppes_main/post_import_scripts/Step35_pecos_knows_reassignment.py
+* CHERT_FHIR_endpoints/post_import_scripts/Step10_OrgToEndpoint.py
+* sql/create_table_sql/create_clinical_organization.sql
+* sql/create_table_sql/create_interop_endpoint.sql
+
+Using this source code, tell me the order of joins I need to do in order to determine a list of fhir endpoints for Dr. Hussien.
+
+Please list out the table join structure to be able to determine how to join from:
+
+* And individual who is assigning their medicare payments (like dr Hussain is to Woodridge) in the pecos reassignment table
+* across a clinical organization (which aggregates many organizational pac_id from the pecos enrollment file, of which woodridge is one) which uses the pac_id from the assignment file to map many organizational npis from the enrollment file to a single clinical_organization which is using the same VTIN generated from the pac_id
+* To the fhir endpoint table, which is suppose to be linked to clinical organizations 
+
+Based on the previous analysis, make a new set of InLaw tests using the following three queries: 
+
+```sql
+--- Query for dr. Hussain
+SELECT * FROM ndh.assigning_npi WHERE npi_id = '1023008976';
+-- should return one row.
+
+SELECT co.*
+FROM ndh.assigning_npi an
+JOIN ndh.clinical_organization co
+  ON an.clinical_organization_id = co.id
+WHERE an.npi_id = '1023008976';
+-- should return one row
+
+SELECT ie.fhir_endpoint_url
+FROM ndh.assigning_npi an
+JOIN ndh.clinical_organization_interop_endpoint coie
+  ON an.clinical_organization_id = coie.clinical_organization_id
+JOIN ndh.interop_endpoint ie
+  ON coie.interop_endpoint_id = ie.id
+WHERE an.npi_id = '1023008976';
+-- should return at least one row
+```
+
+Add these inlaw scripts to the validation class and then run it.
+
