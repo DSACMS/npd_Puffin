@@ -205,3 +205,6 @@ cython_debug/
 .*.swp
 .*.swo
 .*.swn
+
+
+out
