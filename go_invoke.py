@@ -61,4 +61,4 @@ cmds = [
 
 for cmd in cmds:
     print("Running:", " ".join(cmd))
-    subprocess.run(cmd, check=True)
+    #subprocess.run(cmd, check=True)
