@@ -61,14 +61,14 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "Provider_Business_Mailing_Address_Telephone_Number" as raw_phone,
+        "provider_business_mailing_address_telephone_number" as raw_phone,
         'nppes_main' as source_file,
         FALSE as is_fax,
         ROW_NUMBER() OVER() as source_row,
         'Business Mailing Phone from main file' as error_notes
     FROM {npi_main_DBTable}
-    WHERE "Provider_Business_Mailing_Address_Telephone_Number" IS NOT NULL 
-    AND TRIM("Provider_Business_Mailing_Address_Telephone_Number") != ''
+    WHERE "provider_business_mailing_address_telephone_number" IS NOT NULL 
+    AND TRIM("provider_business_mailing_address_telephone_number") != ''
     ON CONFLICT (raw_phone, source_file, is_fax_in_source) DO NOTHING;
     """
     
@@ -77,14 +77,14 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "Provider_Business_Mailing_Address_Fax_Number" as raw_phone,
+        "provider_business_mailing_address_fax_number" as raw_phone,
         'nppes_main' as source_file,
         TRUE as is_fax,
         ROW_NUMBER() OVER() as source_row,
         'Business Mailing Fax from main file' as error_notes
     FROM {npi_main_DBTable}
-    WHERE "Provider_Business_Mailing_Address_Fax_Number" IS NOT NULL 
-    AND TRIM("Provider_Business_Mailing_Address_Fax_Number") != ''
+    WHERE "provider_business_mailing_address_fax_number" IS NOT NULL 
+    AND TRIM("provider_business_mailing_address_fax_number") != ''
     ON CONFLICT (raw_phone, source_file, is_fax_in_source) DO NOTHING;
     """
     
@@ -93,14 +93,14 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "Provider_Business_Practice_Location_Address_Telephone_Number" as raw_phone,
+        "provider_business_practice_location_address_telephone_number" as raw_phone,
         'nppes_main' as source_file,
         FALSE as is_fax,
         ROW_NUMBER() OVER() as source_row,
         'Practice Location Phone from main file' as error_notes
     FROM {npi_main_DBTable}
-    WHERE "Provider_Business_Practice_Location_Address_Telephone_Number" IS NOT NULL 
-    AND TRIM("Provider_Business_Practice_Location_Address_Telephone_Number") != ''
+    WHERE "provider_business_practice_location_address_telephone_number" IS NOT NULL 
+    AND TRIM("provider_business_practice_location_address_telephone_number") != ''
     ON CONFLICT (raw_phone, source_file, is_fax_in_source) DO NOTHING;
     """
     
@@ -109,14 +109,14 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "Provider_Business_Practice_Location_Address_Fax_Number" as raw_phone,
+        "provider_business_practice_location_address_fax_number" as raw_phone,
         'nppes_main' as source_file,
         TRUE as is_fax,
         ROW_NUMBER() OVER() as source_row,
         'Practice Location Fax from main file' as error_notes
     FROM {npi_main_DBTable}
-    WHERE "Provider_Business_Practice_Location_Address_Fax_Number" IS NOT NULL 
-    AND TRIM("Provider_Business_Practice_Location_Address_Fax_Number") != ''
+    WHERE "provider_business_practice_location_address_fax_number" IS NOT NULL 
+    AND TRIM("provider_business_practice_location_address_fax_number") != ''
     ON CONFLICT (raw_phone, source_file, is_fax_in_source) DO NOTHING;
     """
     
@@ -125,14 +125,14 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "Authorized_Official_Telephone_Number" as raw_phone,
+        "authorized_official_telephone_number" as raw_phone,
         'nppes_main' as source_file,
         FALSE as is_fax,
         ROW_NUMBER() OVER() as source_row,
         'Authorized Official Phone from main file' as error_notes
     FROM {npi_main_DBTable}
-    WHERE "Authorized_Official_Telephone_Number" IS NOT NULL 
-    AND TRIM("Authorized_Official_Telephone_Number") != ''
+    WHERE "authorized_official_telephone_number" IS NOT NULL 
+    AND TRIM("authorized_official_telephone_number") != ''
     ON CONFLICT (raw_phone, source_file, is_fax_in_source) DO NOTHING;
     """
     

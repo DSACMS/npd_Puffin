@@ -367,10 +367,10 @@ def main():
     FROM (
         SELECT 
             COUNT(*) as total_source_npis,
-            COUNT(*) FILTER (WHERE "Entity_Type_Code" = '1') as source_individuals,
-            COUNT(*) FILTER (WHERE "Entity_Type_Code" = '2') as source_organizations
+            COUNT(*) FILTER (WHERE "entity_type_code" = '1') as source_individuals,
+            COUNT(*) FILTER (WHERE "entity_type_code" = '2') as source_organizations
         FROM {source_DBTable}
-        WHERE "NPI" IS NOT NULL
+        WHERE "npi" IS NOT NULL
     ) source_stats
     CROSS JOIN (
         SELECT 

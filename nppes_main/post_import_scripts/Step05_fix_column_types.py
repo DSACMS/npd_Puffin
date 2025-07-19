@@ -42,17 +42,17 @@ ADD COLUMN new_npi BIGINT;
 
     sql['populate the bigint version from the varchar version'] = f"""
 UPDATE {npi_DBTable}
-SET new_npi = "NPI"::BIGINT;
+SET new_npi = "npi"::BIGINT;
 """ 
  
     sql['drop the varchar column'] = f"""
 ALTER TABLE {npi_DBTable}
-DROP COLUMN "NPI";
+DROP COLUMN "npi";
 """
 
     sql['rename new column'] = f"""
 ALTER TABLE {npi_DBTable}
-RENAME COLUMN new_npi TO "NPI";
+RENAME COLUMN new_npi TO "npi";
 """
     
 
@@ -60,37 +60,37 @@ RENAME COLUMN new_npi TO "NPI";
 
     sql['drop the new_npi replacement column if exists from previous run'] = f"""
 ALTER TABLE {npi_DBTable}
-DROP COLUMN IF EXISTS "new_Replacement_NPI";
+DROP COLUMN IF EXISTS "new_replacement_npi";
 """
 
 
     sql['create new_npi replacement column'] = f"""
 ALTER TABLE {npi_DBTable}
-ADD COLUMN "new_Replacement_NPI" BIGINT DEFAULT NULL;        
+ADD COLUMN "new_replacement_npi" BIGINT DEFAULT NULL;        
     """
 
     sql['populate the bigint version from the varchar version  replacement '] = f"""
 UPDATE {npi_DBTable}
-SET "new_Replacement_NPI" = NULLIF("Replacement_NPI", '')::BIGINT
+SET "new_replacement_npi" = NULLIF("replacement_npi", '')::BIGINT
 """ 
  
     sql['drop the varchar  replacement column'] = f"""
 ALTER TABLE {npi_DBTable}
-DROP COLUMN "Replacement_NPI";
+DROP COLUMN "replacement_npi";
 """
 
     sql['rename new  replacement  column'] = f"""
 ALTER TABLE {npi_DBTable}
-RENAME COLUMN "new_Replacement_NPI" TO "Replacement_NPI";
+RENAME COLUMN "new_replacement_npi" TO "replacement_npi";
 """
 
 
     date_convertion_list = [
-            'Provider_Enumeration_Date'
-            ,'Last_Update_Date'
-            ,'NPI_Deactivation_Date'
-            ,'NPI_Reactivation_Date'
-            ,'Certification_Date'
+            'provider_enumeration_date'
+            ,'last_update_date'
+            ,'npi_deactivation_date'
+            ,'npi_reactivation_date'
+            ,'certification_date'
             ]
     
     for this_date_col in date_convertion_list:
@@ -110,14 +110,14 @@ SET "{this_date_col}_real_date" = to_date(NULLIF("{this_date_col}", ''), 'MM/DD/
 
  
 # TODO Lets make a new InLaw to check that all retired NPIs are in fact entirely blank in the data. Something like:
-# SELECT * FROM nppes_raw.main_file WHERE "Entity_Type_Code" = '' AND
-#                                        ("Provider_Organization_Name_Legal_Business_Name" != '' OR "Provider_Last_Name_Legal_Name" != '')
-# is a start... but really it should check for every column except for the NPI_Deactivation_Date and possible NPI_Deactivation_Reason_Code
+# SELECT * FROM nppes_raw.main_file WHERE "entity_type_code" = '' AND
+#                                        ("provider_organization_name_legal_business_name" != '' OR "provider_last_name_legal_name" != '')
+# is a start... but really it should check for every column except for the npi_deactivation_date and possible npi_deactivation_reason_code
 
     # Add unique key on NPI column to improve performance
     sql['add unique key on NPI column'] = f"""
 ALTER TABLE {npi_DBTable}
-ADD CONSTRAINT unique_npi_key UNIQUE ("NPI");
+ADD CONSTRAINT unique_npi_key UNIQUE ("npi");
 """
 
     print("About to run SQL")

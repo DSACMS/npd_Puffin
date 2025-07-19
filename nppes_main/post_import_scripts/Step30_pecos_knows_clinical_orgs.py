@@ -62,12 +62,12 @@ def main():
         'nppes_main_file' AS data_source,
         MAX(pecos_enrollment.org_name) AS one_org_name,
         COUNT(DISTINCT(pecos_enrollment.npi)) AS pecos_npi_count,
-        nppes_main."Provider_Organization_Name_Legal_Business_Name" AS organization_name
+        nppes_main."provider_organization_name_legal_business_name" AS organization_name
     FROM {pecos_enrollment_DBTable} AS pecos_enrollment
     LEFT JOIN {nppes_main_DBTable} AS nppes_main ON
-        nppes_main."NPI" = pecos_enrollment.npi
+        nppes_main."npi" = pecos_enrollment.npi
     WHERE pecos_enrollment.org_name IS NOT NULL
-    GROUP BY pecos_enrollment.pecos_asct_cntl_id, nppes_main."Provider_Organization_Name_Legal_Business_Name"
+    GROUP BY pecos_enrollment.pecos_asct_cntl_id, nppes_main."provider_organization_name_legal_business_name"
     ORDER BY pecos_npi_count DESC;
     """
     
@@ -163,7 +163,7 @@ def main():
     
     sql['insert_nppes_main_orgname_type'] = f"""
     INSERT INTO {orgname_type_DBTable} (orgname_type_description, source_file, source_field)
-    VALUES ('NPPES_main_file', 'main_file', 'Provider_Organization_Name_Legal_Business_Name')
+    VALUES ('NPPES_main_file', 'main_file', 'provider_organization_name_legal_business_name')
     ON CONFLICT (orgname_type_description) DO NOTHING;
     """
     
@@ -252,18 +252,18 @@ def main():
         ssn
     )
     SELECT DISTINCT
-        COALESCE(nppes_main."Authorized_Official_Last_Name", '') AS last_name,
-        COALESCE(nppes_main."Authorized_Official_First_Name", '') AS first_name,
-        COALESCE(nppes_main."Authorized_Official_Middle_Name", '') AS middle_name,
-        COALESCE(nppes_main."Authorized_Official_Name_Prefix_Text", '') AS name_prefix,
-        COALESCE(nppes_main."Authorized_Official_Name_Suffix_Text", '') AS name_suffix,
+        COALESCE(nppes_main."authorized_official_last_name", '') AS last_name,
+        COALESCE(nppes_main."authorized_official_first_name", '') AS first_name,
+        COALESCE(nppes_main."authorized_official_middle_name", '') AS middle_name,
+        COALESCE(nppes_main."authorized_official_name_prefix_text", '') AS name_prefix,
+        COALESCE(nppes_main."authorized_official_name_suffix_text", '') AS name_suffix,
         NULL AS email_address,
         NULL AS ssn
     FROM {pecos_enrollment_DBTable} AS pecos_enrollment
     JOIN {nppes_main_DBTable} AS nppes_main ON
-        nppes_main."NPI" = pecos_enrollment.npi
+        nppes_main."npi" = pecos_enrollment.npi
     WHERE pecos_enrollment.org_name IS NOT NULL
-    AND nppes_main."Entity_Type_Code" = '2'
+    AND nppes_main."entity_type_code" = '2'
     ON CONFLICT (last_name, first_name, middle_name, name_prefix, name_suffix) DO NOTHING;
     """
     
@@ -293,17 +293,17 @@ def main():
         parent_npi_id
     )
     SELECT DISTINCT
-        nppes_main."NPI" AS npi_id,
+        nppes_main."npi" AS npi_id,
         clinical_org.id AS clinical_organization_id,
         0 AS primary_authorized_official_individual_id,
         0 AS parent_npi_id
     FROM {pecos_enrollment_DBTable} AS pecos_enrollment
     JOIN {nppes_main_DBTable} AS nppes_main ON
-        nppes_main."NPI" = pecos_enrollment.npi
+        nppes_main."npi" = pecos_enrollment.npi
     JOIN {clinical_org_DBTable} AS clinical_org ON
         clinical_org.organization_vtin = '{pecos_vtin_prefix}' || pecos_enrollment.pecos_asct_cntl_id
     WHERE pecos_enrollment.org_name IS NOT NULL
-    AND nppes_main."Entity_Type_Code" = '2'
+    AND nppes_main."entity_type_code" = '2'
     ON CONFLICT (npi_id, clinical_organization_id) DO NOTHING;
     """
     

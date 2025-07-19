@@ -148,8 +148,8 @@ class VerifyEntityTypeConsistency(InLaw):
         sql = f"""
         SELECT COUNT(*) as mismatch_count
         FROM {npi_DBTable} AS npi_table
-        JOIN {source_DBTable} AS source_table ON npi_table.npi = source_table."NPI"
-        WHERE npi_table.entity_type_code::TEXT != source_table."Entity_Type_Code"
+        JOIN {source_DBTable} AS source_table ON npi_table.npi = source_table."npi"
+        WHERE npi_table.entity_type_code::TEXT != source_table."entity_type_code"
         """
         
         gx_df = InLaw.to_gx_dataframe(sql, engine)
