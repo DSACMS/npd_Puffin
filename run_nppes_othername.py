@@ -3,7 +3,7 @@ import sys
 import subprocess
 from dotenv import load_dotenv
 
-load_dotenv("setup.env")
+load_dotenv("data_file_locations.env")
 
 required_vars = [
     "NPPES_OTHERNAME_CSV",

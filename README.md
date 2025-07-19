@@ -19,11 +19,11 @@ In many cases there are other programs that need to be run in order to obtain th
 * finally, there is a stand-alone python import script for each project (go.postgresql.py) which can be run without csviper.
 * There is space for custom raw-swl in each project under the /{subproject}/post_import_sql/ directory. When ETL data tweaks are simple, this can be enough.
 * Subsequent runs of the import script can be directed at new data files using a pattern match for the expected file name
-* There are "runner" scripts in the main directory that invoke the csviper compile process and run the import scripts, which expect configuration data from setup.env
+* There are "runner" scripts in the main directory that invoke the csviper compile process and run the import scripts, which expect configuration data from data_file_locations.env
 
 ## Running the project
 
-* Make a copy of setup.env.example and put the needed datafiles in the right place.
+* Make a copy of data_file_locations.env.example and put the needed datafiles in the right place.
 * Custom ETL for each project currently lives under /{subproject}/post_import_scripts/
 * These scripts will soon be put into one place, but for now they have to be run in a "just so" in order to get them to work. 
 * These scripts should be fully idempotent, but likely are not completely there yet. 
