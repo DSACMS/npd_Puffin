@@ -120,6 +120,11 @@ ALTER TABLE {npi_DBTable}
 ADD CONSTRAINT unique_npi_key UNIQUE ("npi");
 """
 
+    sql['add index on npi and entity_type_code'] = f"""
+CREATE INDEX IF NOT EXISTS idx_{npi_table}_npi_entity_type_code
+ON {npi_DBTable}("npi", "entity_type_code");
+"""
+
     print("About to run SQL")
     SQLoopcicle.run_sql_loop(   sql_dict=sql,
                                 is_just_print=is_just_print,
