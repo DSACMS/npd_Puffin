@@ -60,6 +60,11 @@ cmds = [
     ]
 ]
 
+if "--test" in sys.argv:
+    print("Test mode enabled: Limiting nppes_main import to 10000 lines.")
+    # The nppes_main command is the last one in the list
+    cmds[-1].append("--import_only_lines=10000")
+
 for cmd in cmds:
     print("Running:", " ".join(cmd))
     try:
