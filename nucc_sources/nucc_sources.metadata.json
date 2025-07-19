@@ -1,4 +1,5 @@
 {
+  "allow_recompile_to_overwrite": false,
   "filename": "nucc_sources.csv",
   "filename_without_extension": "nucc_sources",
   "file_glob_pattern": "nucc_sources.csv",

@@ -1,4 +1,5 @@
 {
+  "allow_recompile_to_overwrite": false,
   "filename": "npidata_pfile_20050523-20250608.csv",
   "filename_without_extension": "npidata_pfile_20050523-20250608",
   "file_glob_pattern": "npidata_pfile_20050523-20250608.csv",

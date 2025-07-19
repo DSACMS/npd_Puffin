@@ -1,4 +1,5 @@
 {
+  "allow_recompile_to_overwrite": false,
   "filename": "othername_pfile_20050523-20250608.csv",
   "filename_without_extension": "othername_pfile_20050523-20250608",
   "full_path": "/Users/ftrotter/Downloads/NPPES_Data_Dissemination_June_2025_V2/othername_pfile_20050523-20250608.csv",

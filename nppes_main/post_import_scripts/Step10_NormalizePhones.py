@@ -35,7 +35,7 @@ def main():
     npi_main_DBTable = DBTable(schema='nppes_raw', table=npi_table)
     npi_pl_DBTable = DBTable(schema='nppes_raw', table='pl_file')
     staging_phone_DBTable = DBTable(schema='intake', table='staging_phone')
-    phone_type_lut_DBTable = DBTable(schema='ndh', table='phone_type_lut')
+    phone_type_DBTable = DBTable(schema='ndh', table='phone_type')
     phone_number_DBTable = DBTable(schema='ndh', table='phone_number')
     phone_extension_DBTable = DBTable(schema='ndh', table='phone_extension')
     
@@ -43,8 +43,8 @@ def main():
     sql = FrostDict()
     
     # Phase 1: Setup PhoneTypeLUT
-    sql['populate_phone_type_lut'] = f"""
-    INSERT INTO {phone_type_lut_DBTable} (id, phone_type_description)
+    sql['populate_phone_type'] = f"""
+    INSERT INTO {phone_type_DBTable} (id, phone_type_description)
     VALUES 
         (1, 'Mailing Processing Telephone'),
         (2, 'Mailing Processing Fax'),

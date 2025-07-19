@@ -1,4 +1,5 @@
 {
+  "allow_recompile_to_overwrite": false,
   "filename": "merged_nucc_data.csv",
   "filename_without_extension": "merged_nucc_data",
   "file_glob_pattern": "merged_nucc_data.csv",

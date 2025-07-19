@@ -1,4 +1,5 @@
 {
+  "allow_recompile_to_overwrite": false,
   "filename": "clean_npi_to_org_fhir_url.csv",
   "filename_without_extension": "clean_npi_to_org_fhir_url",
   "file_glob_pattern": "clean_npi_to_org_fhir_url.csv",

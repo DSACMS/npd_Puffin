@@ -1,4 +1,5 @@
 {
+  "allow_recompile_to_overwrite": false,
   "filename": "PPEF_Reassignment_Extract_2025.04.01.csv",
   "filename_without_extension": "PPEF_Reassignment_Extract_2025.04.01",
   "file_glob_pattern": "PPEF_Reassignment_Extract_2025.04.01.csv",

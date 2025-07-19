@@ -1,4 +1,5 @@
 {
+  "allow_recompile_to_overwrite": false,
   "filename": "nucc_parent_code.csv",
   "filename_without_extension": "nucc_parent_code",
   "file_glob_pattern": "nucc_parent_code.csv",
