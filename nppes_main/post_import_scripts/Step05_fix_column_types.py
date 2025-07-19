@@ -92,7 +92,11 @@ RENAME COLUMN "new_replacement_npi" TO "replacement_npi";
             ,'npi_reactivation_date'
             ,'certification_date'
             ]
-    
+
+#TODO we should see if the database already has these as dates and only run the following loop for columns that are still text. 
+# That will ensure that this script is idempotent
+
+
     for this_date_col in date_convertion_list:
         sql[f"Adding new col for {this_date_col}"] = f"""
 ALTER TABLE {npi_DBTable}
@@ -113,7 +117,10 @@ SET "{this_date_col}_real_date" = to_date(NULLIF("{this_date_col}", ''), 'MM/DD/
 # SELECT * FROM nppes_raw.main_file WHERE "entity_type_code" = '' AND
 #                                        ("provider_organization_name_legal_business_name" != '' OR "provider_last_name_legal_name" != '')
 # is a start... but really it should check for every column except for the npi_deactivation_date and possible npi_deactivation_reason_code
+# This code should go in nppes_main/post_import_scripts/Step90_validate_main_import.py
 
+
+# TODO there should be an IF EXISTS for the index adding. 
     # Add unique key on NPI column to improve performance
     sql['add unique key on NPI column'] = f"""
 ALTER TABLE {npi_DBTable}
