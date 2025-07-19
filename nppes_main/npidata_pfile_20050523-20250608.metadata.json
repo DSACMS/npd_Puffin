@@ -376,7 +376,7 @@
     "provider_business_practice_location_address_city_name",
     "provider_business_practice_location_address_state_name",
     "provider_business_practice_location_address_postal_code",
-    "provider_business_practice_location_address_country_code_if_",
+    "provider_business_practice_location_address_country_code",
     "provider_business_practice_location_address_telephone_number",
     "provider_business_practice_location_address_fax_number",
     "provider_enumeration_date",
