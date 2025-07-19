@@ -48,16 +48,16 @@
     "Provider Practice Location Address - Fax Number": "provider_practice_location_address_fax_number"
   },
   "max_column_lengths": {
-    "NPI": 10,
-    "Provider Secondary Practice Location Address- Address Line 1": 55,
-    "Provider Secondary Practice Location Address-  Address Line 2": 55,
-    "Provider Secondary Practice Location Address - City Name": 40,
-    "Provider Secondary Practice Location Address - State Name": 39,
-    "Provider Secondary Practice Location Address - Postal Code": 16,
-    "Provider Secondary Practice Location Address - Country Code (If outside U.S.)": 2,
-    "Provider Secondary Practice Location Address - Telephone Number": 19,
-    "Provider Secondary Practice Location Address - Telephone Extension": 5,
-    "Provider Practice Location Address - Fax Number": 15
+    "NPI": 11,
+    "Provider Secondary Practice Location Address- Address Line 1": 56,
+    "Provider Secondary Practice Location Address-  Address Line 2": 56,
+    "Provider Secondary Practice Location Address - City Name": 41,
+    "Provider Secondary Practice Location Address - State Name": 41,
+    "Provider Secondary Practice Location Address - Postal Code": 21,
+    "Provider Secondary Practice Location Address - Country Code (If outside U.S.)": 3,
+    "Provider Secondary Practice Location Address - Telephone Number": 21,
+    "Provider Secondary Practice Location Address - Telephone Extension": 6,
+    "Provider Practice Location Address - Fax Number": 21
   },
   "total_columns": 10,
   "column_headers_hash": "ae81d81e06d6e1be0b4efeba3b45f3cd"

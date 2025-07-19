@@ -22,9 +22,9 @@
     "Provider Other Organization Name Type Code": "provider_other_organization_name_type_code"
   },
   "max_column_lengths": {
-    "NPI": 10,
-    "Provider Other Organization Name": 98,
-    "Provider Other Organization Name Type Code": 1
+    "NPI": 11,
+    "Provider Other Organization Name": 101,
+    "Provider Other Organization Name Type Code": 2
   },
   "total_columns": 3,
   "column_headers_hash": "cec1b1abe20b70ea74dc3e3cb2320edc",

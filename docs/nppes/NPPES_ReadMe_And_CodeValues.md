@@ -96,7 +96,7 @@ This data file is provided in a ZIP archive to compress the size and facilitate 
 
 9. Data Dissemination File - Code Values File
 
-- File contains the Data Dissemination File 
+- File contains the Data Dissemination File
 - Code Values document that provides the descriptions of the various reference codes used in the Data file.- File Name: NPPES_Data_Dissemination_CodeValues.pdf
 
 10. Data Dissemination File - Readme File
