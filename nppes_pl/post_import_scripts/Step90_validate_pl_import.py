@@ -54,7 +54,7 @@ class ValidatePostalCodeCount(InLaw):
 
     @staticmethod
     def run(engine):
-        sql = f"SELECT COUNT(DISTINCT provider_secondary_practice_location_address_postal_code) AS cnt_postal_code FROM {pl_DBTable}"
+        sql = f"SELECT COUNT(DISTINCT provider_secondary_practice_address_postal_code) AS cnt_postal_code FROM {pl_DBTable}"
         gx_df = InLaw.to_gx_dataframe(sql, engine)
         min_val = 339107 * 0.95
         max_val = 339107 * 1.05
@@ -72,7 +72,7 @@ class ValidateStateCodeCount(InLaw):
 
     @staticmethod
     def run(engine):
-        sql = f"SELECT COUNT(DISTINCT provider_secondary_practice_location_address_state_name) AS cnt_state_code FROM {pl_DBTable}"
+        sql = f"SELECT COUNT(DISTINCT provider_secondary_practice_address_state_name) AS cnt_state_code FROM {pl_DBTable}"
         gx_df = InLaw.to_gx_dataframe(sql, engine)
         min_val = 290 * 0.95
         max_val = 290 * 1.05
@@ -90,7 +90,7 @@ class ValidateCountryCodeCount(InLaw):
 
     @staticmethod
     def run(engine):
-        sql = f"SELECT COUNT(DISTINCT provider_secondary_practice_location_address_country_code_if) AS cnt_country_code FROM {pl_DBTable}"
+        sql = f"SELECT COUNT(DISTINCT provider_secondary_practice_address_country_code) AS cnt_country_code FROM {pl_DBTable}"
         gx_df = InLaw.to_gx_dataframe(sql, engine)
         min_val = 70 * 0.95
         max_val = 70 * 1.05
