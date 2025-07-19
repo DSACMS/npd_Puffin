@@ -1,9 +1,10 @@
 import os
 import sys
 import subprocess
+import pty
 from dotenv import load_dotenv
 
-load_dotenv("setup.env")
+load_dotenv("data_file_locations.env")
 
 required_vars = [
     "NPPES_PL_DIR",
@@ -61,4 +62,13 @@ cmds = [
 
 for cmd in cmds:
     print("Running:", " ".join(cmd))
-    #subprocess.run(cmd, check=True)
+    try:
+        # Using pty.spawn to create a pseudo-terminal, which allows
+        # interactive scripts to work correctly.
+        pty.spawn(cmd)
+    except FileNotFoundError:
+        print(f"Error: Command not found for: {' '.join(cmd)}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"An error occurred while running {' '.join(cmd)}: {e}")
+        sys.exit(1)
