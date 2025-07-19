@@ -7,7 +7,8 @@ load_dotenv("data_file_locations.env")
 
 required_vars = [
     "NPPES_PL_CSV",
-    "NPPES_PL_DIR"
+    "NPPES_PL_DIR",
+    "NPPES_PL_METADATA"
 ]
 
 missing = [v for v in required_vars if os.getenv(v) is None]
@@ -15,12 +16,27 @@ if missing:
     print(f"Missing required environment variables: {', '.join(missing)}")
     sys.exit(1)
 
-cmd = [
-    "csviper", "full-compile",
-    f"--overwrite_previous",
-    f"--from_csv={os.getenv('NPPES_PL_CSV')}",
-    f"--output_dir={os.getenv('NPPES_PL_DIR')}"
+# Build commands
+cmds = [
+    [
+        "csviper", "extract-metadata",
+        f"--from_csv={os.getenv('NPPES_PL_CSV')}",
+        f"--output_dir={os.getenv('NPPES_PL_DIR')}"
+    ],
+    [
+        "csviper", "build-sql",
+        f"--from_metadata_json={os.getenv('NPPES_PL_METADATA')}",
+        f"--output_dir={os.getenv('NPPES_PL_DIR')}",
+        "--overwrite_previous"
+    ],
+    [
+        "csviper", "build-import-script",
+        f"--from_resource_dir={os.getenv('NPPES_PL_DIR')}",
+        f"--output_dir={os.getenv('NPPES_PL_DIR')}",
+        "--overwrite_previous"
+    ]
 ]
 
-print("Running:", " ".join(cmd))
-subprocess.run(cmd, check=True)
+for cmd in cmds:
+    print("Running:", " ".join(cmd))
+    subprocess.run(cmd, check=True)
