@@ -90,8 +90,13 @@ def main(env_file_location, csv_file, db_schema_name, table_name, trample):
         
         # Execute MySQL import using the shared executor
         ImportExecutor.execute_mysql_import(
-            db_config, db_schema_name, table_name, csv_file, trample, 
-            'othername_pfile_20050523-20250608.create_table_mysql.sql', 'othername_pfile_20050523-20250608.import_data_mysql.sql'
+            db_config=db_config,
+            db_schema_name=db_schema_name,
+            table_name=table_name,
+            csv_file=csv_file,
+            trample=trample,
+            create_table_sql_file='othername_pfile_20050523-20250608.create_table_mysql.sql',
+            import_data_sql_file='othername_pfile_20050523-20250608.import_data_mysql.sql'
         )
         
         click.echo("✓ MySQL import completed successfully!")

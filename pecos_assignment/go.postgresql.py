@@ -90,8 +90,13 @@ def main(env_file_location, csv_file, db_schema_name, table_name, trample):
         
         # Execute PostgreSQL import using the shared executor
         ImportExecutor.execute_postgresql_import(
-            db_config, db_schema_name, table_name, csv_file, trample, 
-            'PPEF_Reassignment_Extract_2025.04.01.create_table_postgres.sql', encoding
+            db_config=db_config,
+            db_schema_name=db_schema_name,
+            table_name=table_name,
+            csv_file=csv_file,
+            trample=trample,
+            create_table_sql_file='PPEF_Reassignment_Extract_2025.04.01.create_table_postgres.sql',
+            encoding=encoding
         )
         
         click.echo("✓ PostgreSQL import completed successfully!")
