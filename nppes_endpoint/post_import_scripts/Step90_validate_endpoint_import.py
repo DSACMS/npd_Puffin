@@ -140,6 +140,7 @@ class ValidateNpiToEndpointRatio(InLaw):
             column="ratio",
             min_value=0.5,
             max_value=0.9
+            
         )
         if result.success:
             return True
