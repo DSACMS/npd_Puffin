@@ -55,7 +55,7 @@ RENAME COLUMN new_npi TO npi;
 
     # Add index on npi column to improve performance
     sql['add index on npi column'] = f"""
-CREATE INDEX idx_npi_ehr_fhir ON {ehr_fhir_DBTable} (npi);
+CREATE INDEX IF NOT EXISTS idx_npi_ehr_fhir ON {ehr_fhir_DBTable} (npi);
 """
 
     print("About to run SQL")
