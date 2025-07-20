@@ -129,7 +129,6 @@ celerybeat.pid
 
 # Environments
 .env
-data_file_locations.env
 .venv
 env/
 venv/
