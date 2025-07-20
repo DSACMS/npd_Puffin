@@ -3,7 +3,10 @@
 -- Is there an existing codeset they have specified for this?
 -- Do we need to make an extension to have our own "credential codeset"
 -- should this be 
-CREATE TABLE ndh.clinical_credential (
+
+
+
+CREATE TABLE IF NOT EXISTS ndh.clinical_credential (
     id SERIAL PRIMARY KEY,
     -- i.e. M.D.
     credential_acronym VARCHAR(20)   NOT NULL,
@@ -16,14 +19,14 @@ CREATE TABLE ndh.clinical_credential (
 );
 
 -- TODO We probably need a "type" for this, but we should wait until we have a better understanding of what it takes to validate this
-CREATE TABLE ndh.clinical_school (
+CREATE TABLE IF NOT EXISTS ndh.clinical_school (
     id SERIAL PRIMARY KEY,
     -- i.e. M.D.
     clinical_school_name VARCHAR(20)   NOT NULL,
     clinical_school_url VARCHAR(500)
 )
 
-CREATE TABLE ndh.individual_to_credential (
+CREATE TABLE IF NOT EXISTS ndh.individual_to_credential (
     id SERIAL PRIMARY KEY,
     individual_id int   NOT NULL,
     clinical_credential_id int   NOT NULL
@@ -33,7 +36,7 @@ CREATE TABLE ndh.individual_to_credential (
 -- the user haa their own NPI or appears as an "authorized official" for an organization. An artifact from NPPES that will be difficult 
 -- to release... though there probably be many "authorized official" one of which has primary contact status for a given org?
 
-CREATE TABLE ndh.individual (
+CREATE TABLE IF NOT EXISTS ndh.individual (
     id SERIAL PRIMARY KEY,
     last_name VARCHAR(100)   NOT NULL,
     first_name VARCHAR(100)   NOT NULL,

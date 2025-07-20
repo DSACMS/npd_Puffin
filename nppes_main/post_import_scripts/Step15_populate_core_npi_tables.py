@@ -639,7 +639,7 @@ def main():
     LEFT JOIN {parent_change_log_DBTable} AS parent_change_log ON npi_table.npi = parent_change_log.child_npi AND parent_change_log.processed = FALSE
     WHERE source_table."entity_type_code" = '2'
     AND change_log.processed = FALSE
-    ON CONFLICT (npi_id) DO UPDATE SET
+    ON CONFLICT (npi_id, clinical_organization_id) DO UPDATE SET
         primary_authorized_official_individual_id = EXCLUDED.primary_authorized_official_individual_id,
         parent_npi_id = EXCLUDED.parent_npi_id;
     """

@@ -35,7 +35,7 @@ CREATE TABLE ndh.individual_npi (
 --   - Added UNIQUE constraint on (npi_id, clinical_organization_id)
 --   - This supports many-to-many mapping and enables endpoint joins.
 --
-CREATE TABLE ndh.organizational_npi (
+CREATE TABLE IF NOT EXISTS ndh.organizational_npi (
     id SERIAL PRIMARY KEY,
     npi_id BIGINT   NOT NULL,
     clinical_organization_id INT  DEFAULT NULL,
