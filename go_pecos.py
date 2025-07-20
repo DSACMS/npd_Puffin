@@ -32,7 +32,8 @@ cmds = [
         "python", f"{os.getenv('PECOS_ENROLLMENT_DIR')}/go.postgresql.py",
         f"--csv_file", os.getenv("PECOS_ENROLLMENT_CSV"),
         f"--db_schema_name", os.getenv("PECOS_SCHEMA"),
-        "--table_name", os.getenv("PECOS_ENROLLMENT_TABLE")
+        "--table_name", os.getenv("PECOS_ENROLLMENT_TABLE"),
+        "--trample"
     ],
     [
         "csviper", "full-compile",
@@ -44,7 +45,8 @@ cmds = [
         "python", f"{os.getenv('PECOS_ASSIGNMENT_DIR')}/go.postgresql.py",
         f"--csv_file", os.getenv("PECOS_ASSIGNMENT_CSV"),
         f"--db_schema_name", os.getenv("PECOS_SCHEMA"),
-        f"--table_name", os.getenv("PECOS_ASSIGNMENT_TABLE")
+        f"--table_name", os.getenv("PECOS_ASSIGNMENT_TABLE"),
+        "--trample"
     ]
 ]
 

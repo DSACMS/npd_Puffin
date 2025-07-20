@@ -43,7 +43,7 @@ def main():
     orgname_type_DBTable = DBTable(schema='ndh', table='clinical_orgname_type')
     orgname_DBTable = DBTable(schema='ndh', table='orgname')
     individual_DBTable = DBTable(schema='ndh', table='individual')
-    npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='organizational_npi')
+    npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='assigning_npi')
     
     # Staging table
     staging_table_DBTable = DBTable(schema='intake', table='PAC_to_NPPES_org_names')
@@ -149,7 +149,7 @@ def main():
         ) THEN
             ALTER TABLE {orgname_DBTable}
             ADD CONSTRAINT uc_orgname_combination 
-            UNIQUE (ClinicalOrganization_id, ClinicalOrganization_name, ClinicalOrgnameType_id);
+            UNIQUE (clinical_organization_id, clinical_organization_name, clinical_orgname_type_id);
         END IF;
     END $$;
     """
@@ -158,25 +158,25 @@ def main():
     sql['insert_pecos_orgname_type'] = f"""
     INSERT INTO {orgname_type_DBTable} (orgname_type_description, source_file, source_field)
     VALUES ('PECOS', 'pecos_enrollment', 'org_name')
-    ON CONFLICT (orgname_type_description) DO NOTHING;
+    ON CONFLICT (orgname_type_description, source_file, source_field) DO NOTHING;
     """
     
     sql['insert_nppes_main_orgname_type'] = f"""
     INSERT INTO {orgname_type_DBTable} (orgname_type_description, source_file, source_field)
     VALUES ('NPPES_main_file', 'main_file', 'provider_organization_name_legal_business_name')
-    ON CONFLICT (orgname_type_description) DO NOTHING;
+    ON CONFLICT (orgname_type_description, source_file, source_field) DO NOTHING;
     """
     
     sql['insert_nppes_othername_orgname_type'] = f"""
     INSERT INTO {orgname_type_DBTable} (orgname_type_description, source_file, source_field)
     VALUES ('NPPES_othername_file', 'othername_file', 'provider_other_organization_name')
-    ON CONFLICT (orgname_type_description) DO NOTHING;
+    ON CONFLICT (orgname_type_description, source_file, source_field) DO NOTHING;
     """
     
     sql['insert_nppes_endpoint_orgname_type'] = f"""
     INSERT INTO {orgname_type_DBTable} (orgname_type_description, source_file, source_field)
     VALUES ('NPPES_endpoint_file', 'endpoint_file', 'affiliation_legal_business_name')
-    ON CONFLICT (orgname_type_description) DO NOTHING;
+    ON CONFLICT (orgname_type_description, source_file, source_field) DO NOTHING;
     """
     
     # Phase 4: Populate ClinicalOrganization table
@@ -269,34 +269,30 @@ def main():
     
     # Phase 8: Create Organizational NPI to ClinicalOrganization links
     # Note the "WHERE nppes_main."Entity_Type_Code" = '2'" this si ensuring 
-    sql['add_organizational_npi_unique_constraint'] = f"""
+    sql['add_assigning_npi_unique_constraint'] = f"""
     DO $$
     BEGIN
         IF NOT EXISTS (
             SELECT 1 FROM information_schema.table_constraints
-            WHERE constraint_name = 'uc_organizational_npi_pair'
-            AND table_name = 'organizational_npi'
+            WHERE constraint_name = 'uc_assigning_npi_pair'
+            AND table_name = 'assigning_npi'
             AND table_schema = 'ndh'
         ) THEN
             ALTER TABLE {npi_to_clinical_org_DBTable}
-            ADD CONSTRAINT uc_organizational_npi_pair
+            ADD CONSTRAINT uc_assigning_npi_pair
             UNIQUE (npi_id, clinical_organization_id);
         END IF;
     END $$;
     """
 
-    sql['populate_npi_to_clinical_organization'] = f"""
+    sql['populate_assigning_npi'] = f"""
     INSERT INTO {npi_to_clinical_org_DBTable} (
         npi_id,
-        clinical_organization_id,
-        primary_authorized_official_individual_id,
-        parent_npi_id
+        clinical_organization_id
     )
     SELECT DISTINCT
         nppes_main."npi" AS npi_id,
-        clinical_org.id AS clinical_organization_id,
-        0 AS primary_authorized_official_individual_id,
-        0 AS parent_npi_id
+        clinical_org.id AS clinical_organization_id
     FROM {pecos_enrollment_DBTable} AS pecos_enrollment
     JOIN {nppes_main_DBTable} AS nppes_main ON
         nppes_main."npi" = pecos_enrollment.npi
