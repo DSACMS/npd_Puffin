@@ -25,8 +25,8 @@ cmds = [
     [
         "csviper", "full-compile",
         f"--from_csv={os.getenv('PECOS_ENROLLMENT_CSV')}",
-        f"--output_dir={os.getenv('PECOS_ENROLLMENT_DIR')}",
-        "--overwrite_previous"
+        f"--output_dir={os.getenv('PECOS_ENROLLMENT_DIR')}"
+ #       ,"--overwrite_previous"
     ],
     [
         "python", f"{os.getenv('PECOS_ENROLLMENT_DIR')}/go.postgresql.py",
