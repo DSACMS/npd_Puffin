@@ -1,0 +1,46 @@
+-- OverwriteThisOnNextCompile=True
+
+CREATE DATABASE IF NOT EXISTS REPLACE_ME_DB_NAME;
+
+DROP TABLE IF EXISTS REPLACE_ME_DB_NAME.REPLACE_ME_TABLE_NAME;
+
+CREATE TABLE REPLACE_ME_DB_NAME.REPLACE_ME_TABLE_NAME (
+    `enrollment_id` VARCHAR(16),
+    `associate_id` VARCHAR(11),
+    `organization_name` VARCHAR(71),
+    `associate_id_owner` VARCHAR(11),
+    `type_owner` VARCHAR(2),
+    `role_code_owner` VARCHAR(3),
+    `role_text_owner` VARCHAR(42),
+    `association_date_owner` VARCHAR(11),
+    `first_name_owner` VARCHAR(25),
+    `middle_name_owner` VARCHAR(19),
+    `last_name_owner` VARCHAR(25),
+    `title_owner` VARCHAR(36),
+    `organization_name_owner` VARCHAR(71),
+    `doing_business_as_name_owner` VARCHAR(67),
+    `address_line_1_owner` VARCHAR(56),
+    `address_line_2_owner` VARCHAR(56),
+    `city_owner` VARCHAR(30),
+    `state_owner` VARCHAR(3),
+    `zip_code_owner` VARCHAR(10),
+    `percentage_ownership` VARCHAR(7),
+    `created_for_acquisition_owner` VARCHAR(2),
+    `corporation_owner` VARCHAR(2),
+    `llc_owner` VARCHAR(2),
+    `medical_provider_supplier_owner` VARCHAR(2),
+    `management_services_company_owner` VARCHAR(2),
+    `medical_staffing_company_owner` VARCHAR(2),
+    `holding_company_owner` VARCHAR(2),
+    `investment_firm_owner` VARCHAR(2),
+    `financial_institution_owner` VARCHAR(2),
+    `consulting_firm_owner` VARCHAR(2),
+    `for_profit_owner` VARCHAR(2),
+    `non_profit_owner` VARCHAR(2),
+    `private_equity_company_owner` VARCHAR(2),
+    `reit_owner` VARCHAR(1),
+    `chain_home_office_owner` VARCHAR(2),
+    `other_type_owner` VARCHAR(2),
+    `other_type_text_owner` VARCHAR(41),
+    `owned_by_another_org_or_ind_owner` VARCHAR(2)
+);
