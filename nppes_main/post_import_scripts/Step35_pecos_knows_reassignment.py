@@ -199,7 +199,7 @@ class Step35PecosKnowsReassignment:
 
 
 class ValidateRowCountRelationship(InLaw):
-    title = "NDH assigning_npi should be approximately 6% of PECOS reassignment rows (distinct pairs)"
+    title = "NDH assigning_npi should be approximately 94% of PECOS reassignment rows (distinct pairs)"
     
     @staticmethod
     def run(engine):
@@ -222,11 +222,11 @@ class ValidateRowCountRelationship(InLaw):
         
         gx_df = InLaw.to_gx_dataframe(sql, engine)
         
-        # Validate ratio is approximately 6% (allow range 5% to 7%)
+        # Validate ratio is approximately 94% (allow range 93% to 95%)
         result = gx_df.expect_column_values_to_be_between(
             column="ndh_to_pecos_ratio",
-            min_value=5.0,
-            max_value=7.0
+            min_value=93.0,
+            max_value=95.0
         )
         
         if result.success:
@@ -238,7 +238,7 @@ class ValidateRowCountRelationship(InLaw):
         ndh_count = row.iloc[0]['ndh_count']
         ratio = row.iloc[0]['ndh_to_pecos_ratio']
         
-        return (f"NDH assigning_npi ratio ({ratio:.2f}%) is outside expected 5-7% range. "
+        return (f"NDH assigning_npi ratio ({ratio:.2f}%) is outside expected 93-95% range. "
                 f"PECOS reassignment: {pecos_count:,}, NDH assigning_npi: {ndh_count:,}")
 
 
@@ -295,7 +295,7 @@ class ValidateNoDuplicateAssignments(InLaw):
 
 
 class ValidateAssigningNpiRowCountExpected(InLaw):
-    title = "NDH assigning_npi row count should be within 1% of expected 227000"
+    title = "NDH assigning_npi row count should be within 1% of expected 3,170,129"
     
     @staticmethod
     def run(engine):
@@ -303,21 +303,21 @@ class ValidateAssigningNpiRowCountExpected(InLaw):
         
         gx_df = InLaw.to_gx_dataframe(sql, engine)
         
-        # Expected count: 227000 (distinct pairs)
-        # 1% tolerance: 2270
-        # Range: 224730 to 229270
+        # Expected count: 3,170,129 (distinct pairs)
+        # 1% tolerance: 31701
+        # Range: 3138428 to 3201830
         result = gx_df.expect_column_values_to_be_between(
             column="row_count",
-            min_value=224730,
-            max_value=229270
+            min_value=3138428,
+            max_value=3201830
         )
         
         if result.success:
             return True
         
-        # Get actual count for error message
+        # Get actual values for error message
         actual_count = gx_df.head(1).iloc[0]['row_count']
-        expected_count = 227000
+        expected_count = 3170129
         percentage_diff = abs(actual_count - expected_count) / expected_count * 100
         
         return (f"Row count ({actual_count:,}) is outside 1% tolerance of expected {expected_count:,}. "
