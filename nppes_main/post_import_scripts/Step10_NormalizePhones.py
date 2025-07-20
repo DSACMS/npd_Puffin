@@ -5,8 +5,8 @@ Extracts phone numbers from NPPES data sources, normalizes them using phonenumbe
 and populates staging and NDH tables for clean phone data management.
 """
 
-import plainerflow
-from plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle
+import plainerflow # type: ignore
+from plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle  # type: ignore
 import pandas as pd
 import os
 import sys
@@ -61,11 +61,11 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "provider_business_mailing_address_telephone_number" as raw_phone,
-        'nppes_main' as source_file,
-        FALSE as is_fax,
-        ROW_NUMBER() OVER() as source_row,
-        'Business Mailing Phone from main file' as error_notes
+        "provider_business_mailing_address_telephone_number" AS raw_phone,
+        'nppes_main' AS source_file,
+        FALSE AS is_fax,
+        ROW_NUMBER() OVER() AS source_row,
+        'Business Mailing Phone from main file' AS error_notes
     FROM {npi_main_DBTable}
     WHERE "provider_business_mailing_address_telephone_number" IS NOT NULL 
     AND TRIM("provider_business_mailing_address_telephone_number") != ''
@@ -77,11 +77,11 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "provider_business_mailing_address_fax_number" as raw_phone,
-        'nppes_main' as source_file,
-        TRUE as is_fax,
-        ROW_NUMBER() OVER() as source_row,
-        'Business Mailing Fax from main file' as error_notes
+        "provider_business_mailing_address_fax_number" AS raw_phone,
+        'nppes_main' AS source_file,
+        TRUE AS is_fax,
+        ROW_NUMBER() OVER() AS source_row,
+        'Business Mailing Fax from main file' AS error_notes
     FROM {npi_main_DBTable}
     WHERE "provider_business_mailing_address_fax_number" IS NOT NULL 
     AND TRIM("provider_business_mailing_address_fax_number") != ''
@@ -93,11 +93,11 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "provider_business_practice_location_address_telephone_number" as raw_phone,
-        'nppes_main' as source_file,
-        FALSE as is_fax,
-        ROW_NUMBER() OVER() as source_row,
-        'Practice Location Phone from main file' as error_notes
+        "provider_business_practice_location_address_telephone_number" AS raw_phone,
+        'nppes_main' AS source_file,
+        FALSE AS is_fax,
+        ROW_NUMBER() OVER() AS source_row,
+        'Practice Location Phone from main file' AS error_notes
     FROM {npi_main_DBTable}
     WHERE "provider_business_practice_location_address_telephone_number" IS NOT NULL 
     AND TRIM("provider_business_practice_location_address_telephone_number") != ''
@@ -109,11 +109,11 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "provider_business_practice_location_address_fax_number" as raw_phone,
-        'nppes_main' as source_file,
-        TRUE as is_fax,
-        ROW_NUMBER() OVER() as source_row,
-        'Practice Location Fax from main file' as error_notes
+        "provider_business_practice_location_address_fax_number" AS raw_phone,
+        'nppes_main' AS source_file,
+        TRUE AS is_fax,
+        ROW_NUMBER() OVER() AS source_row,
+        'Practice Location Fax from main file' AS error_notes
     FROM {npi_main_DBTable}
     WHERE "provider_business_practice_location_address_fax_number" IS NOT NULL 
     AND TRIM("provider_business_practice_location_address_fax_number") != ''
@@ -125,11 +125,11 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "authorized_official_telephone_number" as raw_phone,
-        'nppes_main' as source_file,
-        FALSE as is_fax,
-        ROW_NUMBER() OVER() as source_row,
-        'Authorized Official Phone from main file' as error_notes
+        "authorized_official_telephone_number" AS raw_phone,
+        'nppes_main' AS source_file,
+        FALSE AS is_fax,
+        ROW_NUMBER() OVER() AS source_row,
+        'Authorized Official Phone from main file' AS error_notes
     FROM {npi_main_DBTable}
     WHERE "authorized_official_telephone_number" IS NOT NULL 
     AND TRIM("authorized_official_telephone_number") != ''
@@ -143,12 +143,12 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, raw_phone_extension, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "provider_secondary_practice_address_telephone_number" as raw_phone,
-        "provider_secondary_practice_address_telephone_extension" as raw_phone_extension,
-        'nppes_pl_file' as source_file,
-        FALSE as is_fax,
-        ROW_NUMBER() OVER() as source_row,
-        'Secondary Practice Phone from PL file' as error_notes
+        "provider_secondary_practice_address_telephone_number" AS raw_phone,
+        "provider_secondary_practice_address_telephone_extension" AS raw_phone_extension,
+        'nppes_pl_file' AS source_file,
+        FALSE AS is_fax,
+        ROW_NUMBER() OVER() AS source_row,
+        'Secondary Practice Phone from PL file' AS error_notes
     FROM {npi_pl_DBTable}
     WHERE "provider_secondary_practice_address_telephone_number" IS NOT NULL 
     AND TRIM("provider_secondary_practice_address_telephone_number") != ''
@@ -160,11 +160,11 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "provider_practice_address_fax_number" as raw_phone,
-        'nppes_pl_file' as source_file,
-        TRUE as is_fax,
-        ROW_NUMBER() OVER() as source_row,
-        'Practice Fax from PL file' as error_notes
+        "provider_practice_address_fax_number" AS raw_phone,
+        'nppes_pl_file' AS source_file,
+        TRUE AS is_fax,
+        ROW_NUMBER() OVER() AS source_row,
+        'Practice Fax from PL file' AS error_notes
     FROM {npi_pl_DBTable}
     WHERE "provider_practice_address_fax_number" IS NOT NULL 
     AND TRIM("provider_practice_address_fax_number") != ''
@@ -193,8 +193,8 @@ def main():
         staging_df = pd.read_sql(staging_query, alchemy_engine)
         
         # Also get counts for reporting
-        total_count_query = f"SELECT COUNT(*) as total FROM {staging_phone_DBTable}"
-        processed_count_query = f"SELECT COUNT(*) as processed FROM {staging_phone_DBTable} WHERE phone_e164 IS NOT NULL"
+        total_count_query = f"SELECT COUNT(*) AS total FROM {staging_phone_DBTable}"
+        processed_count_query = f"SELECT COUNT(*) AS processed FROM {staging_phone_DBTable} WHERE phone_e164 IS NOT NULL"
         
         total_count = pd.read_sql(total_count_query, alchemy_engine).iloc[0]['total']
         processed_count = pd.read_sql(processed_count_query, alchemy_engine).iloc[0]['processed']
@@ -307,10 +307,10 @@ def main():
         # Print summary statistics
         summary_query = f"""
         SELECT 
-            COUNT(*) as total_records,
-            COUNT(CASE WHEN is_normalized_success = TRUE THEN 1 END) as successful_normalizations,
-            COUNT(CASE WHEN is_normalized_success = FALSE THEN 1 END) as failed_normalizations,
-            COUNT(CASE WHEN raw_phone_extension IS NOT NULL THEN 1 END) as records_with_extensions
+            COUNT(*) AS total_records,
+            COUNT(CASE WHEN is_normalized_success = TRUE THEN 1 END) AS successful_normalizations,
+            COUNT(CASE WHEN is_normalized_success = FALSE THEN 1 END) AS failed_normalizations,
+            COUNT(CASE WHEN raw_phone_extension IS NOT NULL THEN 1 END) AS records_with_extensions
         FROM {staging_phone_DBTable}
         """
         
