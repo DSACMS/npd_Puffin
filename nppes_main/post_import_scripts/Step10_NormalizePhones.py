@@ -160,14 +160,14 @@ def main():
     INSERT INTO {staging_phone_DBTable} 
     (raw_phone, source_file, is_fax_in_source, source_row, error_notes)
     SELECT 
-        "provider_practice_address_fax_number" AS raw_phone,
+        "provider_practice_location_address_fax_number" AS raw_phone,
         'nppes_pl_file' AS source_file,
         TRUE AS is_fax,
         ROW_NUMBER() OVER() AS source_row,
         'Practice Fax from PL file' AS error_notes
     FROM {npi_pl_DBTable}
-    WHERE "provider_practice_address_fax_number" IS NOT NULL 
-    AND TRIM("provider_practice_address_fax_number") != ''
+    WHERE "provider_practice_location_address_fax_number" IS NOT NULL 
+    AND TRIM("provider_practice_location_address_fax_number") != ''
     ON CONFLICT (raw_phone, source_file, is_fax_in_source) DO NOTHING;
     """
     
