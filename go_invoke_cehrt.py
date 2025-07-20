@@ -24,7 +24,8 @@ cmd = [
     f"--import_data_from_dir={os.getenv('CHERT_FHIR_IMPORT_DATA_DIR')}",
     f"--database_type={os.getenv('CHERT_FHIR_DB_TYPE')}",
     f"--db_schema_name={os.getenv('CHERT_FHIR_SCHEMA')}",
-    f"--table_name={os.getenv('CHERT_FHIR_TABLE')}"
+    f"--table_name={os.getenv('CHERT_FHIR_TABLE')}",
+    f"--trample"
 ]
 
 print("Running:", " ".join(cmd))
