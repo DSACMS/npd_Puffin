@@ -28,5 +28,8 @@ cmd = [
     f"--trample"
 ]
 
+if "--trample" in sys.argv:
+    cmd.append("--trample")
+
 print("Running:", " ".join(cmd))
 subprocess.run(cmd, check=True)
