@@ -37,7 +37,7 @@ def main():
     source_DBTable = DBTable(schema='nppes_raw', table=npi_table)
     
     # Target NDH tables
-    npi_DBTable = DBTable(schema='ndh', table='NPI')
+    npi_DBTable = DBTable(schema='ndh', table='npi')
     individual_DBTable = DBTable(schema='ndh', table='individual')
     npi_to_individual_DBTable = DBTable(schema='ndh', table='individual_npi')
     npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='organizational_npi')
@@ -218,7 +218,7 @@ def main():
     # PHASE 3: Process NPI record changes (UPSERT)
     # ========================================
 
-    # Note This is where we filter out the deactivated NPI records, which have no Entity_Type_Code
+    # Note This is where we filter out the deactivated NPI records, which have no entity_type_code
     
     sql['05_upsert_npi_records'] = f"""
     INSERT INTO {npi_DBTable} (
@@ -423,7 +423,7 @@ def main():
         name_prefix,
         name_suffix,
         email_address,
-        SSN
+        ssn
     )
     SELECT DISTINCT
         individual_provider_changes.last_name,
@@ -432,7 +432,7 @@ def main():
         individual_provider_changes.name_prefix,
         individual_provider_changes.name_suffix,
         NULL AS email_address,
-        NULL AS SSN
+        NULL AS ssn
     FROM {individual_provider_changes_DBTable} AS individual_provider_changes
     WHERE individual_provider_changes.change_type = 'NEW'
     AND NOT EXISTS (
@@ -453,7 +453,7 @@ def main():
         name_prefix,
         name_suffix,
         email_address,
-        SSN
+        ssn
     )
     SELECT DISTINCT
         authorized_official_changes.last_name,
@@ -462,7 +462,7 @@ def main():
         authorized_official_changes.name_prefix,
         authorized_official_changes.name_suffix,
         NULL AS email_address,
-        NULL AS SSN
+        NULL AS ssn
     FROM {authorized_official_changes_DBTable} AS authorized_official_changes
     WHERE authorized_official_changes.change_type = 'NEW'
     AND NOT EXISTS (
@@ -577,16 +577,16 @@ def main():
     CREATE TABLE {parent_changes_DBTable} AS
     SELECT 
         resolved_parents.subpart_npi AS child_npi,
-        npi_to_clinical_org.Parent_NPI_id AS old_parent_npi,
+        npi_to_clinical_org.parent_npi_id AS old_parent_npi,
         resolved_parents.resolved_parent_npi AS new_parent_npi,
         CASE 
-            WHEN npi_to_clinical_org.Parent_NPI_id IS NULL AND resolved_parents.resolved_parent_npi IS NOT NULL THEN 'NEW_PARENT'
-            WHEN npi_to_clinical_org.Parent_NPI_id IS NOT NULL AND resolved_parents.resolved_parent_npi IS NULL THEN 'PARENT_REMOVED'
-            WHEN npi_to_clinical_org.Parent_NPI_id != resolved_parents.resolved_parent_npi THEN 'PARENT_CHANGED'
+            WHEN npi_to_clinical_org.parent_npi_id IS NULL AND resolved_parents.resolved_parent_npi IS NOT NULL THEN 'NEW_PARENT'
+            WHEN npi_to_clinical_org.parent_npi_id IS NOT NULL AND resolved_parents.resolved_parent_npi IS NULL THEN 'PARENT_REMOVED'
+            WHEN npi_to_clinical_org.parent_npi_id != resolved_parents.resolved_parent_npi THEN 'PARENT_CHANGED'
             ELSE NULL
         END AS change_type
     FROM {resolved_parents_DBTable} AS resolved_parents
-    LEFT JOIN {npi_to_clinical_org_DBTable} AS npi_to_clinical_org ON resolved_parents.subpart_npi = npi_to_clinical_org.NPI_id;
+    LEFT JOIN {npi_to_clinical_org_DBTable} AS npi_to_clinical_org ON resolved_parents.subpart_npi = npi_to_clinical_org.npi_id;
     """
     
     sql['17_log_parent_relationship_changes'] = f"""
