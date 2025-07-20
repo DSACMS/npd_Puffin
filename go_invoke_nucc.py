@@ -30,6 +30,7 @@ cmds = [
         f"--database_type={os.getenv('NUCC_DB_TYPE')}",
         f"--db_schema_name={os.getenv('NUCC_SCHEMA')}",
         f"--table_name={os.getenv('NUCC_MERGED_TABLE')}"
+        ,f"--trample"
     ],
     [
         "python", "-m", "csviper", "invoke-compiled-script",
@@ -38,6 +39,7 @@ cmds = [
         f"--database_type={os.getenv('NUCC_DB_TYPE')}",
         f"--db_schema_name={os.getenv('NUCC_SCHEMA')}",
         f"--table_name={os.getenv('NUCC_SOURCES_TABLE')}"
+        ,f"--trample"
     ],
     [
         "python", "-m", "csviper", "invoke-compiled-script",
@@ -46,6 +48,7 @@ cmds = [
         f"--database_type={os.getenv('NUCC_DB_TYPE')}",
         f"--db_schema_name={os.getenv('NUCC_SCHEMA')}",
         f"--table_name={os.getenv('NUCC_ANCESTOR_TABLE')}"
+        ,f"--trample"
     ]
 ]
 
