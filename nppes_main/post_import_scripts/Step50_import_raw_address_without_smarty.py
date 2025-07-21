@@ -18,7 +18,7 @@ def main():
     Main function to execute the ETL pipeline.
     """
     # Set to True to preview SQL statements without executing them
-    is_just_print = True
+    is_just_print = False
 
     print("Connecting to the database...")
     base_path = os.path.dirname(os.path.abspath(__file__))
@@ -251,17 +251,63 @@ def main():
 
     sql['update_import_map'] = f"""
     INSERT INTO {import_map_DBTable} (address_hash, address_id)
-    SELECT
-        nm.address_hash,
-        a.id
-    FROM {not_mapped_DBTable} AS nm
-    JOIN {address_DBTable} AS a
-        ON (a.address_us_id IN (SELECT id FROM {address_us_DBTable} us WHERE us.delivery_line_1 = nm.address_line_1 AND COALESCE(us.delivery_line_2, '') = COALESCE(nm.address_line_2, '') AND us.city_name = nm.city AND us.state_abbreviation = nm.state AND us.zipcode = nm.postal_code))
-        OR (a.address_international_id IN (SELECT id FROM {address_intl_DBTable} intl WHERE intl.address1 = nm.address_line_1 AND COALESCE(intl.address2, '') = COALESCE(nm.address_line_2, '') AND intl.locality = nm.city AND intl.administrative_area = nm.state AND intl.postal_code = nm.postal_code AND intl.country = nm.country_code))
+    WITH us_addresses AS (
+        SELECT
+            nm.address_hash,
+            a.id AS address_id
+        FROM {not_mapped_DBTable} nm
+        JOIN {address_us_DBTable} us
+            ON nm.address_line_1 = us.delivery_line_1
+            AND COALESCE(nm.address_line_2, '') = COALESCE(us.delivery_line_2, '')
+            AND nm.city = us.city_name
+            AND nm.state = us.state_abbreviation
+            AND nm.postal_code = us.zipcode
+        JOIN {address_DBTable} a ON a.address_us_id = us.id
+        WHERE nm.country_code IS NULL OR nm.country_code = '' OR nm.country_code = 'US'
+    ),
+    intl_addresses AS (
+        SELECT
+            nm.address_hash,
+            a.id AS address_id
+        FROM {not_mapped_DBTable} nm
+        JOIN {address_intl_DBTable} intl
+            ON nm.address_line_1 = intl.address1
+            AND COALESCE(nm.address_line_2, '') = COALESCE(intl.address2, '')
+            AND nm.city = intl.locality
+            AND nm.state = intl.administrative_area
+            AND nm.postal_code = intl.postal_code
+            AND nm.country_code = intl.country
+        JOIN {address_DBTable} a ON a.address_international_id = intl.id
+        WHERE nm.country_code IS NOT NULL AND nm.country_code != '' AND nm.country_code != 'US'
+    )
+    SELECT address_hash, address_id FROM us_addresses
+    UNION ALL
+    SELECT address_hash, address_id FROM intl_addresses
     ON CONFLICT (address_hash) DO NOTHING;
     """
 
-    # --- SQL implementation will be added here in subsequent steps ---
+    sql['truncate_npi_address_link'] = f"""
+    TRUNCATE TABLE {npi_address_DBTable};
+    """
+
+    sql['link_npi_to_address'] = f"""
+    INSERT INTO {npi_address_DBTable} (npi_id, address_type_id, address_id)
+    SELECT DISTINCT
+        t1.npi::BIGINT,
+        t1.address_type_id,
+        t2.address_id
+    FROM
+        {raw_import_DBTable} AS t1
+    JOIN
+        {import_map_DBTable} AS t2
+    ON
+        t1.address_hash = t2.address_hash;
+    """
+
+    sql['cleanup_temp_tables'] = f"""
+    DROP TABLE IF EXISTS {raw_import_DBTable};
+    DROP TABLE IF EXISTS {not_mapped_DBTable};
+    """
 
     print("Executing SQL pipeline...")
     SQLoopcicle.run_sql_loop(

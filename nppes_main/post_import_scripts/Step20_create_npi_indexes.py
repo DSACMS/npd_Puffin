@@ -25,7 +25,7 @@ import os
 
 def main():
     # Control dry-run mode - start with True to preview SQL
-    is_just_print = True
+    is_just_print = False
     
     print("Connecting to DB")
     base_path = os.path.dirname(os.path.abspath(__file__))

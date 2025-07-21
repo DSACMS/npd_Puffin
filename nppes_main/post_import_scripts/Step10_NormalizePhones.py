@@ -37,7 +37,7 @@ def main():
     staging_phone_DBTable = DBTable(schema='intake', table='staging_phone')
     phone_type_DBTable = DBTable(schema='ndh', table='phone_type')
     phone_number_DBTable = DBTable(schema='ndh', table='phone_number')
-    phone_extension_DBTable = DBTable(schema='ndh', table='phone_extension')
+    npi_phone_DBTable = DBTable(schema='ndh', table='npi_phone')
     
     # Create SQL execution plan
     sql = FrostDict()
@@ -268,16 +268,6 @@ def main():
         ON CONFLICT (phone_number) DO NOTHING;
         """
         
-        # Insert distinct phone extensions
-        ndh_sql['populate_ndh_phone_extensions'] = f"""
-        INSERT INTO {phone_extension_DBTable} (phone_extension)
-        SELECT DISTINCT raw_phone_extension
-        FROM {staging_phone_DBTable}
-        WHERE raw_phone_extension IS NOT NULL 
-        AND TRIM(raw_phone_extension) != ''
-        ON CONFLICT (phone_extension) DO NOTHING;
-        """
-        
         # Update staging records with NDH foreign keys
         ndh_sql['link_staging_to_ndh_phone_numbers'] = f"""
         UPDATE {staging_phone_DBTable} 
@@ -286,13 +276,106 @@ def main():
         WHERE {staging_phone_DBTable}.phone_e164 = pn.phone_number
         AND {staging_phone_DBTable}.is_normalized_success = TRUE;
         """
-        
-        ndh_sql['link_staging_to_ndh_phone_extensions'] = f"""
-        UPDATE {staging_phone_DBTable} 
-        SET ndh_PhoneExtension_id = pe.id
-        FROM {phone_extension_DBTable} pe
-        WHERE {staging_phone_DBTable}.raw_phone_extension = pe.phone_extension
-        AND {staging_phone_DBTable}.raw_phone_extension IS NOT NULL;
+
+        # Phase 7: Populate npi_phone table
+        ndh_sql['truncate_npi_phone'] = f"TRUNCATE TABLE {npi_phone_DBTable};"
+
+        ndh_sql['populate_npi_phone_mailing_tele'] = f"""
+        INSERT INTO {npi_phone_DBTable} (npi_id, phonetype_id, phone_number_id, phone_extension, is_fax)
+        SELECT DISTINCT
+            main.npi,
+            1,
+            staging.ndh_PhoneNumber_id,
+            COALESCE(staging.raw_phone_extension, ''),
+            staging.is_fax_in_source
+        FROM {staging_phone_DBTable} AS staging
+        JOIN {npi_main_DBTable} AS main
+            ON staging.raw_phone = main."provider_business_mailing_address_telephone_number"
+        WHERE staging.ndh_PhoneNumber_id IS NOT NULL;
+        """
+
+        ndh_sql['populate_npi_phone_mailing_fax'] = f"""
+        INSERT INTO {npi_phone_DBTable} (npi_id, phonetype_id, phone_number_id, phone_extension, is_fax)
+        SELECT DISTINCT
+            main.npi,
+            2,
+            staging.ndh_PhoneNumber_id,
+            COALESCE(staging.raw_phone_extension, ''),
+            staging.is_fax_in_source
+        FROM {staging_phone_DBTable} AS staging
+        JOIN {npi_main_DBTable} AS main
+            ON staging.raw_phone = main."provider_business_mailing_address_fax_number"
+        WHERE staging.ndh_PhoneNumber_id IS NOT NULL;
+        """
+
+        ndh_sql['populate_npi_phone_practice_tele'] = f"""
+        INSERT INTO {npi_phone_DBTable} (npi_id, phonetype_id, phone_number_id, phone_extension, is_fax)
+        SELECT DISTINCT
+            main.npi,
+            3,
+            staging.ndh_PhoneNumber_id,
+            COALESCE(staging.raw_phone_extension, ''),
+            staging.is_fax_in_source
+        FROM {staging_phone_DBTable} AS staging
+        JOIN {npi_main_DBTable} AS main
+            ON staging.raw_phone = main."provider_business_practice_location_address_telephone_number"
+        WHERE staging.ndh_PhoneNumber_id IS NOT NULL;
+        """
+
+        ndh_sql['populate_npi_phone_practice_fax'] = f"""
+        INSERT INTO {npi_phone_DBTable} (npi_id, phonetype_id, phone_number_id, phone_extension, is_fax)
+        SELECT DISTINCT
+            main.npi,
+            4,
+            staging.ndh_PhoneNumber_id,
+            COALESCE(staging.raw_phone_extension, ''),
+            staging.is_fax_in_source
+        FROM {staging_phone_DBTable} AS staging
+        JOIN {npi_main_DBTable} AS main
+            ON staging.raw_phone = main."provider_business_practice_location_address_fax_number"
+        WHERE staging.ndh_PhoneNumber_id IS NOT NULL;
+        """
+
+        ndh_sql['populate_npi_phone_official_tele'] = f"""
+        INSERT INTO {npi_phone_DBTable} (npi_id, phonetype_id, phone_number_id, phone_extension, is_fax)
+        SELECT DISTINCT
+            main.npi,
+            5,
+            staging.ndh_PhoneNumber_id,
+            COALESCE(staging.raw_phone_extension, ''),
+            staging.is_fax_in_source
+        FROM {staging_phone_DBTable} AS staging
+        JOIN {npi_main_DBTable} AS main
+            ON staging.raw_phone = main."authorized_official_telephone_number"
+        WHERE staging.ndh_PhoneNumber_id IS NOT NULL;
+        """
+
+        ndh_sql['populate_npi_phone_pl_tele'] = f"""
+        INSERT INTO {npi_phone_DBTable} (npi_id, phonetype_id, phone_number_id, phone_extension, is_fax)
+        SELECT DISTINCT
+            pl.npi::BIGINT,
+            3, -- Assuming secondary practice is also type 3
+            staging.ndh_PhoneNumber_id,
+            COALESCE(staging.raw_phone_extension, ''),
+            staging.is_fax_in_source
+        FROM {staging_phone_DBTable} AS staging
+        JOIN {npi_pl_DBTable} AS pl
+            ON staging.raw_phone = pl."provider_secondary_practice_address_telephone_number"
+        WHERE staging.ndh_PhoneNumber_id IS NOT NULL;
+        """
+
+        ndh_sql['populate_npi_phone_pl_fax'] = f"""
+        INSERT INTO {npi_phone_DBTable} (npi_id, phonetype_id, phone_number_id, phone_extension, is_fax)
+        SELECT DISTINCT
+            pl.npi::BIGINT,
+            4, -- Assuming secondary practice is also type 4
+            staging.ndh_PhoneNumber_id,
+            COALESCE(staging.raw_phone_extension, ''),
+            staging.is_fax_in_source
+        FROM {staging_phone_DBTable} AS staging
+        JOIN {npi_pl_DBTable} AS pl
+            ON staging.raw_phone = pl."provider_practice_location_address_fax_number"
+        WHERE staging.ndh_PhoneNumber_id IS NOT NULL;
         """
         
         print("Populating NDH tables with normalized phone data...")

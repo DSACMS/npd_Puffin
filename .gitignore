@@ -209,3 +209,4 @@ cython_debug/
 
 out
 
+.env*
