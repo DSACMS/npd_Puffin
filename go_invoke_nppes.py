@@ -33,6 +33,7 @@ cmds = [
         f"--database_type={os.getenv('NPPES_DB_TYPE')}",
         f"--db_schema_name={os.getenv('NPPES_RAW_SCHEMA')}",
         f"--table_name={os.getenv('NPPES_PL_TABLE')}"
+        ,f"--trample"
     ],
     [
         "python", "-m", "csviper", "invoke-compiled-script",
@@ -41,6 +42,7 @@ cmds = [
         f"--database_type={os.getenv('NPPES_DB_TYPE')}",
         f"--db_schema_name={os.getenv('NPPES_RAW_SCHEMA')}",
         f"--table_name={os.getenv('NPPES_ENDPOINT_TABLE')}"
+        ,f"--trample"
     ],
     [
         "python", "-m", "csviper", "invoke-compiled-script",
@@ -49,6 +51,7 @@ cmds = [
         f"--database_type={os.getenv('NPPES_DB_TYPE')}",
         f"--db_schema_name={os.getenv('NPPES_RAW_SCHEMA')}",
         f"--table_name={os.getenv('NPPES_OTHERNAME_TABLE')}"
+        ,f"--trample"
     ],
     [
         "python", "-m", "csviper", "invoke-compiled-script",
@@ -57,6 +60,7 @@ cmds = [
         f"--database_type={os.getenv('NPPES_DB_TYPE')}",
         f"--db_schema_name={os.getenv('NPPES_RAW_SCHEMA')}",
         f"--table_name={os.getenv('NPPES_MAIN_TABLE')}"
+        ,f"--trample"
     ]
 ]
 
