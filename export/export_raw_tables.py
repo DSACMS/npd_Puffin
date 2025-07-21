@@ -87,6 +87,7 @@ def main():
         
         command = [
             'pg_dump',
+            '--no-owner',
             '--schema', schema,
             '-U', db_user,
             '-h', db_host,
