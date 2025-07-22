@@ -53,9 +53,9 @@ def main():
         return
 
     # Find schemas to export
-    data_locations_env = 'data_file_locations.env'
+    data_locations_env = os.path.join(os.path.dirname(__file__), '..', 'data_file_locations.env')
     if not os.path.exists(data_locations_env):
-        print(f"Error: {data_locations_env} not found.")
+        print(f"Error: data_file_locations.env not found at {data_locations_env}")
         return
         
     schemas_to_export = get_raw_schemas(data_locations_env)
@@ -88,6 +88,8 @@ def main():
         command = [
             'pg_dump',
             '--no-owner',
+            '--clean',
+            '--if-exists',
             '--schema', schema,
             '-U', db_user,
             '-h', db_host,
