@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-This is a python program that accepts a CLI argument for the import sql dumps: (and defaults to ./local_data/export/)
+This is a python program that accepts a CLI argument for the import sql dumps: (and defaults to ../local_data/export/)
 This will loop over each of the .sql files found in that directory and use psql command.. powered by the .env contents to get passwords etc. 
 
 To import the data into the exact same database.schema as the original dump file. 
@@ -22,8 +22,8 @@ def main():
     parser.add_argument(
         'import_dir', 
         nargs='?', 
-        default='./local_data/export/', 
-        help='Directory containing .pg.sql dump files. Defaults to ./local_data/export/'
+        default='../local_data/export/', 
+        help='Directory containing .pg.sql dump files. Defaults to ../local_data/export/'
     )
     args = parser.parse_args()
 
