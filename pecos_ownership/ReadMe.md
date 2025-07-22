@@ -6,6 +6,8 @@ There are several PECOS ownership files that are found here: https://data.cms.go
 Data Source Summary
 ---------------------
 
+These have now been split into different directories. 
+
 Data Source Details
 -------------------
 

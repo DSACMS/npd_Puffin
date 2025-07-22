@@ -6,6 +6,9 @@ AHRQ Files are sourced from https://www.ahrq.gov/chsp/data-resources/compendium-
 Data Source Summary
 ---------------------
 
+This is the Linkage file for the AHRQ Compendium. 
+
+
 Data Source Details
 -------------------
 

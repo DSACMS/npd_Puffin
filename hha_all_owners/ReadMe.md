@@ -6,6 +6,8 @@ There are several PECOS ownership files that are found here: https://data.cms.go
 Data Source Summary
 ---------------------
 
+See the documentation for the Hospital Owners data for details. 
+
 Data Source Details
 -------------------
 
