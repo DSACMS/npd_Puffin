@@ -12,7 +12,7 @@ import os
 import subprocess
 import time
 import argparse
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # type: ignore
 
 def main():
     """
