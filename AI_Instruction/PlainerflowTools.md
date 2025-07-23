@@ -11,7 +11,7 @@ PlainerFlow is a Python framework for creating simple, SQL-based ETL (Extract, T
 Automatically detects database configuration from various sources:
 
 ```python
-from plainerflow import CredentialFinder
+from ndh_plainerflow import CredentialFinder
 
 # Auto-detect from environment variables, .env files, or fallback to SQLite
 engine = CredentialFinder.detect_config(verbose=True)
@@ -26,7 +26,7 @@ engine = CredentialFinder.detect_config(verbose=True, env_path=env_path)
 Create reusable table references that work across different schemas:
 
 ```python
-from plainerflow import DBTable
+from ndh_plainerflow import DBTable
 
 # Define table with schema, always name the variables with something_DBTable at the end. 
 npi_DBTable = DBTable(schema='nppes_raw', table='main_file')
@@ -45,7 +45,7 @@ sql = f"SELECT * FROM {npi_table} WHERE status = 'active'"
 Organize SQL statements in an ordered, partially-immutable dictionary:
 
 ```python
-from plainerflow import FrostDict
+from ndh_plainerflow import FrostDict
 
 sql = FrostDict()
 
@@ -62,7 +62,7 @@ sql['update_data'] = f"UPDATE {table_name} SET ..."
 Execute SQL statements in sequence with built-in error handling:
 
 ```python
-from plainerflow import SQLoopcicle
+from ndh_plainerflow import SQLoopcicle
 
 is_just_print = True # Always start with true for dry-run to allow the user to read generated SQL before it runs.. 
 
@@ -81,7 +81,7 @@ Initial creation of ETLs should not include InLaw statements. But once the user 
 Create validation tests to ensure data quality using Great Expectations:
 
 ```python
-from plainerflow import InLaw
+from ndh_plainerflow import InLaw
 
 class ValidateRowCount(InLaw):
     title = "Table should have expected number of rows"
@@ -173,8 +173,8 @@ Based on the real-world example in `Step05_fix_column_types.py`:
 ETL Pipeline Step: [Description of what this step does]
 """
 
-import plainerflow
-from plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle
+import ndh_plainerflow
+from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle
 import os
 
 def main():
@@ -221,7 +221,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Pipeline failed with error: {e}")
         print("\nMake sure you have installed the required dependencies:")
-        print("pip install plainerflow pandas great-expectations")
+        print("pip install ndh_plainerflow pandas great-expectations")
         raise
 ```
 

@@ -7,8 +7,8 @@ The hashes are used to detect changes in any field, even when Last_Update_Date h
 This provides more comprehensive change detection for incremental processing.
 """
 
-import plainerflow  # type: ignore
-from plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle # type: ignore
+import ndh_plainerflow  # type: ignore
+from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle # type: ignore
 import pandas as pd
 import sqlalchemy
 from pathlib import Path
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Row hash generation failed with error: {e}")
         print("\nMake sure you have:")
-        print("- Installed required dependencies: pip install plainerflow pandas")
+        print("- Installed required dependencies: pip install ndh_plainerflow pandas")
         print("- Completed Step05 (column type fixes)")
         print("- Valid database connection")
         raise

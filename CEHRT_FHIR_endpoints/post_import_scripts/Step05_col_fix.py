@@ -3,8 +3,8 @@
 Fixes the npi as varchar import for othername table
 """
 
-import plainerflow  # type: ignore
-from plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle, InLaw # type: ignore
+import ndh_plainerflow  # type: ignore
+from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle, InLaw # type: ignore
 import pandas as pd
 import sqlalchemy
 from pathlib import Path
@@ -71,5 +71,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Pipeline failed with error: {e}")
         print("\nMake sure you have installed the required dependencies:")
-        print("pip install plainerflow pandas great-expectations")
+        print("pip install ndh_plainerflow pandas great-expectations")
         raise

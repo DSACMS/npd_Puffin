@@ -41,8 +41,8 @@ import csv
 import os
 
 # --- PlainerFlow imports for InLaw tests ---
-import plainerflow
-from plainerflow import CredentialFinder, InLaw
+import ndh_plainerflow
+from ndh_plainerflow import CredentialFinder, InLaw
 
 NPIS = {
     "1043699168": "Woodridge Primary Clinic",
@@ -293,7 +293,7 @@ class InLawAssigningNpiToClinicalOrg(InLaw):
         return "assigning_npi join to clinical_organization does not return exactly one row for Dr. Hussain"
 
 
-class InLawAssigningNpiToClinicalOrg(InLaw):
+class InLawAssigningNpiToEndoint(InLaw):
     title = "full test returns 1 row"
     @staticmethod
     def run(engine):

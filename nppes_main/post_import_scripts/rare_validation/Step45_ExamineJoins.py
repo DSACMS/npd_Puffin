@@ -20,8 +20,8 @@ Join chain:
 If any step returns no rows, that is likely where the join chain is broken.
 """
 
-import plainerflow  # type: ignore
-from plainerflow import CredentialFinder
+import ndh_plainerflow  # type: ignore
+from ndh_plainerflow import CredentialFinder
 import pandas as pd
 import sqlalchemy
 import os

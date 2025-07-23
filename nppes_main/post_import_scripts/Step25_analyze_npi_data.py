@@ -9,8 +9,8 @@ and Step20 (index creation).
 The results of the analysis are saved to tables in the 'analysis' schema.
 """
 
-import plainerflow # type: ignore
-from plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle # type: ignore
+import ndh_plainerflow # type: ignore
+from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle # type: ignore
 import os
 
 def main():
@@ -503,6 +503,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Core NPI Data Analysis failed with error: {e}")
         print("\nMake sure you have installed the required dependencies:")
-        print("pip install plainerflow pandas great-expectations")
+        print("pip install ndh_plainerflow pandas great-expectations")
         print("\nAlso ensure Step15 and Step20 have been run successfully first.")
         raise

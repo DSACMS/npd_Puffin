@@ -18,8 +18,8 @@ Key Features:
 Processing phases broken into small, clear steps following DRY principles.
 """
 
-import plainerflow  # type: ignore
-from plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle  # type: ignore
+import ndh_plainerflow  # type: ignore
+from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle  # type: ignore
 import os
 
 def main():
