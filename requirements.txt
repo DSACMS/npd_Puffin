@@ -1,7 +1,7 @@
 # Local editable installs - these will install the libraries in development mode
 # so changes to the source code will be immediately available
--e ../csviper
--e ../plainerflow
+-e ../ndh_csviper
+-e ../ndh_plainerflow
 
 # Additional dependencies that may be needed
 python-dotenv>=1.0.0

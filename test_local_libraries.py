@@ -6,27 +6,27 @@ Test script to verify local csviper and plainerflow libraries are working
 def test_csviper():
     """Test csviper import and basic functionality"""
     try:
-        import csviper
-        print("✓ csviper imported successfully")
+        import ndh_csviper as csviper
+        print("✓ ndh_csviper imported successfully")
         
         # Test specific module import
-        from csviper.import_executor import ImportExecutor
-        print("✓ csviper.import_executor.ImportExecutor imported successfully")
+        from ndh_csviper.import_executor import ImportExecutor
+        print("✓ ndh_csviper.import_executor.ImportExecutor imported successfully")
         
         return True
     except ImportError as e:
-        print(f"✗ csviper import failed: {e}")
+        print(f"✗ ndh_csviper import failed: {e}")
         return False
 
 def test_plainerflow():
     """Test plainerflow import and basic functionality"""
     try:
-        import plainerflow
-        print("✓ plainerflow imported successfully")
+        import ndh_plainerflow as plainerflow
+        print("✓ ndh_plainerflow imported successfully")
         
         return True
     except ImportError as e:
-        print(f"✗ plainerflow import failed: {e}")
+        print(f"✗ ndh_plainerflow import failed: {e}")
         return False
 
 def main():
