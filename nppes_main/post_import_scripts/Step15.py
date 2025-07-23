@@ -790,3 +790,4 @@ if __name__ == "__main__":
         print("\nAlso ensure the intake change tracking tables exist:")
         print("Run: sql/create_table_sql/create_intake_npi_changes.sql")
         raise
+
