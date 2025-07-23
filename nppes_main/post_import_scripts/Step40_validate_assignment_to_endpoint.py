@@ -294,7 +294,7 @@ class InLawAssigningNpiToClinicalOrg(InLaw):
 
 
 class InLawAssigningNpiToEndoint(InLaw):
-    title = "full test returns 1 row"
+    title = "End-to-end query test returns 1 row!! everything has to work for you to see this!!"
     @staticmethod
     def run(engine):
         sql = """
@@ -310,7 +310,7 @@ WHERE an.npi_id = '1023008976';
         result = gx_df.expect_table_row_count_to_equal(1)
         if result.success:
             return True
-        return "joining all the way from Dr Hussain to the endpoints fails"
+        return "joining all the way from Dr Hussain to the endpoints fails. If this fails alone it is often because the CHERT data was not imported"
 
 
 

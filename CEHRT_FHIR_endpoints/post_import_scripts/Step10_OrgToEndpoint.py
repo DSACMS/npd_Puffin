@@ -13,7 +13,7 @@ This script is idempotent and can be run multiple times safely.
 """
 
 import os
-from plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle # type: ignore
+from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle # type: ignore
 
 def main():
     is_just_print = False  # Set to True for dry-run
