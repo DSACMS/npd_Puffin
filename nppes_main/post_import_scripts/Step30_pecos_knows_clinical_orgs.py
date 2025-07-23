@@ -44,6 +44,7 @@ def main():
     orgname_DBTable = DBTable(schema='ndh', table='orgname')
     individual_DBTable = DBTable(schema='ndh', table='individual')
     npi_to_clinical_org_DBTable = DBTable(schema='ndh', table='assigning_npi')
+    organizational_npi_DBTable = DBTable(schema='ndh', table='organizational_npi')
     
     # Staging table
     staging_table_DBTable = DBTable(schema='intake', table='PAC_to_NPPES_org_names')
@@ -285,6 +286,8 @@ def main():
     END $$;
     """
 
+    # This one tracks the npis that assign through to a VTIN organization 
+
     sql['populate_assigning_npi'] = f"""
     INSERT INTO {npi_to_clinical_org_DBTable} (
         npi_id,
@@ -303,7 +306,23 @@ def main():
     ON CONFLICT (npi_id, clinical_organization_id) DO NOTHING;
     """
     
-    # Phase 9: Create indexes for performance
+    # Phase 9: Update organizational_npi table to link NPIs to the ClinicalOrganizations created from PECOS data.
+    # This fulfills the TODO to replace the NULL clinical_organization_id values set in Step16.
+    sql['update_organizational_npi_with_pecos_link'] = f"""
+    UPDATE {organizational_npi_DBTable} AS target
+    SET
+        clinical_organization_id = clinical_org.id
+    FROM
+        {pecos_enrollment_DBTable} AS pecos_enrollment,
+        {clinical_org_DBTable} AS clinical_org
+    WHERE
+        target.npi_id = pecos_enrollment.npi
+        AND clinical_org.organization_vtin = '{pecos_vtin_prefix}' || pecos_enrollment.pecos_asct_cntl_id
+        AND target.clinical_organization_id IS NULL;
+    """
+
+
+    # Phase 10: Create indexes for performance
     sql['create_staging_table_indexes'] = f"""
     CREATE INDEX IF NOT EXISTS idx_pac_to_nppes_org_names_pecos_id 
     ON {staging_table_DBTable}(pecos_asct_cntl_id);
