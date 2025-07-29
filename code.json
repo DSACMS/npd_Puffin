@@ -1,0 +1,37 @@
+{
+  "name": "Puffin",
+  "description": "A Python Library that uses CSViper to import Public Use Files (PUFs) into PostGreSQL. There eventually will be a readme in each project directory detailing the source of data, and how it works etc etc. In many cases there are other programs that need to be run in order to obtain the data csv files needed by this project.",
+  "permissions": {
+    "licenses": [
+      {
+        "name": "CC0-1.0",
+        "URL": "https://raw.githubusercontent.com/DSACMS/npd_Puffin/refs/heads/main/LICENSE"
+      }
+    ],
+    "usageType": "openSource",
+    "exemptionText": ""
+  },
+  "repositoryURL": "https://github.com/DSACMS/npd_Puffin",
+  "repositoryVisibility": "public",
+  "laborHours": 9679.8106,
+  "reuseFrequency": {
+    "forks": 0,
+    "clones": 13
+  },
+  "maintenance": "none",
+  "contractNumber": "none",
+  "tags": [
+    "python",
+    "PUF",
+    "Postgresql",
+    "CSV"
+  ],
+  "contact": {
+    "email": "opensource@cms.hhs.gov",
+    "name": ""
+  },
+  "feedbackMechanisms": [
+    "https://github.com/DSACMS/npd_Puffin/issues"
+  ],
+  "AIUseCaseInventory": false
+}
