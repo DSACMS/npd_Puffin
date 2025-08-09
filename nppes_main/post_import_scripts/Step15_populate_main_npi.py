@@ -18,8 +18,8 @@ Key Features:
 Processing phases broken into small, clear steps following DRY principles.
 """
 
-import ndh_plainerflow  # type: ignore
-from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle  # type: ignore
+import npd_plainerflow  # type: ignore
+from npd_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle  # type: ignore
 import os
 
 def main():
@@ -649,7 +649,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Incremental Core NPI Pipeline failed with error: {e}")
         print("\nMake sure you have installed the required dependencies:")
-        print("pip install plainerflow pandas great-expectations")
+        print("pip install npd_plainerflow pandas great-expectations")
         print("\nAlso ensure the intake change tracking tables exist:")
         print("Run: sql/create_table_sql/create_intake_npi_changes.sql")
         raise

@@ -5,7 +5,7 @@ Check if Woodridge NPI (1043699168) is present in ndh.organizational_npi at all.
 
 import os
 import pandas as pd
-from plainerflow import CredentialFinder
+from npd_plainerflow import CredentialFinder
 
 def main():
     print("Connecting to DB")

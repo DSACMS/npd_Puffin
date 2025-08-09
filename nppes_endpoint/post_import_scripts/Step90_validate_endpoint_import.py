@@ -5,7 +5,7 @@ It validates record counts and ratios to ensure data quality and consistency.
 """
 
 import os
-from plainerflow import CredentialFinder, DBTable, InLaw  # type: ignore
+from npd_plainerflow import CredentialFinder, DBTable, InLaw  # type: ignore
 
 def main():
     """

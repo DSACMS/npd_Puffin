@@ -149,7 +149,7 @@ python Step25_analyze_npi_data.py
 
 ## Dependencies
 
-- plainerflow
+- npd_plainerflow
 - PostgreSQL database connection
 - Sufficient database permissions for analysis queries
 

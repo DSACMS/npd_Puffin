@@ -1,7 +1,7 @@
 Org To Endpoint
 ===================
 
-Please implement this in CHERT_FHIR_endpoints/post_import_scripts/Step10_OrgToEndpoint.py using the plainerflow tools as described in AI_Instruction/PlainerflowTools.md
+Please implement this in CHERT_FHIR_endpoints/post_import_scripts/Step10_OrgToEndpoint.py using the npd_plainerflow tools as described in AI_Instruction/PlainerflowTools.md
 This is a PostgreSQL only implementation. 
 
 Ignore validation for this ETL for now. We will do a seperate validation project later.
@@ -55,6 +55,4 @@ Having a select, with that join allows us to do a CTAS to populate clinicalorg_t
 clinicalorg_to_interopendpoint has a unique index and so when this data has already been intered, the CTAS statement should do nothing on those conflicts.
 Rely on the rely on ON CONFLICT DO NOTHING to ensure that only new connections are added. 
 
-The script should be run again and again so it should be idempotent. 
-
-
+The script should be run again and again so it should be idempotent.

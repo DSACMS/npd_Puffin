@@ -11,7 +11,7 @@ PlainerFlow is a Python framework for creating simple, SQL-based ETL (Extract, T
 Automatically detects database configuration from various sources:
 
 ```python
-from ndh_plainerflow import CredentialFinder
+from npd_plainerflow import CredentialFinder
 
 # Auto-detect from environment variables, .env files, or fallback to SQLite
 engine = CredentialFinder.detect_config(verbose=True)
@@ -26,7 +26,7 @@ engine = CredentialFinder.detect_config(verbose=True, env_path=env_path)
 Create reusable table references that work across different schemas:
 
 ```python
-from ndh_plainerflow import DBTable
+from npd_plainerflow import DBTable
 
 # Define table with schema, always name the variables with something_DBTable at the end. 
 npi_DBTable = DBTable(schema='nppes_raw', table='main_file')
@@ -45,7 +45,7 @@ sql = f"SELECT * FROM {npi_table} WHERE status = 'active'"
 Organize SQL statements in an ordered, partially-immutable dictionary:
 
 ```python
-from ndh_plainerflow import FrostDict
+from npd_plainerflow import FrostDict
 
 sql = FrostDict()
 
@@ -62,7 +62,7 @@ sql['update_data'] = f"UPDATE {table_name} SET ..."
 Execute SQL statements in sequence with built-in error handling:
 
 ```python
-from ndh_plainerflow import SQLoopcicle
+from npd_plainerflow import SQLoopcicle
 
 is_just_print = True # Always start with true for dry-run to allow the user to read generated SQL before it runs.. 
 
@@ -81,7 +81,7 @@ Initial creation of ETLs should not include InLaw statements. But once the user 
 Create validation tests to ensure data quality using Great Expectations:
 
 ```python
-from ndh_plainerflow import InLaw
+from npd_plainerflow import InLaw
 
 class ValidateRowCount(InLaw):
     title = "Table should have expected number of rows"
@@ -144,7 +144,7 @@ test_results = InLaw.run_all(engine=engine)
 **Tips for equality testing:**
 - Use `expect_column_values_to_be_between(column, min_value=0, max_value=0)` to test for exactly 0
 - Use `expect_table_row_count_to_equal(value)` for exact row counts
-- See ../plainerflow/docs/InLaw_README.md for complete list of available expectations
+- See ../npd_plainerflow/docs/InLaw_README.md for complete list of available expectations
 
 InLaw `run_all()` prints the results of the tests, so there is nothing to do with test_results unless you want to inspect some specific result for some reason.
 Usually the run_all function is the last thing to do with the InLaw part of the process.
@@ -173,8 +173,8 @@ Based on the real-world example in `Step05_fix_column_types.py`:
 ETL Pipeline Step: [Description of what this step does]
 """
 
-import ndh_plainerflow
-from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle
+import npd_plainerflow
+from npd_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle
 import os
 
 def main():
@@ -221,7 +221,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Pipeline failed with error: {e}")
         print("\nMake sure you have installed the required dependencies:")
-        print("pip install ndh_plainerflow pandas great-expectations")
+        print("pip install npd_plainerflow pandas great-expectations")
         raise
 ```
 

@@ -3,8 +3,8 @@
 Restore the main nppes table from backup.. useful for testing the ETL
 """
 
-import ndh_plainerflow
-from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle, InLaw
+import npd_plainerflow
+from npd_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle, InLaw
 import pandas as pd
 import sqlalchemy
 from pathlib import Path
@@ -53,5 +53,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Pipeline failed with error: {e}")
         print("\nMake sure you have installed the required dependencies:")
-        print("pip install ndh_plainerflow pandas great-expectations")
+        print("pip install npd_plainerflow pandas great-expectations")
         raise

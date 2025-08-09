@@ -78,7 +78,7 @@ The project is built on a foundation of open-source technologies:
 
 * **Python:** The primary language used for the ETL scripts.
 * **PostgreSQL:** The relational database used to store the data.
-* **`plainerflow`:** A custom Python library that provides a framework for building simple, SQL-based ETL pipelines. It includes components for database connection management (`CredentialFinder`), SQL execution (`SQLoopcicle`), and data validation (`InLaw`).
+* **`npd_plainerflow`:** A custom Python library that provides a framework for building simple, SQL-based ETL pipelines. It includes components for database connection management (`CredentialFinder`), SQL execution (`SQLoopcicle`), and data validation (`InLaw`).
 * **`pandas`:** Used for data manipulation in some of the ETL scripts.
 * **`sqlalchemy`:** Used for interacting with the PostgreSQL database.
 * **`great_expectations`:** The underlying library used by the `InLaw` framework for data validation.

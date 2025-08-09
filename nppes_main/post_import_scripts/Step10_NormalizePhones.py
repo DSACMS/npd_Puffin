@@ -5,8 +5,8 @@ Extracts phone numbers from NPPES data sources, normalizes them using phonenumbe
 and populates staging and NDH tables for clean phone data management.
 """
 
-import ndh_plainerflow # type: ignore
-from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle  # type: ignore
+import npd_plainerflow # type: ignore
+from npd_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle  # type: ignore
 import pandas as pd
 import os
 import sys
@@ -411,5 +411,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Pipeline failed with error: {e}")
         print("\nMake sure you have installed the required dependencies:")
-        print("pip install ndh_plainerflow pandas phonenumbers")
+        print("pip install npd_plainerflow pandas phonenumbers")
         raise

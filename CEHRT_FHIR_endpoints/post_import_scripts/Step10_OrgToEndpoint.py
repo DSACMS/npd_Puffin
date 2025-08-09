@@ -13,7 +13,7 @@ This script is idempotent and can be run multiple times safely.
 """
 
 import os
-from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle # type: ignore
+from npd_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle # type: ignore
 
 def main():
     is_just_print = False  # Set to True for dry-run
@@ -69,5 +69,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Pipeline failed with error: {e}")
         print("\nMake sure you have installed the required dependencies:")
-        print("pip install plainerflow pandas great-expectations")
+        print("pip install npd_plainerflow pandas great-expectations")
         raise

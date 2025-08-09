@@ -11,8 +11,8 @@ The validations this performs:
 * Verify that entity_type_code in ndh.npi matches the original source data
 """
 
-import ndh_plainerflow  # type: ignore
-from ndh_plainerflow import CredentialFinder, DBTable, InLaw  # type: ignore
+import npd_plainerflow  # type: ignore
+from npd_plainerflow import CredentialFinder, DBTable, InLaw  # type: ignore
 import os
 
 class VerifyIndividualNPIsOnly(InLaw):
@@ -259,6 +259,6 @@ if __name__ == "__main__":
         print(f"\n❌ Step16 verification failed with error: {e}")
         print("\nMake sure you have:")
         print("1. Run Step15 successfully first")
-        print("2. Installed required dependencies: pip install ndh_plainerflow pandas great-expectations")
+        print("2. Installed required dependencies: pip install npd_plainerflow pandas great-expectations")
         print("3. Proper database connection configured in .env")
         raise

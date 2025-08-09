@@ -1,13 +1,13 @@
 # Local Libraries Setup Guide
 
-This document explains how the PuffinPyPipe project is configured to use local development versions of the csviper and plainerflow libraries.
+This document explains how the PuffinPyPipe project is configured to use local development versions of the csviper and npd_plainerflow libraries.
 
 ## Overview
 
 The PuffinPyPipe project now uses local, editable installations of:
 
 - **csviper** - Located at `../csviper`
-- **plainerflow** - Located at `../plainerflow`
+- **npd_plainerflow** - Located at `../npd_plainerflow`
 
 This means any changes you make to the source code of these libraries will be immediately available in the PuffinPyPipe project without needing to reinstall.
 
@@ -42,7 +42,7 @@ You should see:
 ```text
 ✓ csviper imported successfully
 ✓ csviper.import_executor.ImportExecutor imported successfully
-✓ plainerflow imported successfully
+✓ npd_plainerflow imported successfully
 ✓ All tests passed! Local libraries are working correctly.
 ```
 
@@ -51,13 +51,13 @@ You should see:
 The following packages are installed in editable mode:
 
 - `csviper` (from `../csviper`)
-- `plainerflow` (from `../plainerflow`)
+- `npd_plainerflow` (from `../npd_plainerflow`)
 
 Plus their dependencies:
 
 - click, python-dotenv, chardet (for csviper)
-- sqlalchemy (for plainerflow)
-- pandas, great-expectations (for plainerflow's InLaw functionality)
+- sqlalchemy (for npd_plainerflow)
+- pandas, great-expectations (for npd_plainerflow's InLaw functionality)
 
 ## Usage
 
@@ -71,7 +71,7 @@ This import will use your local development version of csviper.
 
 ## Development Workflow
 
-1. Make changes to the csviper or plainerflow source code in their respective directories
+1. Make changes to the csviper or npd_plainerflow source code in their respective directories
 2. Changes are immediately available in PuffinPyPipe - no reinstallation needed
 3. Test your changes using the existing scripts or the test script
 4. Commit changes to the respective library repositories when ready
@@ -81,7 +81,7 @@ This import will use your local development version of csviper.
 If you encounter import errors:
 
 1. Make sure the virtual environment is activated
-2. Verify the local library directories exist at `../csviper` and `../plainerflow`
+2. Verify the local library directories exist at `../csviper` and `../npd_plainerflow`
 3. Run `pip list` to confirm the editable installations are present
 4. Run the test script to diagnose specific issues
 
@@ -90,7 +90,7 @@ If you encounter import errors:
 ```text
 /Users/ftrotter/gitgov/ftrotter/
 ├── csviper/                    # Local csviper library
-├── plainerflow/               # Local plainerflow library
+├── npd_plainerflow/               # Local npd_plainerflow library
 └── PuffinPyPipe/             # This project
     ├── requirements.txt       # Includes editable installs
     ├── test_local_libraries.py # Test script

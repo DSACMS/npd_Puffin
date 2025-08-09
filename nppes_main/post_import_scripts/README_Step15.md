@@ -139,7 +139,7 @@ The script includes a toggle to use `main_file_small` for testing with smaller d
 
 ## Dependencies
 
-- plainerflow
+- npd_plainerflow
 - pandas
 - great-expectations
 - PostgreSQL database connection

@@ -6,7 +6,7 @@ I would like to populate the three basic NPI tables in the ndh database found he
 The NPI record here: nppes_main/npidata_pfile_20050523-20250608.create_table_postgres.sql
 is the datasource and it will be found under nppes_raw.main_file in the database.
 
-See AI_Instruction/PlainerflowTools.md for the basics of building out a simple ETL pipeline by putting plainerflow scripts in the post_import_scripts directory of nppes_main.
+See AI_Instruction/PlainerflowTools.md for the basics of building out a simple ETL pipeline by putting npd_plainerflow scripts in the post_import_scripts directory of nppes_main.
 
 An NPI comes in two flavors, dependant on the contents of the Entity_Type_Code variable. A 1 for an entity type code means that the provider is an individual. A doctor, nurse or some other kind of individual practicioner.
 Every individual gets one and only one NPI.

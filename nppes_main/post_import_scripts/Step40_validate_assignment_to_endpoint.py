@@ -41,8 +41,8 @@ import csv
 import os
 
 # --- PlainerFlow imports for InLaw tests ---
-import ndh_plainerflow
-from ndh_plainerflow import CredentialFinder, InLaw
+import npd_plainerflow
+from npd_plainerflow import CredentialFinder, InLaw
 
 NPIS = {
     "1043699168": "Woodridge Primary Clinic",

@@ -34,7 +34,7 @@ If ndh.PhoneTypeLUT is not populated already, the script should add this data.
 
 All phones from the nppes_pl datasource will be Practice Location Telephones
 
-I would like to use a post_import_script, using the plainerflow tools as described in AI_Instruction/PlainerflowTools.md
+I would like to use a post_import_script, using the npd_plainerflow tools as described in AI_Instruction/PlainerflowTools.md
 
 Do not create InLaw validation steps at this time.
 

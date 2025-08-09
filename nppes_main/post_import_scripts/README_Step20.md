@@ -106,7 +106,7 @@ python Step20_create_npi_indexes.py
 
 ## Dependencies
 
-- plainerflow
+- npd_plainerflow
 - PostgreSQL database connection
 
 ## Monitoring

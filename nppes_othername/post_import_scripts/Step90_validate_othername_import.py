@@ -9,7 +9,7 @@ to ensure it remains consistent over time.
 """
 
 import os
-from plainerflow import CredentialFinder, DBTable, InLaw  # type: ignore
+from npd_plainerflow import CredentialFinder, DBTable, InLaw  # type: ignore
 from sqlalchemy import text
 
 def main():

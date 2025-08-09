@@ -53,7 +53,7 @@ __Plan Details:__
 
 1. __Setup & Configuration:__
 
-   - Import necessary libraries: `plainerflow`, `os`.
+   - Import necessary libraries: `npd_plainerflow`, `os`.
 
    - Set up the database connection using `CredentialFinder`, pointing to the `.env` file in the parent-parent directory.
 

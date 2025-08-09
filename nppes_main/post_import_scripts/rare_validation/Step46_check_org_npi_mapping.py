@@ -5,7 +5,7 @@ Check if Woodridge NPI (1043699168) is mapped to clinical_organization_id 929617
 
 import os
 import pandas as pd
-from plainerflow import CredentialFinder
+from npd_plainerflow import CredentialFinder
 
 def main():
     print("Connecting to DB")

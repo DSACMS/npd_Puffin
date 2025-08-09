@@ -11,7 +11,7 @@ avoid re-processing addresses that have already been imported in previous runs.
 """
 
 import os
-from plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle
+from npd_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle
 
 def main():
     """

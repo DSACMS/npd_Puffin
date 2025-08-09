@@ -14,8 +14,8 @@ The process:
 6. Create NPI to ClinicalOrganization links
 """
 
-import ndh_plainerflow  # type: ignore
-from ndh_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle  # type: ignore
+import npd_plainerflow  # type: ignore
+from npd_plainerflow import CredentialFinder, DBTable, FrostDict, SQLoopcicle  # type: ignore
 import pandas as pd
 import sqlalchemy
 from pathlib import Path
@@ -346,5 +346,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Pipeline failed with error: {e}")
         print("\nMake sure you have installed the required dependencies:")
-        print("pip install ndh_plainerflow pandas great-expectations")
+        print("pip install npd_plainerflow pandas great-expectations")
         raise
