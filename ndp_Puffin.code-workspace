@@ -4,10 +4,10 @@
 			"path": "."
 		},
 		{
-			"path": "../ndh_csviper"
+			"path": "../ndp_csviper"
 		},
 		{
-			"path": "../ndh_plainerflow"
+			"path": "../ndp_plainerflow"
 		}
 	],
 	"settings": {
