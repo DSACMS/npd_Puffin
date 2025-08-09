@@ -25,13 +25,14 @@ Look in [ImportReadMe.md](./ImportReadMe.md) for specific PUF details.
 
 ## Running the project
 
-* Make a copy of data_file_locations.env.example and put the needed datafiles in the right place.
+* Make a copy of data_file_locations.env.example and put the needed datafiles in the right place. If you can, put everything under ./local_data/
+* In early versions of the project you might find cases where the sourcecode already references environment variables that are not yet listed in data_file_locations.env.example in this case, please infer these for now. Alternatively, we will want bug reports for this failure.
+* you can use data_file_locations.check.py to make sure that your data_file_locations.env has all of the data that it needs.
 * Custom ETL for each project currently lives under /{subproject}/post_import_scripts/
-* These scripts will soon be put into one place, but for now they have to be run in a "just so" in order to get them to work. 
-* These scripts should be fully idempotent, but likely are not completely there yet. 
+* These scripts will soon be put into one place, but for now they have to be run in a "just so" in order to get them to work.
+* These scripts should be fully idempotent, but likely are not completely there yet.
 * Eventually these will be fully ordered out, but for now they must be run in the following order
 
 ## Import Script ordering
 
-Soon, this section will not be neescary since the specific import steps will be implcitly documented in make-file-ish code. 
-
+Soon, this section will not be neescary since the specific import steps will be implcitly documented in make-file-ish code.
