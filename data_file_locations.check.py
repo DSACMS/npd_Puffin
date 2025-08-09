@@ -16,6 +16,7 @@ def main():
     print(f"Checking file paths in {env_file_path}...")
 
     config = dotenv_values(env_file_path)
+    all_files_found = True
 
     for key, value in config.items():
         if value and ('_CSV' in key or value.endswith('.csv')):
@@ -24,6 +25,10 @@ def main():
             
             if not os.path.exists(expanded_value):
                 print(f"  [MISSING] Not Found: {key}={expanded_value}")
+                all_files_found = False
+
+    if all_files_found:
+        print("all good")
 
 if __name__ == "__main__":
     main()
